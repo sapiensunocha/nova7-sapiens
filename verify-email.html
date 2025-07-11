@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md">
+        <div class="nova7-logo-container">
+            <img src="/static/nova-logo.png" alt="nova7 Logo" class="nova7-logo"
+                 onerror="this.style.display='none'; document.getElementById('fallbackAppName').style.display='block';">
+            <h1 id="fallbackAppName" class="text-3xl font-bold text-gray-800" style="display:none;">nova7</h1>
+        </div>
+        <div class="message-card">
+            <div id="iconContainer">
+                <i class="fas fa-spinner fa-spin message-icon info"></i>
+            </div>
+            <h1 class="status-title" id="statusTitle">Verifying Email...</h1>
+            <p class="message-text" id="statusMessage">Please wait while we verify your email address. This shouldn't take long.</p>
+            <div id="resendForm" class="hidden mt-4">
+                <input type="email" id="resendEmail" class="form-input w-full" placeholder="Enter your email to resend verification">
+                <p id="resendEmailError" class="form-error hidden mt-1">Please provide a valid email address.</p>
+                <button id="resendButton" class="form-button mt-2">Resend Verification Email</button>
+            </div>
+            <div class="links-container">
+                <a href="/login.html" id="loginLink" class="link-styled hidden">Proceed to Login</a>
+                <a href="/register.html" id="registerLink" class="link-styled secondary hidden">Back to Registration</a>
+                <a href="#" id="resendLink" class="text-sm text-blue-600 hover:underline hidden mt-2">Resend Verification Email?</a>
+            </div>
+        </div>
+        <p class="text-xs text-gray-500 text-center mt-8">
+            © <span id="currentYear"></span> nova7. All rights reserved.
+        </p>
+    </div>
+    <script>
+        const API_BASE_URL = 'https://nova7-sapiens-1.onrender.com';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const currentYearSpan = document.getElementById("currentYear");
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            const iconContainer = document.getElementById('iconContainer');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            const loginLink = document.getElementById('loginLink');
+            const registerLink = document.getElementById('registerLink');
+            const resendLink = document.getElementById('resendLink');
+            const resendForm = document.getElementById('resendForm');
+            const resendButton = document.getElementById('resendButton');
+            const resendEmailInput = document.getElementById('resendEmail');
+            const resendEmailError = document.getElementById('resendEmailError');
+
+            // Check if user is already logged in
+            const authToken = localStorage.getItem('nova7Token');
+            if (authToken && authToken !== "undefined" && authToken !== "null") {
+                console.log("Verify Email: User already authenticated. Redirecting to dashboard.");
+                statusMessage.textContent = "You are already logged in. Redirecting to dashboard...";
+                statusMessage.className = "message-text message-success";
+                iconContainer.innerHTML = '<i class="fas fa-check-circle message-icon success"></i>';
+                setTimeout(() => window.location.href = "/index.html", 1500);
+                return;
+            }
+
+            // Fetch CSRF token
+            let csrfToken = localStorage.getItem('nova7CsrfToken');
+            if (!csrfToken) {
+                try {
+                    const csrfResponse = await fetch(`${API_BASE_URL}/api/csrf-token`, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" }
+                    });
+                    const csrfText = await csrfResponse.text();
+                    let csrfData;
+                    try {
+                        csrfData = JSON.parse(csrfText);
+                    } catch (e) {
+                        console.error("Verify Email: Failed to parse CSRF response:", csrfText);
+                        statusMessage.textContent = "Error: Received invalid data from server.";
+                        statusMessage.className = "message-text message-error";
+                        iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                        return;
+                    }
+                    console.log("Verify Email: CSRF token response:", csrfData);
+                    if (csrfResponse.ok && csrfData.status === "success" && csrfData.csrf_token) {
+                        csrfToken = csrfData.csrf_token;
+                        localStorage.setItem('nova7CsrfToken', csrfToken);
+                    } else {
+                        console.error("Verify Email: Failed to fetch CSRF token:", csrfData.message);
+                        statusMessage.textContent = csrfData.message || "Error: Could not initialize session.";
+                        statusMessage.className = "message-text message-error";
+                        iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Verify Email: Network error fetching CSRF token:", error);
+                    statusMessage.textContent = "Failed to connect to server. Please try again.";
+                    statusMessage.className = "message-text message-error";
+                    iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                    return;
+                }
+            }
+
+            // Verify email token
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                statusTitle.textContent = 'Verification Link Invalid';
+                statusMessage.textContent = 'No verification token was found. Please use the link provided in your email or try registering again.';
+                statusMessage.className = "message-text message-error";
+                registerLink.classList.remove('hidden');
+                resendLink.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/email/verify/${token}`, {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrfToken
+                    }
+                });
+
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Verify Email: Failed to parse verification response:", responseText);
+                    iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                    statusTitle.textContent = 'Verification Error';
+                    statusMessage.textContent = 'Error: Received invalid data from server.';
+                    statusMessage.className = "message-text message-error";
+                    resendLink.classList.remove('hidden');
+                    loginLink.classList.remove('hidden');
+                    return;
+                }
+                console.log("Verify Email: Verification response:", responseData);
+
+                if (response.ok && responseData.status === 'success') {
+                    iconContainer.innerHTML = '<i class="fas fa-check-circle message-icon success"></i>';
+                    statusTitle.textContent = 'Email Verified!';
+                    statusMessage.textContent = responseData.message || 'Your email has been successfully verified. You can now log in.';
+                    statusMessage.className = "message-text message-success";
+                    loginLink.classList.remove('hidden');
+                } else {
+                    iconContainer.innerHTML = '<i class="fas fa-exclamation-triangle message-icon error"></i>';
+                    statusTitle.textContent = 'Verification Failed';
+                    statusMessage.textContent = responseData.message || 'Could not verify your email. The link may be invalid, expired, or already used.';
+                    statusMessage.className = "message-text message-error";
+                    resendLink.classList.remove('hidden');
+                    loginLink.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Verify Email: Network error during verification:', error);
+                iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                statusTitle.textContent = 'Verification Error';
+                statusMessage.textContent = 'Failed to connect to server. Please try again later or contact support.';
+                statusMessage.className = "message-text message-error";
+                resendLink.classList.remove('hidden');
+                loginLink.classList.remove('hidden');
+            }
+
+            // Resend verification email functionality
+            resendLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                resendLink.classList.add('hidden');
+                resendForm.classList.remove('hidden');
+            });
+
+            resendButton.addEventListener('click', async function(event) {
+                event.preventDefault();
+                resendEmailError.classList.add('hidden');
+                resendButton.disabled = true;
+                resendButton.textContent = 'Sending...';
+
+                const email = resendEmailInput.value.trim();
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    resendEmailError.classList.remove('hidden');
+                    resendButton.disabled = false;
+                    resendButton.textContent = 'Resend Verification Email';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/email/request-verification`, {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": csrfToken
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const responseText = await response.text();
+                    let responseData;
+                    try {
+                        responseData = JSON.parse(responseText);
+                    } catch (e) {
+                        console.error("Verify Email: Failed to parse resend response:", responseText);
+                        statusMessage.textContent = 'Error: Received invalid data from server.';
+                        statusMessage.className = "message-text message-error";
+                        iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                        resendButton.disabled = false;
+                        resendButton.textContent = 'Resend Verification Email';
+                        return;
+                    }
+                    console.log("Verify Email: Resend response:", responseData);
+
+                    if (response.ok && responseData.status === 'success') {
+                        statusMessage.textContent = responseData.message || 'Verification email sent! Please check your inbox.';
+                        statusMessage.className = "message-text message-success";
+                        iconContainer.innerHTML = '<i class="fas fa-check-circle message-icon success"></i>';
+                        resendForm.classList.add('hidden');
+                        loginLink.classList.remove('hidden');
+                    } else {
+                        statusMessage.textContent = responseData.message || 'Failed to send verification email. Please try again.';
+                        statusMessage.className = "message-text message-error";
+                        iconContainer.innerHTML = '<i class="fas fa-exclamation-triangle message-icon error"></i>';
+                    }
+                } catch (error) {
+                    console.error('Verify Email: Network error during resend:', error);
+                    statusMessage.textContent = 'Failed to connect to server. Please try again.';
+                    statusMessage.className = "message-text message-error";
+                    iconContainer.innerHTML = '<i class="fas fa-times-circle message-icon error"></i>';
+                } finally {
+                    resendButton.disabled = false;
+                    resendButton.textContent = 'Resend Verification Email';
+                    // Refresh CSRF token
+                    try {
+                        const csrfResponse = await fetch(`${API_BASE_URL}/api/csrf-token`, {
+                            method: "GET",
+                            headers: { "Content-Type": "application/json" }
+                        });
+                        const csrfData = await csrfResponse.json();
+                        if (csrfResponse.ok && csrfData.status === "success") {
+                            csrfToken = csrfData.csrf_token;
+                            localStorage.setItem('nova7CsrfToken', csrfToken);
+                        }
+                    } catch (e) {
+                        console.error("Verify Email: Error refreshing CSRF token:", e);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

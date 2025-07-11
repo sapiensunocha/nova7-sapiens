@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Money Loan - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        /* Sidebar Styles */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header {
+            max-height: 36px;
+            width: auto;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Main Content & Form Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .form-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #1D2939;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .form-input.border-red-500, .form-textarea.border-red-500, .form-select.border-red-500 {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 0 1px #EF4444 !important;
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-secondary-action {
+            background-color: #F3F4F6;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-secondary-action:hover {
+            background-color: #E5E7EB;
+        }
+        .message-success { color: #10B981; }
+        .message-error { color: #EF4444; }
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 { transform: translateX(-100%); top: 0; height: 100vh; }
+            .sidebar-nova7.open { transform: translateX(0); }
+            .main-content-area { margin-left: 0; width: 100%; padding-top: calc(60px + 1rem); padding: 1rem; }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .form-card { padding: 1.5rem; }
+            .grid-cols-1.md:grid-cols-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="index.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header">
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="index.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);" onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar active">
+                <i class="fas fa-users"></i>Community & Lending
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Request a Loan</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 md:hidden">Request a Loan</h1>
+
+        <div class="form-card">
+            <p class="text-sm text-gray-600 mb-6">
+                Need financial assistance? Submit a loan request to the nova7 community.
+                Clearly state your needs and proposed terms to attract potential lenders.
+            </p>
+            <form id="requestLoanForm" class="space-y-6">
+                <div>
+                    <label for="loanAmount" class="form-label">Amount Requested (USD)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="loanAmount" name="amount_requested" class="form-input pl-7" placeholder="e.g., 500.00" required min="1" max="100000" step="0.01">
+                    </div>
+                    <p id="loanAmountError" class="text-xs text-red-500 mt-1 hidden">Amount must be between $1 and $100,000.</p>
+                </div>
+
+                <div>
+                    <label for="loanReason" class="form-label">Reason for Loan (Summary)</label>
+                    <textarea id="loanReason" name="reason_summary" class="form-textarea" placeholder="Briefly explain why you need the loan (255 characters max)." required maxlength="255" rows="3"></textarea>
+                    <p id="loanReasonError" class="text-xs text-red-500 mt-1 hidden">Summary must be 255 characters or less.</p>
+                </div>
+
+                <div>
+                    <label for="detailedProposal" class="form-label">Detailed Proposal (Optional)</label>
+                    <textarea id="detailedProposal" name="detailed_proposal" class="form-textarea" placeholder="Provide more details about your loan purpose (e.g., business plan, repayment strategy)." rows="4"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="preferredInterestRate" class="form-label">Preferred Interest Rate (%) (Optional)</label>
+                        <input type="number" id="preferredInterestRate" name="preferred_interest_rate" class="form-input" placeholder="e.g., 5.0" min="0" max="50" step="0.1">
+                        <p id="interestRateError" class="text-xs text-red-500 mt-1 hidden">Rate must be between 0% and 50%.</p>
+                    </div>
+                    <div>
+                        <label for="preferredRepaymentTerms" class="form-label">Preferred Repayment Terms (Optional)</label>
+                        <textarea id="preferredRepaymentTerms" name="preferred_repayment_terms" class="form-textarea" placeholder="e.g., Monthly payments over 12 months." rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="isPublicRequest" name="is_public_request" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" checked>
+                        <span class="ml-2 text-sm text-gray-700">Make this request public (visible to all lenders)</span>
+                    </label>
+                </div>
+
+                <div id="formMessage" class="text-sm text-center font-medium"></div>
+
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancelLoanRequestBtn" class="btn-secondary-action">Cancel</button>
+                    <button type="submit" id="submitLoanRequestBtn" class="btn-primary-action">Submit Loan Request</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Authentication Check and Sidebar Handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('nova7Token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            try {
+                const user = JSON.parse(localStorage.getItem('nova7User'));
+                const userName = user?.fullName || "User";
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+            } catch (e) {
+                console.error("Error parsing user data for welcome", e);
+            }
+        });
+
+        function handleLogout() {
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+            });
+        }
+        document.addEventListener('click', function(e) {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Form Handling
+        const requestLoanForm = document.getElementById('requestLoanForm');
+        const formMessage = document.getElementById('formMessage');
+        const submitLoanRequestBtn = document.getElementById('submitLoanRequestBtn');
+        const loanAmountInput = document.getElementById('loanAmount');
+        const loanAmountError = document.getElementById('loanAmountError');
+        const loanReasonInput = document.getElementById('loanReason');
+        const loanReasonError = document.getElementById('loanReasonError');
+        const preferredInterestRateInput = document.getElementById('preferredInterestRate');
+        const interestRateError = document.getElementById('interestRateError');
+
+        // Client-Side Validation
+        if (loanAmountInput) {
+            loanAmountInput.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                if (value <= 0 || value > 100000) {
+                    loanAmountError.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    loanAmountError.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        if (loanReasonInput) {
+            loanReasonInput.addEventListener('input', function() {
+                if (this.value.length > 255) {
+                    loanReasonError.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    loanReasonError.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        if (preferredInterestRateInput) {
+            preferredInterestRateInput.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                if (value < 0 || value > 50) {
+                    interestRateError.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    interestRateError.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        // Form Submission
+        if (requestLoanForm && submitLoanRequestBtn) {
+            requestLoanForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                formMessage.textContent = '';
+                formMessage.className = 'text-sm text-center font-medium';
+                submitLoanRequestBtn.disabled = true;
+                submitLoanRequestBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+
+                const token = localStorage.getItem('nova7Token');
+                if (!token) {
+                    formMessage.textContent = 'Authentication error. Please log in again.';
+                    formMessage.classList.add('message-error');
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const loanData = {
+                    amount_requested: parseFloat(document.getElementById('loanAmount').value),
+                    reason_summary: document.getElementById('loanReason').value.trim(),
+                    detailed_proposal: document.getElementById('detailedProposal').value.trim() || null,
+                    preferred_interest_rate: document.getElementById('preferredInterestRate').value ? parseFloat(document.getElementById('preferredInterestRate').value) : null,
+                    preferred_repayment_terms: document.getElementById('preferredRepaymentTerms').value.trim() || null,
+                    is_public_request: document.getElementById('isPublicRequest').checked
+                };
+
+                // Validation
+                if (!loanData.amount_requested || !loanData.reason_summary) {
+                    formMessage.textContent = 'Please fill in Amount Requested and Reason for Loan.';
+                    formMessage.classList.add('message-error');
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                    return;
+                }
+                if (loanData.amount_requested <= 0 || loanData.amount_requested > 100000) {
+                    formMessage.textContent = 'Loan amount must be between $1 and $100,000.';
+                    formMessage.classList.add('message-error');
+                    loanAmountInput.classList.add('border-red-500');
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                    return;
+                }
+                if (loanData.reason_summary.length > 255) {
+                    formMessage.textContent = 'Reason summary must be 255 characters or less.';
+                    formMessage.classList.add('message-error');
+                    loanReasonInput.classList.add('border-red-500');
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                    return;
+                }
+                if (loanData.preferred_interest_rate !== null && (loanData.preferred_interest_rate < 0 || loanData.preferred_interest_rate > 50)) {
+                    formMessage.textContent = 'Preferred interest rate must be between 0% and 50%.';
+                    formMessage.classList.add('message-error');
+                    preferredInterestRateInput.classList.add('border-red-500');
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/lending/money/requests', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(loanData)
+                    });
+
+                    const responseData = await response.json();
+
+                    if (response.ok && responseData.status === 'success') {
+                        formMessage.textContent = responseData.message || 'Loan request submitted successfully!';
+                        formMessage.classList.add('message-success');
+                        requestLoanForm.reset();
+                        document.getElementById('isPublicRequest').checked = true;
+                        setTimeout(() => {
+                            window.location.href = 'my-loan-requests.html'; // Placeholder for future page
+                        }, 2000);
+                    } else {
+                        formMessage.textContent = responseData.message || 'Failed to submit loan request. Please try again.';
+                        formMessage.classList.add('message-error');
+                    }
+                } catch (error) {
+                    console.error("Error submitting loan request:", error);
+                    formMessage.textContent = 'An error occurred. Please check your connection and try again.';
+                    formMessage.classList.add('message-error');
+                } finally {
+                    submitLoanRequestBtn.disabled = false;
+                    submitLoanRequestBtn.textContent = 'Submit Loan Request';
+                }
+            });
+        }
+
+        // Cancel Button
+        const cancelLoanRequestBtn = document.getElementById('cancelLoanRequestBtn');
+        if (cancelLoanRequestBtn) {
+            cancelLoanRequestBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'community.html';
+            });
+        }
+    </script>
+</body>
+</html>

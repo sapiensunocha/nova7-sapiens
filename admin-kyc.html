@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin KYC Validation - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="/index.html">
+            <img src="/static/nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="/index.html" class="flex items-center">
+                <img src="/static/nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);" onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="/index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="/marketplace.html" class="nav-link-sidebar">
+                <i class="fas fa-store"></i>Marketplace
+            </a>
+            <a href="/wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+            <a href="/admin-kyc.html" class="nav-link-sidebar active">
+                <i class="fas fa-user-check"></i>Admin KYC
+            </a>
+            <a href="/register.html" class="nav-link-sidebar">
+                <i class="fas fa-user-plus"></i>Register
+            </a>
+            <a href="/login.html" class="nav-link-sidebar">
+                <i class="fas fa-sign-in-alt"></i>Login
+            </a>
+            <a href="/verify-email.html" class="nav-link-sidebar">
+                <i class="fas fa-envelope"></i>Email Verification
+            </a>
+            <a href="/reset-password.html" class="nav-link-sidebar">
+                <i class="fas fa-key"></i>Reset Password
+            </a>
+            <a href="/view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="/reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="/community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="/chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="/resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="/settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="/profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">KYC Validation</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, Admin!</span>
+            </div>
+        </header>
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 md:hidden">KYC Validation</h1>
+        <div class="kyc-table">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Pending KYC Submissions</h2>
+            <div id="usersList" class="space-y-4"></div>
+            <div id="userDetails" class="hidden mt-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">User KYC Details</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">Full Name</dt>
+                        <dd id="detailFullName" class="text-gray-900"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">Email</dt>
+                        <dd id="detailEmail" class="text-gray-900"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">Business Name</dt>
+                        <dd id="detailBusinessName" class="text-gray-900"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">ID Number</dt>
+                        <dd id="detailIdNumber" class="text-gray-900"></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">ID Document</dt>
+                        <dd id="detailIdDocumentUrl" class="text-gray-900"><a href="#" target="_blank" class="text-blue-600 hover:underline">View Document</a></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-600">KYC Status</dt>
+                        <dd id="detailKycStatus" class="text-gray-900"></dd>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="approveKyc" class="form-button">Approve</button>
+                    <button id="rejectKyc" class="btn-danger">Reject</button>
+                    <button id="requestInfoKyc" class="btn-secondary">Request More Info</button>
+                </div>
+            </div>
+            <div id="messageDiv" class="text-sm text-center font-medium mt-4"></div>
+        </div>
+    </main>
+    <script>
+        const API_BASE_URL = 'https://nova7-sapiens-1.onrender.com';
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            const userString = localStorage.getItem('nova7User');
+            const messageDiv = document.getElementById('messageDiv');
+            const usersList = document.getElementById('usersList');
+            const userDetails = document.getElementById('userDetails');
+            console.log("Admin KYC: Token from localStorage:", token);
+            console.log("Admin KYC: User string from localStorage:", userString);
+
+            if (!token || token === "undefined" || token === "null") {
+                console.log("Admin KYC: Token missing/invalid. Redirecting to login.");
+                window.location.href = '/login.html';
+                return;
+            }
+
+            let userName = "Admin";
+            let isAdmin = false;
+            try {
+                const user = JSON.parse(userString);
+                userName = user ? user.fullName || "Admin" : "Admin";
+                isAdmin = user && user.role === 'admin';
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (desktopUserWelcomeElement) {
+                    desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+                }
+            } catch (e) {
+                console.error("Admin KYC: Error parsing user data:", e);
+                handleLogout();
+                return;
+            }
+
+            if (!isAdmin) {
+                console.log("Admin KYC: User is not an admin. Redirecting to login.");
+                messageDiv.textContent = "Access denied: Admin privileges required.";
+                messageDiv.classList.add('message-error');
+                setTimeout(() => handleLogout(), 2000);
+                return;
+            }
+
+            // Fetch CSRF token
+            let csrfToken = localStorage.getItem('nova7CsrfToken');
+            if (!csrfToken) {
+                try {
+                    const csrfResponse = await fetch(`${API_BASE_URL}/api/csrf-token`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const csrfData = await csrfResponse.json();
+                    if (csrfResponse.ok && csrfData.csrf_token) {
+                        csrfToken = csrfData.csrf_token;
+                        localStorage.setItem('nova7CsrfToken', csrfToken);
+                    } else {
+                        console.error("Admin KYC: Failed to fetch CSRF token:", csrfData.message);
+                        messageDiv.textContent = "Error: Could not initialize session.";
+                        messageDiv.classList.add('message-error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Admin KYC: Error fetching CSRF token:", error);
+                    messageDiv.textContent = "Failed to connect to server.";
+                    messageDiv.classList.add('message-error');
+                    return;
+                }
+            }
+
+            // Sidebar Toggle
+            const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+            const sidebar = document.getElementById('sidebar');
+            if (hamburgerBtnMobile && sidebar) {
+                hamburgerBtnMobile.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    sidebar.classList.toggle('open');
+                });
+            }
+            document.addEventListener('click', function(event) {
+                if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(event.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(event.target))) {
+                    sidebar.classList.remove('open');
+                }
+            });
+
+            // Logout Functionality
+            function handleLogout() {
+                console.log("Admin KYC: Logging out and redirecting to login.html");
+                localStorage.removeItem('nova7Token');
+                localStorage.removeItem('nova7User');
+                localStorage.removeItem('nova7CsrfToken');
+                window.location.href = '/login.html';
+            }
+            const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+            if (sidebarLogoutLink) {
+                sidebarLogoutLink.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    handleLogout();
+                });
+            }
+            const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+            if (mobileLogoutLink) {
+                mobileLogoutLink.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    handleLogout();
+                });
+            }
+
+            // Fetch Pending KYC Users
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/users/pending-validation`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Admin KYC: Failed to parse response as JSON:", responseText);
+                    messageDiv.textContent = "Error: Received invalid data from server.";
+                    messageDiv.classList.add('message-error');
+                    return;
+                }
+                console.log("Admin KYC: Pending users API response:", data);
+                if (response.ok && data.status === 'success') {
+                    usersList.innerHTML = data.users.map(user => `
+                        <div class="border-b pb-2">
+                            <p class="text-gray-900">${user.fullName || 'N/A'} (${user.email || 'N/A'})</p>
+                            <button class="text-blue-600 hover:underline" onclick="viewUserDetails(${user.id})">View Details</button>
+                        </div>
+                    `).join('') || '<p class="text-gray-500">No pending KYC submissions.</p>';
+                } else {
+                    console.error("Admin KYC: Error fetching pending users:", data.message);
+                    messageDiv.textContent = data.message || 'Failed to load pending users';
+                    messageDiv.classList.add('message-error');
+                    if (response.status === 401 || response.status === 403) handleLogout();
+                }
+            } catch (error) {
+                console.error('Admin KYC: Network error fetching pending users:', error);
+                messageDiv.textContent = 'Failed to connect to server. Please try again.';
+                messageDiv.classList.add('message-error');
+            }
+        });
+
+        async function viewUserDetails(userId) {
+            if (!Number.isInteger(userId) || userId <= 0) {
+                console.error("Admin KYC: Invalid userId:", userId);
+                document.getElementById('messageDiv').textContent = 'Invalid user selection.';
+                document.getElementById('messageDiv').classList.add('message-error');
+                return;
+            }
+            const token = localStorage.getItem('nova7Token');
+            const csrfToken = localStorage.getItem('nova7CsrfToken');
+            const messageDiv = document.getElementById('messageDiv');
+            const userDetails = document.getElementById('userDetails');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/details`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Admin KYC: Failed to parse user details response as JSON:", responseText);
+                    messageDiv.textContent = "Error: Received invalid data from server.";
+                    messageDiv.classList.add('message-error');
+                    return;
+                }
+                console.log("Admin KYC: User details API response:", data);
+                if (response.ok && data.status === 'success') {
+                    const user = data.user || {};
+                    document.getElementById('detailFullName').textContent = user.fullName || 'N/A';
+                    document.getElementById('detailEmail').textContent = user.email || 'N/A';
+                    document.getElementById('detailBusinessName').textContent = user.businessName || 'N/A';
+                    document.getElementById('detailIdNumber').textContent = user.idNumber || 'N/A';
+                    const idDocLink = document.getElementById('detailIdDocumentUrl').querySelector('a');
+                    idDocLink.href = user.idDocumentUrl || '#';
+                    idDocLink.textContent = user.idDocumentUrl ? 'View Document' : 'Not Provided';
+                    document.getElementById('detailKycStatus').textContent = user.kycStatus ? (user.kycStatus.charAt(0).toUpperCase() + user.kycStatus.slice(1)) : 'N/A';
+                    userDetails.classList.remove('hidden');
+                    document.getElementById('approveKyc').onclick = () => validateKyc(userId, 'approve');
+                    document.getElementById('rejectKyc').onclick = () => validateKyc(userId, 'reject');
+                    document.getElementById('requestInfoKyc').onclick = () => validateKyc(userId, 'request_info');
+                } else {
+                    console.error("Admin KYC: Error fetching user details:", data.message);
+                    messageDiv.textContent = data.message || 'Failed to load user details';
+                    messageDiv.classList.add('message-error');
+                    if (response.status === 401 || response.status === 403) handleLogout();
+                }
+            } catch (error) {
+                console.error('Admin KYC: Network error fetching user details:', error);
+                messageDiv.textContent = 'Failed to connect to server. Please try again.';
+                messageDiv.classList.add('message-error');
+            }
+        }
+
+        async function validateKyc(userId, action) {
+            if (!Number.isInteger(userId) || userId <= 0 || !['approve', 'reject', 'request_info'].includes(action)) {
+                console.error("Admin KYC: Invalid userId or action:", userId, action);
+                document.getElementById('messageDiv').textContent = 'Invalid request.';
+                document.getElementById('messageDiv').classList.add('message-error');
+                return;
+            }
+            const token = localStorage.getItem('nova7Token');
+            const csrfToken = localStorage.getItem('nova7CsrfToken');
+            const messageDiv = document.getElementById('messageDiv');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ action })
+                });
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Admin KYC: Failed to parse validate response as JSON:", responseText);
+                    messageDiv.textContent = "Error: Received invalid data from server.";
+                    messageDiv.classList.add('message-error');
+                    return;
+                }
+                console.log("Admin KYC: Validate KYC response:", data);
+                if (response.ok && data.status === 'success') {
+                    messageDiv.textContent = data.message || `${action.charAt(0).toUpperCase() + action.slice(1)} successful`;
+                    messageDiv.classList.add('message-success');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    console.error("Admin KYC: Error validating KYC:", data.message);
+                    messageDiv.textContent = data.message || `Failed to ${action} KYC`;
+                    messageDiv.classList.add('message-error');
+                    if (response.status === 401 || response.status === 403) handleLogout();
+                }
+            } catch (error) {
+                console.error(`Admin KYC: Network error validating KYC (${action}):`, error);
+                messageDiv.textContent = `Failed to connect to server. Please try again.`;
+                messageDiv.classList.add('message-error');
+            }
+        }
+    </script>
+</body>
+</html>

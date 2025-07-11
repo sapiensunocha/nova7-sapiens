@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* Sidebar Styles - Consistent with other pages */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .card-styled {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #1D2939;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .product-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        .product-image-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background-color: #E2E8F0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-info {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .product-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1D2026;
+            margin-bottom: 0.5rem;
+        }
+        .product-description {
+            font-size: 0.875rem;
+            color: #4A5568;
+            margin-bottom: 0.75rem;
+            flex-grow: 1;
+        }
+        .product-price {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #10B981; /* Green color for price */
+            margin-bottom: 1rem;
+        }
+        .buy-button {
+            background-color: #10B981; /* Green buy button */
+            color: white;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .buy-button:hover {
+            background-color: #059669;
+        }
+        .buy-button:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .pagination-controls button {
+            background-color: #0A66C2;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .pagination-controls button:hover:not(:disabled) {
+            background-color: #004182;
+        }
+        .pagination-controls button:disabled {
+            background-color: #CBD5E0;
+            cursor: not-allowed;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Green for success */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            min-width: 250px;
+        }
+        .message-box.error {
+            background-color: #F44336; /* Red for error */
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+        /* Mobile Header & Responsive Adjustments */
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0;
+                height: 100vh;
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem);
+                padding: 1rem;
+            }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .card-styled { padding: 1.5rem; }
+            .product-grid {
+                grid-template-columns: 1fr; /* Single column on mobile */
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="messageBox" class="message-box"></div>
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+            <a href="marketplace.html" class="nav-link-sidebar active">
+                <i class="fas fa-store"></i>Marketplace
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Marketplace</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+
+        <!-- Post New Product Section -->
+        <div class="card-styled mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Post a New Product</h2>
+            <form id="postProductForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label for="productImageUpload" class="form-label">Product Image</label>
+                    <input type="file" id="productImageUpload" accept="image/*" class="form-input" required>
+                    <p class="text-xs text-gray-500 mt-1">Upload an image for your product (JPG, PNG, GIF).</p>
+                </div>
+                <div>
+                    <label for="productName" class="form-label">Product Name</label>
+                    <input type="text" id="productName" class="form-input" placeholder="e.g., Vintage Camera" required>
+                </div>
+                <div>
+                    <label for="productPrice" class="form-label">Price (USD)</label>
+                    <input type="number" id="productPrice" class="form-input" placeholder="e.g., 150.00" step="0.01" min="0.01" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="productDescription" class="form-label">Description</label>
+                    <textarea id="productDescription" class="form-textarea" rows="3" placeholder="Describe your product..." required></textarea>
+                </div>
+                <div class="md:col-span-2 text-right">
+                    <button type="submit" id="postProductBtn" class="btn-primary-action">
+                        <i class="fas fa-plus-circle mr-2"></i>Post Product
+                    </button>
+                </div>
+            </form>
+            <div id="postProductMessage" class="text-sm text-center mt-4"></div>
+        </div>
+
+        <!-- Marketplace Listing Section -->
+        <div class="card-styled">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Available Products</h2>
+
+            <!-- Search and Filter Bar -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="flex-grow">
+                    <label for="marketSearch" class="sr-only">Search Products</label>
+                    <input type="text" id="marketSearch" class="form-input" placeholder="Search by name or description...">
+                </div>
+                <div>
+                    <label for="marketCategory" class="sr-only">Category</label>
+                    <select id="marketCategory" class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="home">Home & Garden</option>
+                        <option value="books">Books</option>
+                        <option value="services">Services</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="marketSort" class="sr-only">Sort By</label>
+                    <select id="marketSort" class="form-select">
+                        <option value="newest">Newest First</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                    </option>
+                </div>
+                <button id="applyMarketFiltersBtn" class="btn-primary-action flex-shrink-0">
+                    <i class="fas fa-filter mr-2"></i>Apply Filters
+                </button>
+            </div>
+
+            <div id="productListings" class="product-grid">
+                <!-- Product cards will be loaded here by JavaScript -->
+                <p class="md:col-span-full text-center text-gray-500 py-4">Loading products...</p>
+            </div>
+
+            <div id="noProductsMessage" class="text-center text-gray-500 py-4 hidden">No products found matching your criteria.</div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="pagination-controls">
+                <!-- Pagination buttons will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+<script>
+    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+    const PRODUCT_IMAGE_BUCKET = "nova7-marketplace-products"; // Replace with your actual GCS bucket name for marketplace images
+    const TRANSACTION_FEE_RATE = 0.001; // 0.1% fee
+
+    let currentPage = 1;
+    let currentFilters = {};
+    let pageCsrfToken = ''; // To store the CSRF token for the page
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        const token = localStorage.getItem('nova7Token');
+        const userString = localStorage.getItem('nova7User');
+
+        if (!token || !userString) {
+            console.log("Marketplace: Token or userString missing. Redirecting to login.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const currentUser = JSON.parse(userString);
+            const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+            if (desktopUserWelcomeElement) {
+                desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+            }
+        } catch (error) {
+            console.error("Marketplace: Error parsing user data from localStorage:", error);
+            handleLogout();
+            return;
+        }
+
+        // Fetch CSRF token on page load
+        pageCsrfToken = await fetchCsrfToken();
+        if (!pageCsrfToken) {
+            showMessage('Failed to load security token. Please refresh.', 'error');
+            return;
+        }
+
+        // Initial fetch of marketplace items
+        fetchMarketplaceItems(currentPage, currentFilters);
+
+        // Event Listeners
+        document.getElementById('postProductForm').addEventListener('submit', handlePostProduct);
+        document.getElementById('applyMarketFiltersBtn').addEventListener('click', function() {
+            currentFilters = {
+                search: document.getElementById('marketSearch').value.trim(),
+                category: document.getElementById('marketCategory').value,
+                sort: document.getElementById('marketSort').value
+            };
+            currentPage = 1; // Reset to first page on new filter
+            fetchMarketplaceItems(currentPage, currentFilters);
+        });
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        console.log("Marketplace page loaded and scripts attached.");
+    });
+
+    async function fetchCsrfToken() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { method: 'GET', credentials: 'include' });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                return data.csrf_token;
+            } else {
+                console.error("Failed to fetch CSRF token:", data.message || response.statusText);
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+            return null;
+        }
+    }
+
+    async function handlePostProduct(event) {
+        event.preventDefault();
+        const productImageInput = document.getElementById('productImageUpload');
+        const productName = document.getElementById('productName').value.trim();
+        const productPrice = parseFloat(document.getElementById('productPrice').value);
+        const productDescription = document.getElementById('productDescription').value.trim();
+        const postProductBtn = document.getElementById('postProductBtn');
+        const messageDiv = document.getElementById('postProductMessage');
+
+        if (!productImageInput.files.length) {
+            showMessage('Please upload a product image.', 'error');
+            return;
+        }
+        if (!productName || isNaN(productPrice) || productPrice <= 0 || !productDescription) {
+            showMessage('Please fill in all product details correctly.', 'error');
+            return;
+        }
+
+        postProductBtn.disabled = true;
+        postProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Posting...';
+        messageDiv.textContent = ''; // Clear previous messages
+
+        const formData = new FormData();
+        formData.append('product_image', productImageInput.files[0]);
+        formData.append('name', productName);
+        formData.append('price', productPrice);
+        formData.append('description', productDescription);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/marketplace/products`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('nova7Token')}`,
+                    'X-CSRF-Token': pageCsrfToken
+                    // Do NOT set Content-Type for FormData; browser sets it automatically
+                },
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                showMessage('Product posted successfully!', 'success');
+                document.getElementById('postProductForm').reset(); // Clear form
+                productImageInput.value = ''; // Clear file input
+                fetchMarketplaceItems(currentPage, currentFilters); // Refresh listings
+            } else {
+                showMessage(data.message || 'Failed to post product.', 'error');
+            }
+        } catch (error) {
+            console.error('Error posting product:', error);
+            showMessage('An error occurred while posting the product.', 'error');
+        } finally {
+            postProductBtn.disabled = false;
+            postProductBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i>Post Product';
+            pageCsrfToken = await fetchCsrfToken(); // Refresh CSRF token
+        }
+    }
+
+    async function fetchMarketplaceItems(page = 1, filters = {}) {
+        const productListingsDiv = document.getElementById('productListings');
+        const noProductsMessage = document.getElementById('noProductsMessage');
+        const paginationControls = document.getElementById('paginationControls');
+
+        productListingsDiv.innerHTML = '<p class="md:col-span-full text-center text-gray-500 py-4">Loading products...</p>';
+        noProductsMessage.classList.add('hidden');
+        paginationControls.innerHTML = ''; // Clear pagination
+
+        const token = localStorage.getItem('nova7Token');
+        const queryParams = new URLSearchParams({
+            page: page,
+            limit: 10, // Items per page
+            search: filters.search || '',
+            category: filters.category || '',
+            sort: filters.sort || 'newest'
+        }).toString();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/marketplace/products?${queryParams}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success' && data.products) {
+                productListingsDiv.innerHTML = ''; // Clear loading message
+                if (data.products.length === 0) {
+                    noProductsMessage.classList.remove('hidden');
+                } else {
+                    data.products.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+                        productCard.innerHTML = `
+                            <div class="product-image-container">
+                                <img src="${product.image_url || 'https://placehold.co/280x200/E2E8F0/4A5568?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/280x200/E2E8F0/4A5568?text=No+Image';">
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">${product.name}</h3>
+                                <p class="product-description">${product.description}</p>
+                                <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                <button class="buy-button" data-product-id="${product.id}" data-product-price="${product.price}" data-seller-id="${product.seller_id}" ${product.seller_id === JSON.parse(localStorage.getItem('nova7User')).id ? 'disabled' : ''}>
+                                    <i class="fas fa-shopping-cart mr-2"></i>${product.seller_id === JSON.parse(localStorage.getItem('nova7User')).id ? 'Your Product' : 'Buy Now'}
+                                </button>
+                            </div>
+                        `;
+                        productListingsDiv.appendChild(productCard);
+
+                        const buyButton = productCard.querySelector('.buy-button');
+                        if (buyButton && !buyButton.disabled) {
+                            buyButton.addEventListener('click', handleBuyProduct);
+                        }
+                    });
+                    renderPagination(data.total_pages, data.current_page);
+                }
+            } else {
+                console.error("Failed to fetch marketplace items:", data.message || response.statusText);
+                productListingsDiv.innerHTML = `<p class="md:col-span-full text-center text-red-500 py-4">Failed to load products: ${data.message || 'Unknown error'}</p>`;
+            }
+        } catch (error) {
+            console.error("Error fetching marketplace items:", error);
+            productListingsDiv.innerHTML = '<p class="md:col-span-full text-center text-red-500 py-4">Network error while loading products.</p>';
+        }
+    }
+
+    async function handleBuyProduct(event) {
+        const productId = event.currentTarget.dataset.productId;
+        const productPrice = parseFloat(event.currentTarget.dataset.productPrice);
+        const sellerId = event.currentTarget.dataset.sellerId;
+        const buyButton = event.currentTarget;
+
+        if (confirm(`Are you sure you want to buy this product for $${productPrice.toFixed(2)}? A 0.1% transaction fee will apply.`)) {
+            buyButton.disabled = true;
+            buyButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+
+            const token = localStorage.getItem('nova7Token');
+            const currentUser = JSON.parse(localStorage.getItem('nova7User'));
+
+            if (currentUser.id === sellerId) {
+                showMessage("You cannot buy your own product.", "error");
+                buyButton.disabled = false;
+                buyButton.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i>Your Product';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/buy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRF-Token': pageCsrfToken
+                    },
+                    body: JSON.stringify({ product_id: productId, seller_id: sellerId })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    fetchMarketplaceItems(currentPage, currentFilters); // Refresh listings
+                    // Optionally, update wallet balance here if you have a balance display on this page
+                } else {
+                    showMessage(data.message || 'Purchase failed.', 'error');
+                }
+            } catch (error) {
+                console.error('Error buying product:', error);
+                showMessage('An error occurred during purchase.', 'error');
+            } finally {
+                buyButton.disabled = false;
+                buyButton.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i>Buy Now';
+                pageCsrfToken = await fetchCsrfToken(); // Refresh CSRF token
+            }
+        }
+    }
+
+    function renderPagination(totalPages, currentPageNum) {
+        const paginationControls = document.getElementById('paginationControls');
+        paginationControls.innerHTML = '';
+
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i> Prev';
+        prevButton.disabled = currentPageNum === 1;
+        prevButton.addEventListener('click', () => fetchMarketplaceItems(currentPageNum - 1, currentFilters));
+        paginationControls.appendChild(prevButton);
+
+        const pageInfo = document.createElement('span');
+        pageInfo.classList.add('page-info');
+        pageInfo.textContent = `Page ${currentPageNum} of ${totalPages}`;
+        paginationControls.appendChild(pageInfo);
+
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+        nextButton.disabled = currentPageNum >= totalPages;
+        nextButton.addEventListener('click', () => fetchMarketplaceItems(currentPageNum + 1, currentFilters));
+        paginationControls.appendChild(nextButton);
+    }
+
+    function handleLogout() {
+        console.log("Marketplace: Logging out and redirecting to login.html");
+        localStorage.removeItem('nova7Token');
+        localStorage.removeItem('nova7User');
+        window.location.href = 'login.html';
+    }
+
+    function showMessage(message, type = 'success', duration = 3000) {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = message;
+        messageBox.className = 'message-box show'; // Reset classes
+        if (type === 'error') {
+            messageBox.classList.add('error');
+        } else {
+            messageBox.classList.remove('error');
+        }
+
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+        }, duration);
+    }
+</script>
+</body>
+</html>

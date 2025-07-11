@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        /* Sidebar Styles - Consistent with other pages */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content Specific Styles */
+        .card-settings {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 2rem;
+            margin-bottom: 1.5rem; /* Added margin-bottom for spacing between cards */
+        }
+        .setting-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .setting-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .setting-label {
+            display: block;
+            font-weight: 500;
+            color: #4A5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .form-input-styled {
+            border: 1px solid #CBD5E0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            font-size: 0.95rem;
+            color: #1a202c;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input-styled:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        #settingSignature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        #profileImagePreview { /* Changed from #image-preview */
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #e2e8f0;
+            border: 2px solid #cbd5e0;
+            margin-bottom: 1rem;
+        }
+        .message-success { color: #10B981; }
+        .message-error { color: #EF4444; }
+
+        /* Mobile Header & Responsive Adjustments */
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0;
+                height: 100vh;
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem);
+                padding: 1rem;
+            }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .card-settings { padding: 1.5rem; }
+            .setting-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="messageBox" class="message-box fixed top-4 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden"></div>
+
+    <!-- Mobile Header (consistent with other pages) -->
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <!-- Sidebar (consistent with other pages) -->
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar active">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Settings</h1>
+            <div></div> <!-- Placeholder for right-side elements if any -->
+        </header>
+
+        <div class="card-settings">
+            <form id="profileSettingsForm">
+                <!-- Profile Picture Upload -->
+                <div class="setting-section flex items-center space-x-4">
+                    <img id="profileImagePreview" src="https://ui-avatars.com/api/?name=U&size=80&background=004182&color=fff" alt="Profile Picture" class="w-20 h-20 rounded-full object-cover border-2 border-gray-300" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=U&size=80&background=004182&color=fff';">
+                    <div>
+                        <label for="profilePictureUpload" class="btn-primary-action cursor-pointer text-sm py-2 px-4">
+                            <i class="fas fa-upload mr-2"></i>Upload Photo
+                        </label>
+                        <input type="file" id="profilePictureUpload" accept="image/*" class="hidden">
+                        <p class="text-xs text-gray-500 mt-1">Max file size 5MB. JPG, PNG, GIF.</p>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="setting-section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Personal Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="settingFullName" class="setting-label">Full Name</label>
+                            <input type="text" id="settingFullName" class="form-input-styled" placeholder="Your full name">
+                        </div>
+                        <div>
+                            <label for="settingEmail" class="setting-label">Email Address</label>
+                            <input type="email" id="settingEmail" class="form-input-styled" placeholder="your@example.com" disabled>
+                            <p class="text-xs text-gray-500 mt-1">Email cannot be changed here.</p>
+                        </div>
+                        <div>
+                            <label for="settingDateOfBirth" class="setting-label">Date of Birth</label>
+                            <input type="date" id="settingDateOfBirth" class="form-input-styled">
+                        </div>
+                        <div>
+                            <label for="settingIdNumber" class="setting-label">ID Number</label>
+                            <input type="text" id="settingIdNumber" class="form-input-styled" placeholder="Your ID number">
+                        </div>
+                        <div>
+                            <label for="settingPhoneNumber" class="setting-label">Phone Number</label>
+                            <input type="tel" id="settingPhoneNumber" class="form-input-styled" placeholder="+1234567890">
+                        </div>
+                        <div>
+                            <label for="settingCountry" class="setting-label">Country</label>
+                            <input type="text" id="settingCountry" class="form-input-styled" placeholder="Country">
+                        </div>
+                        <div>
+                            <label for="settingProvince" class="setting-label">Province</label>
+                            <input type="text" id="settingProvince" class="form-input-styled" placeholder="Province/State">
+                        </div>
+                        <div>
+                            <label for="settingCity" class="setting-label">City</label>
+                            <input type="text" id="settingCity" class="form-input-styled" placeholder="City">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="settingAddress" class="setting-label">Address</label>
+                            <input type="text" id="settingAddress" class="form-input-styled" placeholder="Street Address, Apt/Suite">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="setting-section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Payment Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="settingPaymentNetwork" class="setting-label">Payment Network</label>
+                            <input type="text" id="settingPaymentNetwork" class="form-input-styled" placeholder="e.g., Visa, MTN Mobile Money">
+                        </div>
+                        <div>
+                            <label for="settingMobileMoney" class="setting-label">Mobile Money Account</label>
+                            <input type="text" id="settingMobileMoney" class="form-input-styled" placeholder="Mobile Money Account Number">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="setting-section">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Privacy Settings</h2>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="settingDataConsent" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="settingDataConsent" class="ml-2 text-sm text-gray-700">I consent to Nova7 processing my data.</label>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="text-center">
+                    <button type="submit" id="updateProfileBtn" class="btn-primary-action">
+                        <i class="fas fa-save mr-2"></i>Save Profile
+                    </button>
+                    <div id="settingsMessage" class="text-sm text-center mt-4"></div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+<script>
+    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+    let pageCsrfToken = ''; // To store the CSRF token for the page
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const authToken = localStorage.getItem('nova7Token');
+        if (!authToken) {
+            console.log("Settings: Token missing. Redirecting to login.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Fetch CSRF token on page load
+        pageCsrfToken = await fetchCsrfToken();
+        if (!pageCsrfToken) {
+            showMessage('Failed to load security token. Please refresh.', 'error');
+            return;
+        }
+
+        // Initialize mobile sidebar functionality
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        await fetchAndPopulateProfileData(authToken);
+
+        document.getElementById('profileSettingsForm').addEventListener('submit', (e) => handleProfileUpdate(e, authToken));
+        document.getElementById('profilePictureUpload').addEventListener('change', (e) => handleProfilePictureUpload(e, authToken));
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+    });
+
+    async function fetchCsrfToken() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { method: 'GET', credentials: 'include' });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                return data.csrf_token;
+            } else {
+                console.error("Failed to fetch CSRF token:", data.message || response.statusText);
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+            return null;
+        }
+    }
+
+    async function fetchAndPopulateProfileData(authToken) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/profile`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                const user = data.profile; // The user object is nested under 'profile'
+                document.getElementById('profileImagePreview').src = user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'U')}&size=80&background=004182&color=fff`;
+                document.getElementById('settingFullName').value = user.full_name || '';
+                document.getElementById('settingEmail').value = user.email || '';
+                document.getElementById('settingDateOfBirth').value = user.date_of_birth || '';
+                document.getElementById('settingIdNumber').value = user.id_number || '';
+                document.getElementById('settingPhoneNumber').value = user.phone_number || '';
+                document.getElementById('settingCountry').value = user.country || '';
+                document.getElementById('settingProvince').value = user.province || '';
+                document.getElementById('settingCity').value = user.city || '';
+                document.getElementById('settingAddress').value = user.address || '';
+                document.getElementById('settingPaymentNetwork').value = user.payment_network || '';
+                document.getElementById('settingMobileMoney').value = user.mobile_money || '';
+                document.getElementById('settingDataConsent').checked = user.data_consent || false;
+            } else {
+                console.error("Failed to fetch profile data:", data.message || response.statusText);
+                showMessage('Failed to load profile data.', 'error');
+            }
+        } catch (error) {
+            console.error("Error fetching profile data:", error);
+            showMessage('Network error while loading profile data.', 'error');
+        }
+    }
+
+    async function handleProfileUpdate(event, authToken) {
+        event.preventDefault();
+        const updateBtn = document.getElementById('updateProfileBtn');
+        updateBtn.disabled = true;
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+        const profileData = {
+            full_name: document.getElementById('settingFullName').value.trim(),
+            date_of_birth: document.getElementById('settingDateOfBirth').value,
+            id_number: document.getElementById('settingIdNumber').value.trim(),
+            phone_number: document.getElementById('settingPhoneNumber').value.trim(),
+            country: document.getElementById('settingCountry').value.trim(),
+            province: document.getElementById('settingProvince').value.trim(),
+            city: document.getElementById('settingCity').value.trim(),
+            address: document.getElementById('settingAddress').value.trim(),
+            payment_network: document.getElementById('settingPaymentNetwork').value.trim(),
+            mobile_money: document.getElementById('settingMobileMoney').value.trim(),
+            data_consent: document.getElementById('settingDataConsent').checked
+        };
+
+        try {
+            const updateResponse = await fetch(`${API_BASE_URL}/api/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
+                    'X-CSRF-Token': pageCsrfToken
+                },
+                body: JSON.stringify(profileData)
+            });
+            const updateData = await updateResponse.json();
+
+            if (updateResponse.ok && updateData.status === 'success') {
+                showMessage('Profile saved successfully!', 'success');
+                // Update localStorage with the latest user data from the server
+                localStorage.setItem('nova7User', JSON.stringify(updateData.profile)); // Ensure it's updateData.profile
+                // Re-fetch data to ensure UI is fully synced (especially for profile picture if it was just uploaded)
+                await fetchAndPopulateProfileData(authToken);
+            } else {
+                showMessage(updateData.message || 'Failed to update profile info.', 'error');
+            }
+        } catch (error) {
+            console.error('Profile update error:', error);
+            showMessage(`Save Error: ${error.message}`, 'error');
+        } finally {
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Save Profile';
+            pageCsrfToken = await fetchCsrfToken(); // Refresh CSRF token after submission
+        }
+    }
+
+    async function handleProfilePictureUpload(event, authToken) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/profile/picture`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'X-CSRF-Token': pageCsrfToken
+                    // Do NOT set Content-Type for FormData; browser sets it automatically with boundary
+                },
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                showMessage('Profile picture uploaded successfully!', 'success');
+                console.log('Profile picture URL received:', data.url); // Log the URL for debugging
+                // Update the preview image immediately
+                document.getElementById('profileImagePreview').src = data.url;
+                // Update localStorage with new profile picture URL
+                let currentUserData = JSON.parse(localStorage.getItem('nova7User'));
+                currentUserData.profile_picture_url = data.url;
+                localStorage.setItem('nova7User', JSON.stringify(currentUserData));
+            } else {
+                showMessage(data.message || 'Failed to upload profile picture.', 'error');
+            }
+        } catch (error) {
+            console.error('Profile picture upload error:', error);
+            showMessage(`Upload Error: ${error.message}`, 'error');
+        } finally {
+            event.target.value = ''; // Clear file input
+            pageCsrfToken = await fetchCsrfToken(); // Refresh CSRF token after submission
+        }
+    }
+
+    function handleLogout() {
+        console.log("Settings: Logging out and redirecting to login.html");
+        localStorage.removeItem('nova7Token');
+        localStorage.removeItem('nova7User');
+        window.location.href = 'login.html';
+    }
+
+    function showMessage(message, type = 'success', duration = 3000) {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = message;
+        messageBox.className = 'message-box fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 show';
+        if (type === 'error') {
+            messageBox.classList.add('bg-red-500');
+            messageBox.classList.remove('bg-green-500');
+        } else {
+            messageBox.classList.add('bg-green-500');
+            messageBox.classList.remove('bg-red-500');
+        }
+
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+            messageBox.classList.add('hidden'); // Hide after transition
+        }, duration);
+        messageBox.classList.remove('hidden'); // Ensure it's visible before transition
+    }
+
+    console.log("Settings page loaded and scripts attached.");
+</script>
+</body>
+</html>

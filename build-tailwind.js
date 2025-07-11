@@ -1,0 +1,1 @@
+const postcss = require("postcss"); const tailwindcss = require("tailwindcss"); postcss([tailwindcss]).process(require("fs").readFileSync("css/styles.css", "utf8"), { from: "css/styles.css", to: "css/output.css" }).then(result => require("fs").writeFileSync("css/output.css", result.css));

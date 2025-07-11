@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .card-styled {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #1D2939;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .report-section {
+            margin-bottom: 2rem;
+        }
+        .report-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 0.5rem;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .report-table th, .report-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .report-table th {
+            background-color: #F8FAFC;
+            font-weight: 600;
+            color: #4A5568;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+        .report-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .report-table tbody tr:hover {
+            background-color: #F0F4F8;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-completed { background-color: #D1FAE5; color: #059669; } /* Green */
+        .status-pending { background-color: #FEF3C7; color: #D97706; } /* Yellow */
+        .status-failed { background-color: #FEE2E2; color: #EF4444; } /* Red */
+        .status-deposit { background-color: #DBEAFE; color: #2563EB; } /* Blue for deposit */
+        .status-withdrawal { background-color: #E0F2FE; color: #0A66C2; } /* Lighter blue for withdrawal */
+        .status-sale { background-color: #D1FAE5; color: #059669; } /* Green for sales */
+        .status-purchase { background-color: #FEF3C7; color: #D97706; } /* Yellow for purchases */
+
+
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Green for success */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            min-width: 250px;
+        }
+        .message-box.error {
+            background-color: #F44336; /* Red for error */
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+        /* Print Specific Styles */
+        @media print {
+            body {
+                background-color: #FFFFFF; /* White background for print */
+                color: #000000; /* Black text for print */
+            }
+            .sidebar-nova7, .mobile-header, .desktop-header, .filter-section, .btn-primary-action {
+                display: none !important; /* Hide non-report elements */
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem; /* Adjust padding for print */
+            }
+            .card-styled {
+                box-shadow: none; /* Remove shadows for print */
+                border: 1px solid #E2E8F0; /* Add a border for clarity */
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+            .report-section {
+                page-break-inside: avoid; /* Prevent breaking inside sections */
+                margin-bottom: 1.5rem;
+            }
+            .report-table {
+                page-break-inside: avoid; /* Prevent breaking inside tables */
+                width: 100%;
+            }
+            .report-table th, .report-table td {
+                padding: 0.5rem 0.75rem; /* Smaller padding for print */
+                font-size: 0.75rem; /* Smaller font for print */
+            }
+            .report-footer {
+                display: block; /* Show footer for print */
+                margin-top: 2rem;
+                padding-top: 1rem;
+                border-top: 1px solid #E2E8F0;
+                text-align: center;
+                font-size: 0.8rem;
+                color: #4A5568;
+            }
+            .report-footer .signature {
+                font-family: 'Dancing Script', cursive;
+                font-size: 1.2rem;
+                margin-top: 0.5rem;
+                display: block;
+            }
+        }
+
+        /* Mobile Header & Responsive Adjustments */
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0;
+                height: 100vh;
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem);
+                padding: 1rem;
+            }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .card-styled { padding: 1.5rem; }
+            .report-table th, .report-table td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="messageBox" class="message-box"></div>
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar active">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+            <a href="marketplace.html" class="nav-link-sidebar">
+                <i class="fas fa-store"></i>Marketplace
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Account Reports</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+
+        <!-- Report Filters -->
+        <div class="card-styled mb-6 filter-section">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Generate Report</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" id="startDate" class="form-input">
+                </div>
+                <div>
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" id="endDate" class="form-input">
+                </div>
+                <div class="md:col-span-1 flex items-end">
+                    <button id="generateReportBtn" class="btn-primary-action w-full">
+                        <i class="fas fa-file-alt mr-2"></i>Generate & Print Report
+                    </button>
+                </div>
+            </div>
+            <div id="reportMessageDiv" class="text-sm text-center mt-4"></div>
+        </div>
+
+        <!-- Report Content Area (for printing) -->
+        <div id="reportContent" class="card-styled print-only">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6 print-only-header">NOVA7 Account Statement</h2>
+            <p class="text-center text-gray-600 mb-8 print-only-header">Generated on <span id="reportGenerationDate"></span></p>
+
+            <!-- User Information Section -->
+            <div class="report-section">
+                <h3>Account Holder Information</h3>
+                <table class="report-table">
+                    <tbody>
+                        <tr><th>Full Name</th><td id="reportFullName"></td></tr>
+                        <tr><th>Account ID</th><td id="reportAccountId"></td></tr>
+                        <tr><th>Email</th><td id="reportEmail"></td></tr>
+                        <tr><th>Address</th><td id="reportAddress"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Wallet Activity Section -->
+            <div class="report-section">
+                <h3>Wallet Activities</h3>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="walletActivityTableBody">
+                            <tr><td colspan="5" class="text-center text-gray-500 py-4">No wallet activities found for this period.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Business Transactions Section -->
+            <div class="report-section">
+                <h3>Marketplace Transactions (Sales & Purchases)</h3>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Product/Item</th>
+                                <th>Amount</th>
+                                <th>Fee</th>
+                                <th>Net Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="businessTransactionsTableBody">
+                            <tr><td colspan="7" class="text-center text-gray-500 py-4">No marketplace transactions found for this period.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Overall Summary (Optional) -->
+            <div class="report-section">
+                <h3>Summary for Period</h3>
+                <table class="report-table">
+                    <tbody>
+                        <tr><th>Total Deposits</th><td id="summaryTotalDeposits">$0.00</td></tr>
+                        <tr><th>Total Withdrawals</th><td id="summaryTotalWithdrawals">$0.00</td></tr>
+                        <tr><th>Total Sales Value</th><td id="summaryTotalSales">$0.00</td></tr>
+                        <tr><th>Total Purchases Value</th><td id="summaryTotalPurchases">$0.00</td></tr>
+                        <tr><th>Total Fees Paid</th><td id="summaryTotalFeesPaid">$0.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Report Footer with Signatures -->
+            <div class="report-footer">
+                <p>This report is generated by Nova7 Financial Services.</p>
+                <p>For official use only. Data accurate as of generation date.</p>
+                <div class="mt-4 flex justify-around items-end">
+                    <div class="text-center">
+                        <span class="signature">The World Disaster Center</span><br>
+                        <span class="text-xs text-gray-500">Official Signature</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="signature">Nova7 Company</span><br>
+                        <span class="text-xs text-gray-500">Official Signature</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+    let pageCsrfToken = ''; // To store the CSRF token for the page
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        const token = localStorage.getItem('nova7Token');
+        const userString = localStorage.getItem('nova7User');
+
+        if (!token || !userString) {
+            console.log("Reports: Token or userString missing. Redirecting to login.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const currentUser = JSON.parse(userString);
+            const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+            if (desktopUserWelcomeElement) {
+                desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+            }
+        } catch (error) {
+            console.error("Reports: Error parsing user data from localStorage:", error);
+            handleLogout();
+            return;
+        }
+
+        // Fetch CSRF token on page load
+        pageCsrfToken = await fetchCsrfToken();
+        if (!pageCsrfToken) {
+            showMessage('Failed to load security token. Please refresh.', 'error');
+            return;
+        }
+
+        // Set default dates for filter
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+        document.getElementById('startDate').value = firstDayOfMonth;
+        document.getElementById('endDate').value = lastDayOfMonth;
+
+        document.getElementById('generateReportBtn').addEventListener('click', generateFullReport);
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        console.log("Reports page loaded and scripts attached.");
+    });
+
+    async function fetchCsrfToken() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { method: 'GET', credentials: 'include' });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                return data.csrf_token;
+            } else {
+                console.error("Failed to fetch CSRF token:", data.message || response.statusText);
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+            return null;
+        }
+    }
+
+    async function generateFullReport() {
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const reportMessageDiv = document.getElementById('reportMessageDiv');
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (!startDate || !endDate) {
+            showMessage('Please select both start and end dates.', 'error');
+            return;
+        }
+        if (new Date(startDate) > new Date(endDate)) {
+            showMessage('Start date cannot be after end date.', 'error');
+            return;
+        }
+
+        generateReportBtn.disabled = true;
+        generateReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+        reportMessageDiv.textContent = ''; // Clear previous messages
+
+        const token = localStorage.getItem('nova7Token');
+        // const currentUser = JSON.parse(localStorage.getItem('nova7User')); // No longer needed for profile data
+
+        try {
+            // Fetch User Profile Data from Database
+            const profileResponse = await fetch(`${API_BASE_URL}/api/profile`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const profileData = await profileResponse.json();
+
+            if (profileResponse.ok && profileData.status === 'success' && profileData.profile) {
+                const userProfile = profileData.profile;
+                document.getElementById('reportFullName').textContent = userProfile.full_name || 'N/A';
+                document.getElementById('reportAccountId').textContent = userProfile.id?.toString().padStart(7, '0') || '0000000';
+                document.getElementById('reportEmail').textContent = userProfile.email || 'N/A';
+                document.getElementById('reportAddress').textContent = userProfile.address || 'Not Provided';
+            } else {
+                console.error("Failed to fetch profile data for report:", profileData.message || profileResponse.statusText);
+                document.getElementById('reportFullName').textContent = 'Error loading';
+                document.getElementById('reportAccountId').textContent = 'Error loading';
+                document.getElementById('reportEmail').textContent = 'Error loading';
+                document.getElementById('reportAddress').textContent = 'Error loading';
+                showMessage('Failed to load user profile data for the report.', 'error');
+            }
+
+            document.getElementById('reportGenerationDate').textContent = new Date().toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            // Fetch Wallet Activities
+            const walletResponse = await fetch(`${API_BASE_URL}/api/wallet/transactions?startDate=${startDate}&endDate=${endDate}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const walletData = await walletResponse.json();
+            populateWalletActivity(walletData.transactions || []);
+
+            // Fetch Business Transactions (Sales & Purchases)
+            const businessResponse = await fetch(`${API_BASE_URL}/api/business-transactions?startDate=${startDate}&endDate=${endDate}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const businessData = await businessResponse.json();
+            populateBusinessTransactions(businessData.transactions || []);
+
+            // Calculate Summary
+            calculateSummary(walletData.transactions || [], businessData.transactions || []);
+
+            showMessage('Report generated successfully! Preparing for print...', 'success');
+            setTimeout(() => {
+                window.print(); // Trigger print dialog
+            }, 500); // Small delay to ensure content is rendered
+        } catch (error) {
+            console.error("Error generating report:", error);
+            showMessage(`Error generating report: ${error.message}`, 'error');
+            if (error.message.includes("token") || error.message.includes("Unauthorized")) handleLogout();
+        } finally {
+            generateReportBtn.disabled = false;
+            generateReportBtn.innerHTML = '<i class="fas fa-file-alt mr-2"></i>Generate & Print Report';
+        }
+    }
+
+    function populateWalletActivity(transactions) {
+        const tableBody = document.getElementById('walletActivityTableBody');
+        tableBody.innerHTML = ''; // Clear existing rows
+        if (transactions.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No wallet activities found for this period.</td></tr>';
+            return;
+        }
+
+        transactions.forEach(tx => {
+            const row = document.createElement('tr');
+            const typeClass = tx.type.toLowerCase() === 'deposit' ? 'status-deposit' : 'status-withdrawal';
+            const statusClass = tx.status === 'completed' ? 'status-completed' : tx.status === 'pending' ? 'status-pending' : 'status-failed';
+
+            row.innerHTML = `
+                <td>${new Date(tx.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                <td><span class="status-badge ${typeClass}">${tx.type.toUpperCase()}</span></td>
+                <td>$${parseFloat(tx.amount).toFixed(2)}</td>
+                <td>${tx.description || 'N/A'}</td>
+                <td><span class="status-badge ${statusClass}">${tx.status.toUpperCase()}</span></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function populateBusinessTransactions(transactions) {
+        const tableBody = document.getElementById('businessTransactionsTableBody');
+        tableBody.innerHTML = ''; // Clear existing rows
+        if (transactions.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">No marketplace transactions found for this period.</td></tr>';
+            return;
+        }
+
+        transactions.forEach(tx => {
+            const row = document.createElement('tr');
+            const typeClass = tx.type.toLowerCase() === 'sale' ? 'status-sale' : 'status-purchase';
+            const statusClass = tx.status === 'completed' ? 'status-completed' : tx.status === 'pending' ? 'status-pending' : 'status-failed';
+
+            row.innerHTML = `
+                <td>${new Date(tx.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                <td><span class="status-badge ${typeClass}">${tx.type.toUpperCase()}</span></td>
+                <td>${tx.product_name || 'N/A'}</td>
+                <td>$${parseFloat(tx.amount).toFixed(2)}</td>
+                <td>$${parseFloat(tx.fee || 0).toFixed(2)}</td>
+                <td>$${parseFloat(tx.net_amount || tx.amount).toFixed(2)}</td>
+                <td><span class="status-badge ${statusClass}">${tx.status.toUpperCase()}</span></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function calculateSummary(walletTransactions, businessTransactions) {
+        let totalDeposits = 0;
+        let totalWithdrawals = 0;
+        let totalSales = 0;
+        let totalPurchases = 0;
+        let totalFeesPaid = 0;
+
+        walletTransactions.forEach(tx => {
+            if (tx.status === 'completed') {
+                if (tx.type.toLowerCase() === 'deposit') {
+                    totalDeposits += parseFloat(tx.amount);
+                } else if (tx.type.toLowerCase() === 'withdrawal') {
+                    totalWithdrawals += parseFloat(tx.amount);
+                }
+            }
+        });
+
+        businessTransactions.forEach(tx => {
+            if (tx.status === 'completed') {
+                if (tx.type.toLowerCase() === 'sale') {
+                    totalSales += parseFloat(tx.amount);
+                    totalFeesPaid += parseFloat(tx.fee || 0);
+                } else if (tx.type.toLowerCase() === 'purchase') {
+                    totalPurchases += parseFloat(tx.amount);
+                    totalFeesPaid += parseFloat(tx.fee || 0); // Assuming buyer also pays fee
+                }
+            }
+        });
+
+        document.getElementById('summaryTotalDeposits').textContent = `$${totalDeposits.toFixed(2)}`;
+        document.getElementById('summaryTotalWithdrawals').textContent = `$${totalWithdrawals.toFixed(2)}`;
+        document.getElementById('summaryTotalSales').textContent = `$${totalSales.toFixed(2)}`;
+        document.getElementById('summaryTotalPurchases').textContent = `$${totalPurchases.toFixed(2)}`;
+        document.getElementById('summaryTotalFeesPaid').textContent = `$${totalFeesPaid.toFixed(2)}`;
+    }
+
+    function handleLogout() {
+        console.log("Reports: Logging out and redirecting to login.html");
+        localStorage.removeItem('nova7Token');
+        localStorage.removeItem('nova7User');
+        window.location.href = 'login.html';
+    }
+
+    function showMessage(message, type = 'success', duration = 3000) {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = message;
+        messageBox.className = 'message-box show'; // Reset classes
+        if (type === 'error') {
+            messageBox.classList.add('error');
+        } else {
+            messageBox.classList.remove('error');
+        }
+
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+        }, duration);
+    }
+</script>
+
+</body>
+</html>

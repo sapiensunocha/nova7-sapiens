@@ -1,0 +1,281 @@
+{
+  "info": {
+    "name": "Nova7 Team Management API Tests",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "Tests for Nova7 team management endpoints: /api/team/members, /api/team/invite-helper, /api/team/members/<helper_id>",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup: Get CSRF Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/csrf-token",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "csrf-token"]
+        }
+      }
+    },
+    {
+      "name": "Get Team Members (Valid)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/team/members",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "members"]
+        }
+      }
+    },
+    {
+      "name": "Invite Helper (Valid)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"helper_email\": \"{{helperEmail}}\", \"permissions\": [\"manage_transactions\", \"view_reports\"]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/team/invite-helper",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "invite-helper"]
+        }
+      }
+    },
+    {
+      "name": "Invite Helper (Invalid Email)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"helper_email\": \"nonexistent@example.com\", \"permissions\": [\"manage_transactions\"]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/team/invite-helper",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "invite-helper"]
+        }
+      }
+    },
+    {
+      "name": "Update Helper Permissions (Valid)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"permissions\": [\"list_products\", \"respond_messages\"]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/team/members/{{newHelperId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "members", "{{newHelperId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Helper Permissions (Invalid Permissions)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"permissions\": [\"invalid_permission\"]}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/team/members/{{newHelperId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "members", "{{newHelperId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Helper (Valid)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/team/members/{{newHelperId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "members", "{{newHelperId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Helper (Non-existent)",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/team/members/999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "team", "members", "999999"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://nova7-sapiens-1.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    },
+    {
+      "key": "helperEmail",
+      "value": "helper@example.com",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newHelperId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5; 
+            color: #1a202c; 
+        }
+        /* --- Sidebar Styles (Consistent) --- */
+        .sidebar-nova7 {
+            background-color: #004182; 
+            color: #E0F2FE; 
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh; 
+            position: fixed;
+            top: 0; 
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0; 
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header { /* For mobile header */
+            max-height: 36px;
+            width: auto;
+        }
+         .sidebar-logo-img { 
+             max-height: 120px; 
+             width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 6px;
+            margin: 0.25rem 1rem; 
+            font-weight: 500;
+            color: #E0F2FE; 
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2; 
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active { 
+            background-color: #FFFFFF; 
+            color: #0A66C2; 
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px; 
+            margin-right: 0.75rem; 
+            text-align: center;
+        }
+        .main-content-area {
+            margin-left: 260px; 
+            padding: 2rem; 
+            width: calc(100% - 260px);
+            min-height: 100vh; 
+        }
+        .article-container {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 2rem 2.5rem; 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
+        .article-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #E2E8F0; 
+        }
+        .article-title {
+            font-size: 2rem; 
+            font-weight: 800; 
+            color: #1F2937; 
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+        }
+        .article-meta {
+            font-size: 0.875rem; 
+            color: #6B7280; 
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem; 
+        }
+        .article-meta span i {
+            margin-right: 0.35rem;
+        }
+        .article-content {
+            font-size: 1rem; 
+            line-height: 1.75;
+            color: #374151; 
+        }
+        .article-content h2 {
+            font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.75rem; color: #111827;
+        }
+        .article-content h3 {
+            font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #111827;
+        }
+        .article-content p {
+            margin-bottom: 1.25rem;
+        }
+        .article-content ul, .article-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            list-style-position: outside;
+        }
+        .article-content ul li { list-style-type: disc; margin-bottom: 0.5rem; }
+        .article-content ol li { list-style-type: decimal; margin-bottom: 0.5rem; }
+        .article-content a { color: #0A66C2; text-decoration: underline; }
+        .article-content blockquote {
+            border-left: 4px solid #0A66C2;
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #4B5563; 
+        }
+        .article-content pre {
+            background-color: #F3F4F6; 
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+        .back-to-resources-link {
+            display: inline-flex;
+            align-items: center;
+            color: #0A66C2;
+            font-weight: 500;
+            margin-bottom: 2rem; 
+            text-decoration: none;
+        }
+        .back-to-resources-link:hover {
+            text-decoration: underline;
+        }
+        .back-to-resources-link i {
+            margin-right: 0.5rem;
+        }
+        .message-error { color: #EF4444; text-align: center; padding: 1rem; background-color: #FEE2E2; border-radius: 8px;}
+
+
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 { transform: translateX(-100%); top: 0; height: 100vh; }
+            .sidebar-nova7.open { transform: translateX(0); }
+            .main-content-area { margin-left: 0; width: 100%; padding-top: calc(60px + 1rem); padding: 1rem; }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex; background-color: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                padding: 0 1rem; height: 60px; align-items: center; justify-content: space-between;
+                position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            }
+            .article-container { padding: 1.5rem; }
+            .article-title { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen"> 
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="index.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header">
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="index.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';"> 
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar"> 
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar"> 
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar active"> 
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4"> 
+            <a href="profile.html" class="nav-link-sidebar"> 
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar"> 
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-semibold text-gray-800" id="pageTitle">Learning Center</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span> 
+            </div>
+        </header>
+        <h1 class="text-xl font-semibold text-gray-800 mb-4 md:hidden" id="mobilePageTitle">Learning Center</h1>
+
+        <a href="resources.html" class="back-to-resources-link">
+            <i class="fas fa-arrow-left"></i> Back to All Resources
+        </a>
+        
+        <div id="articleMessage" class="text-center my-4"></div>
+
+        <article class="article-container hidden" id="articleDetailContainer">
+            <header class="article-header">
+                <h1 class="article-title" id="articleTitle">Loading article...</h1>
+                <div class="article-meta">
+                    <span id="articleCategory"><i class="fas fa-folder-open"></i> Loading...</span>
+                    <span id="articleDate"><i class="far fa-calendar-alt"></i> Loading...</span>
+                    <span id="articleReadTime"><i class="far fa-clock"></i> Loading...</span>
+                    <span id="articleAuthor"><i class="fas fa-user-edit"></i> Loading...</span>
+                </div>
+            </header>
+            <div class="article-content" id="articleBody">
+                <p>Loading content...</p>
+            </div>
+        </article>
+        
+    </main>
+
+    <script>
+        // --- Auth Check (Optional for public resources, but good for welcome message), Sidebar, Logout ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const authToken = localStorage.getItem('nova7Token'); // Use distinct name
+            // Resources might be public, so don't redirect if no token, but update welcome message if token exists
+            if (authToken && authToken !== "undefined" && authToken !== "null") {
+                try {
+                    const user = JSON.parse(localStorage.getItem('nova7User'));
+                    const userName = user ? user.fullName || "User" : "User";
+                    const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                    if(desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+                } catch(e) { console.error("Article: Error parsing user data for welcome message", e); }
+            }
+            
+            fetchArticleDetail(); 
+        });
+
+        function handleLogout() { 
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', function(e){ e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', function(e){ e.preventDefault(); handleLogout(); });
+        
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', function(e) { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', function(e) {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        // --- End of Standard Setup ---
+
+        const articleTitleEl = document.getElementById('articleTitle');
+        const articleCategoryEl = document.getElementById('articleCategory');
+        const articleDateEl = document.getElementById('articleDate');
+        const articleReadTimeEl = document.getElementById('articleReadTime');
+        const articleAuthorEl = document.getElementById('articleAuthor');
+        const articleBodyEl = document.getElementById('articleBody');
+        const articleMessageDiv = document.getElementById('articleMessage');
+        const articleDetailContainer = document.getElementById('articleDetailContainer');
+
+
+        async function fetchArticleDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleSlug = urlParams.get('slug');
+
+            if (!articleSlug) {
+                if(articleMessageDiv) {
+                    articleMessageDiv.innerHTML = `<p class="message-error">No article specified. Please select an article from the <a href="resources.html" class="font-semibold hover:underline">Resources page</a>.</p>`;
+                }
+                articleDetailContainer.classList.add('hidden'); // Hide the container too
+                return;
+            }
+            if(articleMessageDiv) articleMessageDiv.textContent = 'Loading article content...';
+            articleDetailContainer.classList.add('hidden'); // Hide until data is ready
+
+
+            try {
+                // --- MODIFICATION: Corrected port to 5005 ---
+                const apiUrl = `https://nova7-sapiens-1.onrender.com/api/resources/articles/${articleSlug}`;
+                console.log("Article Detail: Fetching from URL:", apiUrl);
+
+                // If this endpoint requires authentication, add Authorization header:
+                // const authToken = localStorage.getItem('nova7Token');
+                // const headers = { 'Content-Type': 'application/json' };
+                // if (authToken && authToken !== "undefined" && authToken !== "null") {
+                //     headers['Authorization'] = `Bearer ${authToken}`;
+                // }
+                // const response = await fetch(apiUrl, { headers: headers });
+                
+                // Assuming public endpoint for now as per index.py (no @jwt_required)
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                console.log("Article Detail: API Response Status:", response.status);
+                console.log("Article Detail: API Response Data:", data);
+
+                if (response.ok && data.status === 'success' && data.article) {
+                    const article = data.article;
+                    document.title = `${article.title || 'Article'} - nova7`;
+                    if (articleTitleEl) articleTitleEl.textContent = article.title;
+                    if (articleCategoryEl) articleCategoryEl.innerHTML = `<i class="fas fa-folder-open"></i> ${article.category_name || 'Uncategorized'}`;
+                    
+                    if (article.published_at && articleDateEl) {
+                        const publishedDate = new Date(article.published_at.includes('Z') || article.published_at.includes('T') ? article.published_at : article.published_at + 'T00:00:00Z'); // Handle date string properly
+                        articleDateEl.innerHTML = `<i class="far fa-calendar-alt"></i> ${publishedDate.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}`;
+                    } else if (articleDateEl) {
+                         articleDateEl.innerHTML = `<i class="far fa-calendar-alt"></i> Date not available`;
+                    }
+
+                    if (articleReadTimeEl) articleReadTimeEl.innerHTML = `<i class="far fa-clock"></i> ${article.read_time_minutes || '?'} min read`;
+                    if (articleAuthorEl) articleAuthorEl.innerHTML = `<i class="fas fa-user-edit"></i> By ${article.author_name || 'nova7 Team'}`;
+                    if (articleBodyEl) articleBodyEl.innerHTML = article.content_html || '<p>Content not available.</p>'; 
+                    
+                    articleDetailContainer.classList.remove('hidden');
+                    if(articleMessageDiv) articleMessageDiv.textContent = '';
+
+                } else {
+                    if(articleMessageDiv) {
+                        articleMessageDiv.innerHTML = `<p class="message-error">${data.message || 'Could not load article. It may not exist or an error occurred.'} <a href="resources.html" class="font-semibold hover:underline">Go back to resources.</a></p>`;
+                    }
+                     articleDetailContainer.classList.add('hidden');
+                     // If 401/403/422, and this page was supposed to be protected, call handleLogout()
+                     // if (response.status === 401 || response.status === 403 || response.status === 422) handleLogout();
+                }
+            } catch (error) {
+                console.error("Error fetching article detail:", error);
+                 if(articleMessageDiv) {
+                    articleMessageDiv.innerHTML = `<p class="message-error">Failed to load article. Please check your connection and try again. <a href="resources.html" class="font-semibold hover:underline">Go back to resources.</a></p>`;
+                 }
+                 articleDetailContainer.classList.add('hidden');
+            }
+        }
+        
+    </script>
+
+</body>
+</html>

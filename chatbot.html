@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nova7 Chat Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1D2026;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        /* Sidebar Styles - Consistent with other pages */
+        .sidebar-nova7 {
+            width: 260px;
+            background-color: #004182;
+            color: #E0F2FE;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: fixed; /* Keep fixed for mobile responsiveness */
+            top: 0;
+            left: 0;
+            height: 100vh;
+            transform: translateX(0); /* Sidebar is always visible on desktop by default */
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+        /* No .open class for desktop sidebar, it's always open */
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        /* Chat Specific Styles */
+        .chat-main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 260px; /* Offset for sidebar, always present on desktop */
+            background-color: #FFFFFF;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            position: relative; /* For messageBox positioning */
+            transition: margin-left 0.3s ease-in-out; /* Keep transition for consistency */
+        }
+        .chat-header {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .chat-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1D2026;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+        .message-bubble {
+            max-width: 75%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            line-height: 1.5;
+            word-wrap: break-word; /* Ensure long words break */
+        }
+        .message-bubble.user {
+            background-color: #0A66C2;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        .message-bubble.ai {
+            background-color: #E2E8F0;
+            color: #1D2026;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        .message-bubble.ai h1, .message-bubble.ai h2, .message-bubble.ai h3 {
+            font-weight: bold;
+            margin-top: 0.5em;
+            margin-bottom: 0.25em;
+        }
+        .message-bubble.ai h1 { font-size: 1.5em; }
+        .message-bubble.ai h2 { font-size: 1.25em; }
+        .message-bubble.ai h3 { font-size: 1.1em; }
+        .message-bubble.ai ul {
+            list-style-type: disc;
+            margin-left: 1.25em;
+            padding-left: 0.5em;
+        }
+        .message-bubble.ai ul li {
+            margin-bottom: 0.25em;
+        }
+
+        .chat-input-area {
+            flex-shrink: 0;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #E2E8F0;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            background-color: #F8FAFC;
+        }
+        .chat-input-area textarea {
+            flex-grow: 1;
+            border: 1px solid #CBD5E0;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            resize: none; /* Disable manual resize */
+            min-height: 48px;
+            max-height: 150px; /* Limit max height for auto-resize */
+            overflow-y: auto; /* Enable scroll if content exceeds max-height */
+        }
+        .chat-input-area textarea:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .chat-input-area button {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .chat-input-area button:hover {
+            background-color: #004182;
+        }
+        .chat-input-area button:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            align-self: flex-start;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background-color: #E2E8F0;
+            color: #1D2026;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #6B7280;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Message Box Styles (for alerts) */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Green for success */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            min-width: 250px;
+        }
+        .message-box.error {
+            background-color: #F44336; /* Red for error */
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Mobile Header & Responsive Adjustments */
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%); /* Initially hidden on mobile */
+            }
+            .sidebar-nova7.open { /* Only opens when hamburger clicked */
+                transform: translateX(0);
+            }
+            .chat-main-content {
+                margin-left: 0; /* Always 0 on mobile */
+            }
+            /* Show hamburger menu on mobile */
+            .mobile-header #hamburgerBtnMobile {
+                display: block;
+            }
+            /* Hide desktop "Other Pages" button on mobile */
+            .open-other-pages-btn {
+                display: none !important; /* Use !important to override lg:flex */
+            }
+        }
+        /* Desktop specific styles for sidebar toggle */
+        @media (min-width: 769px) {
+            .sidebar-nova7 {
+                transform: translateX(0); /* Always open by default on desktop */
+            }
+            .chat-main-content {
+                margin-left: 260px; /* Always offset by sidebar width on desktop */
+            }
+            .sidebar-nova7.open { /* No effect on desktop as it's always open */
+                transform: translateX(0);
+            }
+            /* The "Other Pages" button is removed, so no display rule needed here */
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="messageBox" class="message-box"></div>
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <!-- Removed "New Chat" button and chat history list -->
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar active">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="chat-main-content">
+        <header class="chat-header">
+            <!-- Removed "Other Pages" button -->
+            <h1 id="currentChatTitle" class="flex-grow text-center md:text-left">Nova7 Chat Advisor</h1>
+            <!-- Desktop header user welcome -->
+            <div class="hidden md:flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+
+        <div id="chatMessages" class="chat-messages">
+            <!-- Chat messages will be appended here -->
+            <div class="message-bubble ai">Hello, I'm your Nova7 Chat Advisor. How can I assist you with your finances today?</div>
+        </div>
+
+        <div class="chat-input-area">
+            <textarea id="userInput" placeholder="Type your message..." rows="1"></textarea>
+            <button id="sendButton" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </main>
+
+<script>
+    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+    const chatMessagesDiv = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+    // Removed openOtherPagesBtn as it's no longer needed
+    const currentChatTitleElement = document.getElementById('currentChatTitle');
+    const sidebar = document.getElementById('sidebar'); // Get sidebar reference once
+
+    let currentMessages = []; // Only one conversation, so no chatHistory array needed
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        const token = localStorage.getItem('nova7Token');
+        const userString = localStorage.getItem('nova7User');
+
+        if (!token || !userString) {
+            console.log("Chatbot: Token or userString missing. Redirecting to login.");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const currentUser = JSON.parse(userString);
+            const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+            if (desktopUserWelcomeElement) {
+                desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+            }
+        } catch (error) {
+            console.error("Chatbot: Error parsing user data from localStorage:", error);
+            handleLogout();
+            return;
+        }
+
+        // Initialize with a single conversation
+        currentMessages = [{ content: "Hello, I'm your Nova7 Chat Advisor. How can I assist you with your finances today?", sender: "ai" }];
+        renderMessages(); // Render the initial message
+
+        // Event Listeners
+        if (sendButton && userInput) {
+            sendButton.addEventListener('click', handleUserMessage);
+            userInput.addEventListener('input', autoResizeTextarea);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) { // Only send if not disabled
+                        handleUserMessage();
+                    }
+                }
+            });
+            userInput.addEventListener('input', () => {
+                sendButton.disabled = userInput.value.trim() === '';
+            });
+        }
+        
+        // Removed event listener for openOtherPagesBtn
+        // openOtherPagesBtn.addEventListener('click', toggleSidebar);
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        
+        // Handle mobile sidebar toggle (hamburger menu)
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        // Close sidebar if clicking outside when open (for mobile)
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        console.log("Chatbot page loaded.");
+    });
+
+    // Sidebar Toggle Function (now only for mobile hamburger)
+    function toggleSidebar() {
+        // Toggle 'open' class for mobile sidebar (it's initially hidden)
+        if (window.innerWidth <= 768) { // Apply for mobile screens
+            sidebar.classList.toggle('open');
+        }
+        // On desktop, the sidebar is always visible, so this function does nothing.
+    }
+
+    function renderMessages() {
+        chatMessagesDiv.innerHTML = '';
+        currentMessages.forEach(message => {
+            appendMessageToDOM(message.content, message.sender);
+        });
+        scrollToBottom();
+    }
+
+    function appendMessageToDOM(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-bubble ${sender}`;
+        messageDiv.innerHTML = sender === 'ai' ? parseMarkdown(content) : content; // Render markdown for AI messages
+        chatMessagesDiv.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.className = 'typing-indicator';
+        typingDiv.innerHTML = `
+            <span></span>
+            <span></span>
+            <span></span>
+        `;
+        chatMessagesDiv.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+        const typingDiv = document.getElementById('typingIndicator');
+        if (typingDiv) {
+            typingDiv.remove();
+        }
+    }
+
+    async function handleUserMessage() {
+        const userText = userInput.value.trim();
+        if (userText === '') return;
+
+        // Add user message to currentMessages and DOM
+        currentMessages.push({ content: userText, sender: 'user' });
+        appendMessageToDOM(userText, 'user');
+        
+        userInput.value = '';
+        sendButton.disabled = true; // Disable until AI responds
+        autoResizeTextarea(); // Reset textarea height
+
+        showTypingIndicator();
+
+        const token = localStorage.getItem('nova7Token');
+
+        try {
+            const payload = {
+                user_query: userText,
+                // Send the entire currentMessages as chat_history for context
+                chat_history: currentMessages.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.content }] }))
+            };
+
+            const response = await fetch(`${API_BASE_URL}/api/chatbot-advice`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            hideTypingIndicator();
+
+            if (response.ok && data.status === 'success') {
+                // Add AI response to currentMessages and DOM
+                currentMessages.push({ content: data.advice, sender: 'ai' });
+                appendMessageToDOM(data.advice, 'ai');
+            } else {
+                const errorMessage = data.message || 'Could not get a response from the advisor.';
+                currentMessages.push({ content: `Error: ${errorMessage}`, sender: 'ai' });
+                appendMessageToDOM(`Error: ${errorMessage}`, 'ai');
+                showMessage(errorMessage, 'error');
+            }
+        } catch (error) {
+            console.error('Chatbot API error:', error);
+            hideTypingIndicator();
+            const networkErrorMsg = 'An error occurred while connecting to the advisor. Please try again.';
+            currentMessages.push({ content: networkErrorMsg, sender: 'ai' });
+            appendMessageToDOM(networkErrorMsg, 'ai');
+            showMessage('Network error with chat advisor.', 'error');
+        } finally {
+            sendButton.disabled = userInput.value.trim() === ''; // Re-enable if there's text
+            // No need to update chatHistory or currentChatId, as it's a single conversation
+        }
+    }
+
+    function scrollToBottom() {
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }
+
+    function autoResizeTextarea() {
+        userInput.style.height = 'auto';
+        userInput.style.height = userInput.scrollHeight + 'px';
+    }
+
+    // Basic Markdown Parser (for AI responses)
+    function parseMarkdown(text) {
+        // Headers
+        text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+        // Bold
+        text = text.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+        text = text.replace(/__(.*?)__/gim, '<strong>$1</strong>');
+
+        // Italic
+        text = text.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+        text = text.replace(/_(.*?)_/gim, '<em>$1</em>');
+
+        // Unordered lists
+        text = text.replace(/^\s*[\-\*]\s+(.*)$/gim, '<li>$1</li>');
+        if (text.includes('<li>')) {
+            text = '<ul>' + text + '</ul>';
+            // Fix for multiple ul blocks if needed, simple approach for now
+            text = text.replace(/<\/li>\n<li>/g, '</li><li>');
+            text = text.replace(/<\/ul>[\n\s]*<ul>/g, ''); // Merge consecutive lists
+        }
+
+        // Newlines to <br> for simple line breaks
+        text = text.replace(/\n/g, '<br>');
+
+        return text;
+    }
+
+    function handleLogout() {
+        console.log("Chatbot: Logging out and redirecting to login.html");
+        localStorage.removeItem('nova7Token');
+        localStorage.removeItem('nova7User');
+        // No need to clear chatHistory or lastActiveChatId as it's a single conversation
+        window.location.href = 'login.html';
+    }
+
+    function showMessage(message, type = 'success', duration = 3000) {
+        const messageBox = document.getElementById('messageBox');
+        messageBox.textContent = message;
+        messageBox.className = 'message-box show'; // Reset classes
+        if (type === 'error') {
+            messageBox.classList.add('error');
+        } else {
+            messageBox.classList.remove('error');
+        }
+
+        setTimeout(() => {
+            messageBox.classList.remove('show');
+        }, duration);
+    }
+</script>
+
+</body>
+</html>

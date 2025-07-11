@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Hub - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F2EF;
+            color: #1D2026;
+        }
+        /* Sidebar Styles */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header {
+            max-height: 36px;
+            width: auto;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Main Content Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.625rem 1.25rem;
+            font-weight: 600;
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-primary-action i {
+            margin-right: 0.5rem;
+        }
+        .btn-secondary-outline {
+            background-color: transparent;
+            color: #0A66C2;
+            border: 1px solid #0A66C2;
+            border-radius: 20px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .btn-secondary-outline:hover {
+            background-color: #E0F2FE;
+        }
+        /* Community Layout */
+        .community-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .community-layout {
+                grid-template-columns: 1fr 320px;
+            }
+        }
+        .card-base {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 3px rgba(0,0,0,0.06);
+            padding: 1.25rem;
+        }
+        /* Create Post Card */
+        .create-post-card {
+            margin-bottom: 1rem;
+        }
+        .create-post-input-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .create-post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #0A66C2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .create-post-card textarea {
+            width: 100%;
+            min-height: 52px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            resize: vertical;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .create-post-card textarea:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .image-upload-placeholder {
+            border: 2px dashed #D1D5DB;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            color: #6B7280;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .image-upload-placeholder:hover {
+            border-color: #0A66C2;
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+        }
+        .post-action-buttons button, .post-action-buttons a {
+            background: none;
+            border: none;
+            color: #6B7280;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+        .post-action-buttons button i, .post-action-buttons a i {
+            font-size: 1.125rem;
+            margin-right: 0.5rem;
+            color: #9CA3AF;
+        }
+        .post-action-buttons button:hover, .post-action-buttons a:hover {
+            background-color: #F3F4F6;
+            color: #0A66C2;
+        }
+        .post-action-buttons button:hover i, .post-action-buttons a:hover i {
+            color: #0A66C2;
+        }
+        /* Post Feed Item Card */
+        .post-card {
+            margin-bottom: 1rem;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #0A66C2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        .post-author-info a {
+            font-weight: 600;
+            color: #111827;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .post-author-info a:hover {
+            text-decoration: underline;
+        }
+        .post-timestamp {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        .post-options-btn {
+            margin-left: auto;
+            color: #9CA3AF;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .post-options-btn:hover {
+            background-color: #F3F4F6;
+        }
+        .post-options-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            min-width: 120px;
+        }
+        .post-options-dropdown button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        .post-options-dropdown button:hover {
+            background-color: #F3F4F6;
+        }
+        .post-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #1F2937;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+        .post-content p {
+            margin-bottom: 0.75rem;
+        }
+        .post-image {
+            max-height: 450px;
+            border-radius: 8px;
+            margin: 0.75rem 0 1rem 0;
+            overflow: hidden;
+        }
+        .post-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain; /* Ensure image fits within its container */
+        }
+        .post-stats {
+            font-size: 0.8rem;
+            color: #6B7280;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            gap: 1rem;
+        }
+        .post-footer {
+            display: flex;
+            justify-content: space-around;
+        }
+        .post-footer button {
+            background: none;
+            border: none;
+            color: #4B5563;
+            padding: 0.625rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            transition: background-color 0.2s, color 0.2s;
+            flex-grow: 1;
+            justify-content: center;
+        }
+        .post-footer button i {
+            font-size: 1.125rem;
+            margin-right: 0.5rem;
+        }
+        .post-footer button:hover {
+            background-color: #EFF6FF;
+            color: #0A66C2;
+        }
+        .post-footer button.liked {
+            color: #0A66C2;
+            font-weight: 700;
+        }
+        /* Comment Section Styles */
+        .comments-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        .comment {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            position: relative;
+        }
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            color: #4B5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .comment-content-wrapper {
+            background-color: #F3F4F6;
+            border-radius: 12px;
+            padding: 0.5rem 0.75rem;
+            flex-grow: 1;
+        }
+        .commenter-name {
+            font-weight: 600;
+            color: #111827;
+            margin-right: 0.5rem;
+        }
+        .comment-text {
+            color: #374151;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .comment-timestamp {
+            font-size: 0.7rem;
+            color: #9CA3AF;
+            margin-left: 0.5rem;
+        }
+        .comment-options-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #9CA3AF;
+            padding: 0.1rem 0.3rem;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .comment-options-btn:hover {
+            background-color: #E5E7EB;
+        }
+        .comment-options-dropdown {
+            position: absolute;
+            top: 1.5rem;
+            right: 0;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            min-width: 100px;
+        }
+        .comment-options-dropdown button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            color: #374151;
+        }
+        .comment-options-dropdown button:hover {
+            background-color: #F3F4F6;
+        }
+        .add-comment-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .add-comment-area textarea {
+            flex-grow: 1;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+        .add-comment-area button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        .edit-comment-area textarea {
+            width: 100%;
+            border: 1px solid #0A66C2;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            resize: vertical;
+        }
+        .edit-comment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .edit-comment-actions button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .edit-comment-actions .save-btn {
+            background-color: #0A66C2;
+            color: white;
+        }
+        .edit-comment-actions .cancel-btn {
+            background-color: #E5E7EB;
+            color: #4B5563;
+        }
+        /* Right Sidebar - Marketplace Highlights */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .marketplace-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 2px 3px rgba(0,0,0,0.06);
+            padding: 1.25rem;
+        }
+        .marketplace-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1D2026;
+            margin-bottom: 1rem;
+        }
+        .marketplace-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .marketplace-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .marketplace-item-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        .marketplace-item-info {
+            flex-grow: 1;
+        }
+        .marketplace-item-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1D2026;
+        }
+        .marketplace-item-price {
+            font-size: 0.8rem;
+            color: #22C55E;
+            font-weight: 700;
+        }
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0;
+                height: 100vh;
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem);
+            }
+            .desktop-header {
+                display: none;
+            }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+        }
+        /* Message Box Styles (for alerts) */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* Green for success */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            min-width: 250px;
+        }
+        .message-box.error {
+            background-color: #F44336; /* Red for error */
+        }
+        .message-box.show {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="messageBox" class="message-box"></div>
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar active">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <!-- NEW: Wallet Link -->
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-6">
+            <div></div>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+
+        <div class="community-layout">
+            <!-- Main Content Column -->
+            <div>
+                <div class="card-base create-post-card">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Create New Post</h2>
+                    <div class="create-post-input-area">
+                        <div class="create-post-avatar" id="createPostAvatar">U</div>
+                        <textarea id="postContent" placeholder="What's on your mind, Sapiens?" rows="3"></textarea>
+                    </div>
+                    <div id="imagePreviewContainer" class="hidden mb-3">
+                        <img id="imagePreview" src="#" alt="Image Preview" class="w-full h-auto rounded-lg max-h-64 object-contain">
+                        <button id="removeImageBtn" class="text-red-500 text-sm mt-2">Remove Image</button>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action-buttons">
+                            <input type="file" id="postImageUpload" accept="image/*" class="hidden">
+                            <button id="uploadImageBtn">
+                                <i class="fas fa-image"></i>Photo
+                            </button>
+                        </div>
+                        <button id="submitPostBtn" class="btn-primary-action">
+                            <i class="fas fa-paper-plane"></i>Post
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Post Feed -->
+                <div id="postFeed">
+                    <!-- Posts will be loaded here by JavaScript -->
+                    <p class="text-gray-500 text-center py-4" id="loadingPostsMessage">Loading posts...</p>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="right-sidebar">
+                <!-- Marketplace Highlights -->
+                <div class="marketplace-card">
+                    <h3>Marketplace Highlights</h3>
+                    <div id="marketplaceHighlights">
+                        <!-- Marketplace items will be loaded here by JavaScript -->
+                        <p class="text-xs text-gray-500">Loading marketplace items...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+        let currentUser = null; // Store current user data
+        let currentBalance = 0; // Store current user balance
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            const userString = localStorage.getItem('nova7User');
+
+            if (!token || !userString) {
+                console.log("Community: Token or userString missing. Redirecting to login.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                currentUser = JSON.parse(userString);
+                // Update user welcome in desktop header
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (desktopUserWelcomeElement) {
+                    desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+                }
+                // Update create post avatar
+                const createPostAvatar = document.getElementById('createPostAvatar');
+                if (createPostAvatar && currentUser.full_name) {
+                    createPostAvatar.textContent = currentUser.full_name.charAt(0).toUpperCase();
+                    if (currentUser.profile_picture_url) {
+                        createPostAvatar.innerHTML = `<img src="${currentUser.profile_picture_url}" alt="Profile" class="w-full h-full rounded-full object-cover">`;
+                    }
+                }
+            } catch (error) {
+                console.error("Community: Error parsing user data from localStorage:", error);
+                handleLogout();
+                return;
+            }
+
+            await fetchUserBalance(token); // Fetch initial balance
+            fetchPosts(token);
+            fetchMarketplaceHighlights();
+
+            // Event Listeners
+            document.getElementById('submitPostBtn').addEventListener('click', () => createPost(token));
+            document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('postImageUpload').click());
+            document.getElementById('postImageUpload').addEventListener('change', previewImage);
+            document.getElementById('removeImageBtn').addEventListener('click', removeImage);
+
+            const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+            if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+            const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+            if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+            const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+            const sidebar = document.getElementById('sidebar');
+            if (hamburgerBtnMobile && sidebar) {
+                hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+            }
+            document.addEventListener('click', (e) => {
+                if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        async function fetchUserBalance(token) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/balance`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    currentBalance = data.balance;
+                    console.log("User balance fetched:", currentBalance);
+                } else {
+                    console.error("Failed to fetch user balance:", data.message || response.statusText);
+                    showMessage('Failed to load balance.', 'error');
+                }
+            } catch (error) {
+                console.error("Error fetching user balance:", error);
+                showMessage('Network error while fetching balance.', 'error');
+            }
+        }
+
+        async function createPost(token) {
+            const postContent = document.getElementById('postContent').value;
+            const postImageUpload = document.getElementById('postImageUpload');
+            const imageFile = postImageUpload.files[0];
+
+            if (!postContent.trim() && !imageFile) {
+                showMessage('Post content or an image is required!', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('content', postContent);
+            if (imageFile) {
+                formData.append('postImage', imageFile);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/community/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        // 'Content-Type': 'multipart/form-data' is NOT set here; browser sets it with boundary
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    showMessage('Post created successfully!', 'success');
+                    document.getElementById('postContent').value = '';
+                    removeImage(); // Clear image preview
+                    fetchPosts(token); // Refresh posts
+                } else {
+                    showMessage(data.message || 'Failed to create post.', 'error');
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+                showMessage('An error occurred while creating the post.', 'error');
+            }
+        }
+
+        async function fetchPosts(token) {
+            const postFeedDiv = document.getElementById('postFeed');
+            postFeedDiv.innerHTML = '<p class="text-gray-500 text-center py-4" id="loadingPostsMessage">Loading posts...</p>'; // Show loading
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/community/posts`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    postFeedDiv.innerHTML = ''; // Clear loading message
+                    if (data.posts.length === 0) {
+                        postFeedDiv.innerHTML = '<p class="text-gray-500 text-center py-4">No posts yet. Be the first to share!</p>';
+                        return;
+                    }
+
+                    data.posts.forEach(post => {
+                        const postElement = document.createElement('div');
+                        postElement.className = 'card-base post-card';
+                        
+                        // Default avatar or user's profile picture
+                        const avatarHtml = post.author_profile_picture_url 
+                            ? `<img src="${post.author_profile_picture_url}" alt="Profile" class="w-full h-full rounded-full object-cover">`
+                            : post.author_name ? post.author_name.charAt(0).toUpperCase() : 'U';
+
+                        // Format timestamp
+                        const postDate = new Date(post.created_at);
+                        const formattedTime = timeDifference(new Date(), postDate);
+
+                        // Log the image URL for debugging
+                        console.log(`Post ID: ${post.id}, Image URL: ${post.image_url}`);
+
+                        postElement.innerHTML = `
+                            <div class="post-header">
+                                <div class="post-avatar">${avatarHtml}</div>
+                                <div class="post-author-info">
+                                    <a href="#">${post.author_name || 'Anonymous'}</a>
+                                    <p class="post-timestamp">${formattedTime}</p>
+                                </div>
+                                <button class="post-options-btn" data-post-id="${post.id}">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <!-- Dropdown for options (hidden by default) -->
+                                <div class="post-options-dropdown hidden">
+                                    <button class="edit-post-btn" data-post-id="${post.id}">Edit</button>
+                                    <button class="delete-post-btn" data-post-id="${post.id}">Delete</button>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <p>${post.content}</p>
+                                ${post.image_url ? `<div class="post-image"><img src="${post.image_url}" alt="Post Image" onerror="this.onerror=null;this.src='https://placehold.co/400x200/E0F2FE/004182?text=Image+Not+Found';"></div>` : ''}
+                            </div>
+                            <div class="post-stats">
+                                <span>0 Likes</span>
+                                <span>0 Comments</span>
+                                <span>0 Loves</span> <!-- NEW: Loves stat -->
+                            </div>
+                            <div class="post-footer">
+                                <button class="like-btn" data-post-id="${post.id}">
+                                    <i class="far fa-thumbs-up"></i>Like
+                                </button>
+                                <button class="comment-btn" data-post-id="${post.id}">
+                                    <i class="far fa-comment"></i>Comment
+                                </button>
+                                <!-- NEW: Love Button -->
+                                <button class="love-btn" data-post-id="${post.id}" data-receiver-id="${post.user_id}">
+                                    <i class="fas fa-heart text-red-500"></i>Love ($1)
+                                </button>
+                            </div>
+                            <div class="comments-section" id="comments-section-${post.id}">
+                                <!-- Comments will be loaded here -->
+                            </div>
+                        `;
+                        postFeedDiv.appendChild(postElement);
+
+                        // Add event listener for the new Love button
+                        postElement.querySelector('.love-btn').addEventListener('click', (event) => {
+                            const postId = event.currentTarget.dataset.postId;
+                            const receiverId = event.currentTarget.dataset.receiverId;
+                            sendLovePayment(token, postId, receiverId);
+                        });
+                    });
+                } else {
+                    postFeedDiv.innerHTML = `<p class="text-red-500 text-center py-4">Failed to load posts: ${data.message || response.statusText}</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching posts:", error);
+                postFeedDiv.innerHTML = '<p class="text-red-500 text-center py-4">Network error while loading posts.</p>';
+            }
+        }
+
+        async function sendLovePayment(token, postId, receiverId) {
+            if (currentUser.id == receiverId) {
+                showMessage("You cannot send love payment to your own post.", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/wallet/love-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ postId: postId, receiverId: receiverId })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    // Optionally update the love count on the post without refetching all posts
+                    // You'd need to manage love counts on the backend and return them.
+                    // For now, just show a message.
+                    await fetchUserBalance(token); // Refresh sender's balance
+                } else {
+                    showMessage(data.message || 'Failed to send love payment.', 'error');
+                }
+            } catch (error) {
+                console.error('Error sending love payment:', error);
+                showMessage('An error occurred while sending love payment.', 'error');
+            }
+        }
+
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const output = document.getElementById('imagePreview');
+                const container = document.getElementById('imagePreviewContainer');
+                output.src = reader.result;
+                container.classList.remove('hidden');
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function removeImage() {
+            document.getElementById('postImageUpload').value = ''; // Clear the file input
+            document.getElementById('imagePreview').src = '#';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+        }
+
+        async function fetchMarketplaceHighlights() {
+            const marketplaceHighlightsDiv = document.getElementById('marketplaceHighlights');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/products?limit=3`); // Fetch top 3 products
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success' && data.products.length > 0) {
+                    marketplaceHighlightsDiv.innerHTML = ''; // Clear loading message
+                    data.products.forEach(item => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'marketplace-item';
+                        itemDiv.innerHTML = `
+                            <img src="${item.image_url || 'https://placehold.co/50x50/E0F2FE/004182?text=No+Image'}" alt="${item.name}" class="marketplace-item-img" onerror="this.src='https://placehold.co/50x50/E0F2FE/004182?text=No+Image';">
+                            <div class="marketplace-item-info">
+                                <p class="marketplace-item-name">${item.name}</p>
+                                <p class="marketplace-item-price text-xs text-green-600 font-bold">$${parseFloat(item.price).toFixed(2)}</p>
+                            </div>
+                        `;
+                        marketplaceHighlightsDiv.appendChild(itemDiv);
+                    });
+                } else {
+                    marketplaceHighlightsDiv.innerHTML = '<p class="text-xs text-gray-500">No items to display currently.</p>';
+                }
+            } catch (error) {
+                console.error("Error fetching marketplace highlights:", error);
+                marketplaceHighlightsDiv.innerHTML = '<p class="text-xs text-red-500">Could not load highlights.</p>';
+            }
+        }
+
+        function timeDifference(current, previous) {
+            const msPerMinute = 60 * 1000;
+            const msPerHour = msPerMinute * 60;
+            const msPerDay = msPerHour * 24;
+            const msPerMonth = msPerDay * 30;
+            const msPerYear = msPerDay * 365;
+
+            const elapsed = current - previous;
+
+            if (elapsed < msPerMinute) {
+                return Math.round(elapsed / 1000) + 's ago';
+            } else if (elapsed < msPerHour) {
+                return Math.round(elapsed / msPerMinute) + 'm ago';
+            } else if (elapsed < msPerDay) {
+                return Math.round(elapsed / msPerHour) + 'h ago';
+            } else if (elapsed < msPerMonth) {
+                return Math.round(elapsed / msPerDay) + 'd ago';
+            } else if (elapsed < msPerYear) {
+                return Math.round(elapsed / msPerMonth) + 'mo ago';
+            } else {
+                return Math.round(elapsed / msPerYear) + 'y ago';
+            }
+        }
+
+        function handleLogout() {
+            console.log("Community: Logging out and redirecting to login.html");
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+
+        function showMessage(message, type = 'success', duration = 3000) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show'; // Reset classes
+            if (type === 'error') {
+                messageBox.classList.add('error');
+            } else {
+                messageBox.classList.remove('error');
+            }
+
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        console.log("Community Hub page loaded and scripts attached.");
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="/index.html">
+            <img src="/static/nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="/index.html" class="flex items-center">
+                <img src="/static/nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="/index.html" class="nav-link-sidebar active">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="/marketplace.html" class="nav-link-sidebar">
+                <i class="fas fa-store"></i>Marketplace
+            </a>
+            <a href="/wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+            <a href="/admin-kyc.html" class="nav-link-sidebar">
+                <i class="fas fa-user-check"></i>Admin KYC
+            </a>
+            <a href="/register.html" class="nav-link-sidebar">
+                <i class="fas fa-user-plus"></i>Register
+            </a>
+            <a href="/login.html" class="nav-link-sidebar">
+                <i class="fas fa-sign-in-alt"></i>Login
+            </a>
+            <a href="/verify-email.html" class="nav-link-sidebar">
+                <i class="fas fa-envelope"></i>Email Verification
+            </a>
+            <a href="/reset-password.html" class="nav-link-sidebar">
+                <i class="fas fa-key"></i>Reset Password
+            </a>
+            <a href="/view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="/reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="/community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="/chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="/resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="/settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="/profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-6">
+            <div></div>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+
+        <div class="greeting-summary-card">
+            <h1 id="personalizedGreeting" class="greeting-text">Good morning, User!</h1>
+            <p class="ai-summary-text" id="aiSummaryText">
+                Loading your financial summary...
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Total Income</h2>
+                        <i class="fas fa-dollar-sign metric-card-icon text-green-500"></i>
+                    </div>
+                    <p class="metric-card-value text-green-600" id="totalIncomeDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Total Expenses</h2>
+                        <i class="fas fa-receipt metric-card-icon text-red-500"></i>
+                    </div>
+                    <p class="metric-card-value text-red-600" id="totalExpensesDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Net Balance</h2>
+                        <i class="fas fa-balance-scale-right metric-card-icon text-blue-500"></i>
+                    </div>
+                    <p class="metric-card-value text-blue-600" id="netBalanceDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Profit Margin</h2>
+                        <i class="fas fa-percentage metric-card-icon text-purple-500"></i>
+                    </div>
+                    <p class="metric-card-value text-purple-600" id="profitMarginDisplay">0%</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Overdue Invoices</h2>
+                        <i class="fas fa-file-invoice-dollar metric-card-icon text-orange-500"></i>
+                    </div>
+                    <p class="metric-card-value text-orange-600" id="overdueInvoicesDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">(<span id="overdueInvoicesCount">0</span>) Total outstanding</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="chart-container">
+                <h3 class="chart-title">Sales Trend (Bar Chart)</h3>
+                <canvas id="salesTrendChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">Expense Breakdown (Donut Chart)</h3>
+                <canvas id="expenseBreakdownChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <h3 class="chart-title">Cash Flow Over Time (Area Chart)</h3>
+            <canvas id="cashFlowChart"></canvas>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            const userString = localStorage.getItem('nova7User');
+            const backendUrl = 'https://nova7-sapiens-1.onrender.com';
+
+            console.log("Dashboard: Token from localStorage:", token);
+            console.log("Dashboard: User string from localStorage:", userString);
+
+            if (!token || !userString || token === "undefined" || token === "null") {
+                console.log("Dashboard: Token or userString missing/invalid. Redirecting to login.");
+                window.location.href = '/login.html';
+                return;
+            }
+
+            let userName = "User";
+            try {
+                const user = JSON.parse(userString);
+                userName = user.fullName || "User";
+                const greetingElement = document.getElementById('personalizedGreeting');
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (greetingElement) {
+                    const currentHour = new Date().getHours();
+                    let timeOfDayGreeting = "Hello";
+                    if (currentHour < 12) timeOfDayGreeting = "Good morning";
+                    else if (currentHour < 18) timeOfDayGreeting = "Good afternoon";
+                    else timeOfDayGreeting = "Good evening";
+                    greetingElement.textContent = `${timeOfDayGreeting}, ${userName}!`;
+                }
+                if (desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+            } catch (error) {
+                console.error("Dashboard: Error parsing user data from localStorage:", error);
+                handleLogout();
+                return;
+            }
+
+            const aiSummaryText = document.getElementById('aiSummaryText');
+
+            // Fetch CSRF token
+            let csrfToken = localStorage.getItem('nova7CsrfToken');
+            if (!csrfToken) {
+                try {
+                    const csrfResponse = await fetch(`${backendUrl}/api/csrf-token`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const csrfData = await csrfResponse.json();
+                    if (csrfResponse.ok && csrfData.csrf_token) {
+                        csrfToken = csrfData.csrf_token;
+                        localStorage.setItem('nova7CsrfToken', csrfToken);
+                    } else {
+                        console.error("Dashboard: Failed to fetch CSRF token:", csrfData.message);
+                        aiSummaryText.textContent = "Error: Could not initialize session.";
+                        return;
+                    }
+                } catch (error) {
+                    console.error("Dashboard: Error fetching CSRF token:", error);
+                    aiSummaryText.textContent = "Failed to connect to server.";
+                    return;
+                }
+            }
+
+            // Fetch Dashboard Summary Data
+            try {
+                const authHeader = `Bearer ${token}`;
+                console.log("Dashboard: Sending Authorization header:", authHeader);
+                const response = await fetch(`${backendUrl}/api/dashboard/summary`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
+
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Dashboard: Failed to parse response as JSON. Response text:", responseText);
+                    aiSummaryText.textContent = "Error: Received invalid data from server.";
+                    return;
+                }
+
+                console.log("Dashboard: Summary API response status:", response.status);
+                console.log("Dashboard: Summary API response data:", data);
+
+                if (response.ok && data.status === 'success') {
+                    const summary = data.summary;
+                    document.getElementById('totalIncomeDisplay').textContent = `$${summary.totalIncome.toFixed(2)}`;
+                    document.getElementById('totalExpensesDisplay').textContent = `$${summary.totalExpenses.toFixed(2)}`;
+                    document.getElementById('netBalanceDisplay').textContent = `$${summary.netBalance.toFixed(2)}`;
+                    document.getElementById('profitMarginDisplay').textContent = `${summary.profitMargin.toFixed(1)}%`;
+                    document.getElementById('overdueInvoicesDisplay').textContent = `$${summary.overdueInvoicesAmount.toFixed(2)}`;
+                    document.getElementById('overdueInvoicesCount').textContent = summary.overdueInvoicesCount;
+
+                    if (aiSummaryText) {
+                        let summaryMessage = `Your current net balance is <strong>$${summary.netBalance.toFixed(2)}</strong>. `;
+                        if (summary.totalIncome > summary.totalExpenses) {
+                            summaryMessage += `You're profitable with a margin of <strong>${summary.profitMargin.toFixed(1)}%</strong>. Keep up the good work!`;
+                        } else if (summary.totalExpenses > 0) {
+                            summaryMessage += `You've spent more than you earned this period. Review your expenses.`;
+                        } else {
+                            summaryMessage += `Start by adding some income and expense transactions to see your financial picture.`;
+                        }
+                        aiSummaryText.innerHTML = summaryMessage;
+                    }
+
+                    // Render Charts
+                    try {
+                        const salesResponse = await fetch(`${backendUrl}/api/reports/income-expense`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': authHeader,
+                                'Content-Type': 'application/json',
+                                'X-CSRF-Token': csrfToken
+                            }
+                        });
+                        const salesData = await salesResponse.json();
+                        if (salesResponse.ok && salesData.status === 'success') {
+                            new Chart(document.getElementById('salesTrendChart'), {
+                                type: 'bar',
+                                data: {
+                                    labels: salesData.data.labels,
+                                    datasets: [{
+                                        label: 'Sales Trend',
+                                        data: salesData.data.income,
+                                        backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                                        borderColor: 'rgba(34, 197, 94, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: { y: { beginAtZero: true } }
+                                }
+                            });
+
+                            new Chart(document.getElementById('expenseBreakdownChart'), {
+                                type: 'doughnut',
+                                data: {
+                                    labels: salesData.data.categories,
+                                    datasets: [{
+                                        label: 'Expense Breakdown',
+                                        data: salesData.data.expenses,
+                                        backgroundColor: ['rgba(239, 68, 68, 0.5)', 'rgba(59, 130, 246, 0.5)', 'rgba(168, 85, 247, 0.5)'],
+                                        borderColor: ['rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)', 'rgba(168, 85, 247, 1)'],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: { responsive: true }
+                            });
+
+                            new Chart(document.getElementById('cashFlowChart'), {
+                                type: 'line',
+                                data: {
+                                    labels: salesData.data.labels,
+                                    datasets: [{
+                                        label: 'Cash Flow',
+                                        data: salesData.data.netBalance,
+                                        fill: true,
+                                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                        borderColor: 'rgba(59, 130, 246, 1)',
+                                        tension: 0.4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: { y: { beginAtZero: true } }
+                                }
+                            });
+                        } else {
+                            console.error("Dashboard: Error fetching chart data:", salesData.message);
+                            aiSummaryText.textContent = salesData.message || "Could not load chart data.";
+                        }
+                    } catch (error) {
+                        console.error("Dashboard: Error rendering charts:", error);
+                        aiSummaryText.textContent = "Failed to load chart data.";
+                    }
+                } else {
+                    console.error("Dashboard: Error fetching dashboard summary. Status:", response.status, "Message:", data.message);
+                    aiSummaryText.textContent = data.message || "Could not load dashboard summary.";
+                    if (response.status === 401 || response.status === 422) {
+                        console.log(`Dashboard: Received ${response.status}, logging out.`);
+                        handleLogout();
+                    }
+                }
+            } catch (error) {
+                console.error("Dashboard: Network or other error fetching dashboard summary:", error);
+                aiSummaryText.textContent = "Failed to connect to server for summary.";
+            }
+        });
+
+        function handleLogout() {
+            console.log("Dashboard: Logging out and redirecting to login.html");
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            localStorage.removeItem('nova7CsrfToken');
+            window.location.href = '/login.html';
+        }
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        console.log("Dashboard page loaded and scripts attached.");
+    </script>
+</body>
+</html>

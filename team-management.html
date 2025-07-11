@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        /* Sidebar Styles */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header {
+            max-height: 36px;
+            width: auto;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Main Content Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            border-radius: 8px;
+            padding: 0.625rem 1.25rem;
+            font-weight: 600;
+            transition: background-color 0.2s, opacity 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-secondary-action {
+            background-color: #E2E8F0;
+            color: #2D3748;
+            border-radius: 8px;
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            border: 1px solid #CBD5E0;
+            cursor: pointer;
+        }
+        .btn-secondary-action:hover {
+            background-color: #CBD5E0;
+        }
+        .btn-danger {
+            background-color: #DC2626;
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-danger:hover {
+            background-color: #B91C1C;
+        }
+        .btn-primary-action i, .btn-danger i {
+            margin-right: 0.5rem;
+        }
+        .form-input-styled, .form-select-styled {
+            border: 1px solid #CBD5E0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #FFFFFF;
+            width: 100%;
+        }
+        .form-input-styled:focus, .form-select-styled:focus {
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+            outline: none;
+        }
+        .form-input-styled.border-red-500 {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 0 1px #EF4444 !important;
+        }
+        .card-styled {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 2rem;
+        }
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #4A5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .table-container {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .data-table th {
+            background-color: #F8FAFC;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #4A5568;
+        }
+        .data-table td {
+            font-size: 0.875rem;
+            color: #2D3748;
+        }
+        .data-table tbody tr:hover {
+            background-color: #F7FAFC;
+        }
+        .action-icon {
+            color: #718096;
+            cursor: pointer;
+            margin: 0 0.35rem;
+            font-size: 0.9rem;
+        }
+        .action-icon:hover {
+            color: #0A66C2;
+        }
+        .message-success { color: #10B981; }
+        .message-error { color: #EF4444; }
+        .mobile-header { display: none; }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .modal-close {
+            background-color: #E2E8F0;
+            color: #2D3748;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            background-color: #CBD5E0;
+        }
+        @media (max-width: 768px) {
+            .sidebar-nova7 { transform: translateX(-100%); top: 0; height: 100vh; }
+            .sidebar-nova7.open { transform: translateX(0); }
+            .main-content-area { margin-left: 0; width: 100%; padding-top: calc(60px + 1rem); padding: 1rem; }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .card-styled { padding: 1.5rem; }
+            .data-table th, .data-table td { padding: 0.5rem; font-size: 0.8rem; }
+            .modal-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="index.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header">
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="index.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);" onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar active">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Team Management</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span>
+            </div>
+        </header>
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 md:hidden">Team Management</h1>
+
+        <div id="adminOnlyContent" class="hidden">
+            <div class="card-styled mb-8">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Invite New Helper</h2>
+                <form id="inviteHelperForm" class="space-y-4">
+                    <div>
+                        <label for="helperEmail" class="form-label">Helper's Email Address</label>
+                        <input type="email" id="helperEmail" name="email" class="form-input-styled" placeholder="helper@example.com" required>
+                        <p id="helperEmailError" class="text-xs text-red-500 mt-1 hidden">Please enter a valid email address.</p>
+                    </div>
+                    <div>
+                        <label class="form-label">Permissions (Select all that apply)</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="permissions" value="view_transactions" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span>View Transactions</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="permissions" value="manage_transactions" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span>Manage Transactions</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="permissions" value="view_reports" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span>View Reports</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="permissions" value="manage_marketplace" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <span>Manage Marketplace Items</span>
+                            </label>
+                        </div>
+                        <p id="permissionsError" class="text-xs text-red-500 mt-1 hidden">Please select at least one permission.</p>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" id="submitInviteBtn" class="btn-primary-action">
+                            <i class="fas fa-paper-plane"></i>Send Invitation
+                        </button>
+                    </div>
+                </form>
+                <div id="inviteMessage" class="text-sm mt-3"></div>
+            </div>
+
+            <div class="card-styled">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Current Team Members</h2>
+                <div id="teamMembersMessage" class="text-sm mb-3"></div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Permissions</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamMembersTableBody">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-500">Loading team members...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="accessDeniedMessage" class="card-styled text-center text-red-600 font-semibold hidden">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+            <p>Access Denied. This section is for administrators only.</p>
+            <a href="index.html" class="mt-4 inline-block btn-primary-action">Go to Dashboard</a>
+        </div>
+
+        <!-- Edit Permissions Modal -->
+        <div id="editPermissionsModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Edit Helper Permissions</h2>
+                <form id="editPermissionsForm" class="space-y-4">
+                    <div>
+                        <label class="form-label">Permissions</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="edit_permissions" value="view_transactions" class="form-checkbox h-5 w-5 text-blue-600">
+                                <span>View Transactions</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="edit_permissions" value="manage_transactions" class="form-checkbox h-5 w-5 text-blue-600">
+                                <span>Manage Transactions</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="edit_permissions" value="view_reports" class="form-checkbox h-5 w-5 text-blue-600">
+                                <span>View Reports</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="checkbox" name="edit_permissions" value="manage_marketplace" class="form-checkbox h-5 w-5 text-blue-600">
+                                <span>Manage Marketplace Items</span>
+                            </label>
+                        </div>
+                        <p id="editPermissionsError" class="text-xs text-red-500 mt-1 hidden">Please select at least one permission.</p>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-4">
+                        <button type="button" id="closeModalBtn" class="modal-close">Cancel</button>
+                        <button type="submit" id="savePermissionsBtn" class="btn-primary-action">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUserId = null;
+        let currentUserRole = 'user';
+        let editingHelperId = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Fetch user profile to verify role
+            try {
+                const response = await fetch('/api/profile', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    currentUserId = data.user.id;
+                    currentUserRole = data.user.role || 'user';
+                    const userName = data.user.fullName || 'User';
+                    const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                    if (desktopUserWelcomeElement) {
+                        desktopUserWelcomeElement.textContent = `Welcome, ${currentUserRole === 'admin' ? 'Admin' : userName}!`;
+                    }
+                } else {
+                    console.error('Failed to fetch user profile:', data.message);
+                    handleLogout();
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                handleLogout();
+            }
+
+            checkAdminAccess();
+        });
+
+        function handleLogout() {
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+            });
+        }
+        document.addEventListener('click', function(e) {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        const adminOnlyContent = document.getElementById('adminOnlyContent');
+        const accessDeniedMessage = document.getElementById('accessDeniedMessage');
+        const inviteHelperForm = document.getElementById('inviteHelperForm');
+        const inviteMessageDiv = document.getElementById('inviteMessage');
+        const teamMembersTableBody = document.getElementById('teamMembersTableBody');
+        const teamMembersMessageDiv = document.getElementById('teamMembersMessage');
+        const editPermissionsModal = document.getElementById('editPermissionsModal');
+        const editPermissionsForm = document.getElementById('editPermissionsForm');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const helperEmailInput = document.getElementById('helperEmail');
+        const helperEmailError = document.getElementById('helperEmailError');
+        const permissionsError = document.getElementById('permissionsError');
+        const editPermissionsError = document.getElementById('editPermissionsError');
+
+        function checkAdminAccess() {
+            if (currentUserRole === 'admin') {
+                adminOnlyContent.classList.remove('hidden');
+                fetchTeamMembers();
+            } else {
+                accessDeniedMessage.classList.remove('hidden');
+            }
+        }
+
+        async function fetchTeamMembers() {
+            const token = localStorage.getItem('nova7Token');
+            teamMembersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Loading...</td></tr>';
+            try {
+                const response = await fetch('/api/team/members', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                teamMembersTableBody.innerHTML = '';
+                if (response.ok && data.status === 'success') {
+                    if (data.members && data.members.length > 0) {
+                        data.members.forEach(member => {
+                            const row = document.createElement('tr');
+                            const permissions = Array.isArray(member.permissions) ? member.permissions.join(', ') : 'None';
+                            row.innerHTML = `
+                                <td>${member.fullName || 'N/A'}</td>
+                                <td>${member.email || 'N/A'}</td>
+                                <td>${permissions}</td>
+                                <td class="text-center">
+                                    <button class="action-icon edit-helper-btn" data-helper-id="${member.id}" title="Edit Permissions"><i class="fas fa-user-shield"></i></button>
+                                    <button class="action-icon remove-helper-btn" data-helper-id="${member.id}" title="Remove Helper"><i class="fas fa-user-times"></i></button>
+                                </td>
+                            `;
+                            teamMembersTableBody.appendChild(row);
+                        });
+                        addTeamMemberActionListeners();
+                    } else {
+                        teamMembersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">No team members yet.</td></tr>';
+                    }
+                } else {
+                    teamMembersTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-red-500">Error: ${data.message || 'Could not load team members.'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Error fetching team members:", error);
+                teamMembersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Failed to connect.</td></tr>';
+            }
+        }
+
+        function addTeamMemberActionListeners() {
+            document.querySelectorAll('.edit-helper-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => handleEditHelperPermissions(e.currentTarget.dataset.helperId));
+            });
+            document.querySelectorAll('.remove-helper-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => handleRemoveHelper(e.currentTarget.dataset.helperId));
+            });
+        }
+
+        // Email Validation
+        if (helperEmailInput) {
+            helperEmailInput.addEventListener('input', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(this.value)) {
+                    helperEmailError.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    helperEmailError.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        if (inviteHelperForm) {
+            inviteHelperForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const token = localStorage.getItem('nova7Token');
+                inviteMessageDiv.textContent = '';
+                inviteMessageDiv.className = 'text-sm mt-3';
+                permissionsError.classList.add('hidden');
+                const submitInviteBtn = document.getElementById('submitInviteBtn');
+                submitInviteBtn.disabled = true;
+                submitInviteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+                const helperEmail = helperEmailInput.value.trim();
+                const selectedPermissions = Array.from(document.querySelectorAll('input[name="permissions"]:checked')).map(cb => cb.value);
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!emailRegex.test(helperEmail)) {
+                    inviteMessageDiv.textContent = 'Please enter a valid email address.';
+                    inviteMessageDiv.classList.add('message-error');
+                    helperEmailInput.classList.add('border-red-500');
+                    submitInviteBtn.disabled = false;
+                    submitInviteBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Send Invitation';
+                    return;
+                }
+                if (selectedPermissions.length === 0) {
+                    permissionsError.classList.remove('hidden');
+                    inviteMessageDiv.textContent = 'Please select at least one permission.';
+                    inviteMessageDiv.classList.add('message-error');
+                    submitInviteBtn.disabled = false;
+                    submitInviteBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Send Invitation';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/team/invite-helper', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ email: helperEmail, permissions: selectedPermissions })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.status === 'success') {
+                        inviteMessageDiv.textContent = data.message || 'Invitation sent successfully!';
+                        inviteMessageDiv.classList.add('message-success');
+                        inviteHelperForm.reset();
+                        fetchTeamMembers();
+                    } else {
+                        inviteMessageDiv.textContent = data.message || 'Failed to send invitation.';
+                        inviteMessageDiv.classList.add('message-error');
+                    }
+                } catch (error) {
+                    console.error("Error inviting helper:", error);
+                    inviteMessageDiv.textContent = 'An error occurred while sending the invitation.';
+                    inviteMessageDiv.classList.add('message-error');
+                } finally {
+                    submitInviteBtn.disabled = false;
+                    submitInviteBtn.innerHTML = '<i class="fas fa-paper-plane"></i>Send Invitation';
+                }
+            });
+        }
+
+        async function handleEditHelperPermissions(helperId) {
+            editingHelperId = helperId;
+            editPermissionsModal.classList.remove('hidden');
+            editPermissionsError.classList.add('hidden');
+
+            // Fetch current permissions (placeholder until backend API is implemented)
+            try {
+                const token = localStorage.getItem('nova7Token');
+                const response = await fetch(`/api/team/members/${helperId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success' && data.member) {
+                    const permissions = data.member.permissions || [];
+                    document.querySelectorAll('input[name="edit_permissions"]').forEach(checkbox => {
+                        checkbox.checked = permissions.includes(checkbox.value);
+                    });
+                } else {
+                    console.error('Failed to fetch helper permissions:', data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching helper permissions:', error);
+            }
+        }
+
+        if (editPermissionsForm) {
+            editPermissionsForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const token = localStorage.getItem('nova7Token');
+                editPermissionsError.classList.add('hidden');
+                const savePermissionsBtn = document.getElementById('savePermissionsBtn');
+                savePermissionsBtn.disabled = true;
+                savePermissionsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
+                const selectedPermissions = Array.from(document.querySelectorAll('input[name="edit_permissions"]:checked')).map(cb => cb.value);
+
+                if (selectedPermissions.length === 0) {
+                    editPermissionsError.classList.remove('hidden');
+                    savePermissionsBtn.disabled = false;
+                    savePermissionsBtn.textContent = 'Save Changes';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/team/members/${editingHelperId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ permissions: selectedPermissions })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.status === 'success') {
+                        editPermissionsModal.classList.add('hidden');
+                        teamMembersMessageDiv.textContent = data.message || 'Permissions updated successfully.';
+                        teamMembersMessageDiv.classList.add('message-success');
+                        fetchTeamMembers();
+                    } else {
+                        teamMembersMessageDiv.textContent = data.message || 'Failed to update permissions.';
+                        teamMembersMessageDiv.classList.add('message-error');
+                    }
+                } catch (error) {
+                    console.error("Error updating permissions:", error);
+                    teamMembersMessageDiv.textContent = 'An error occurred while updating permissions.';
+                    teamMembersMessageDiv.classList.add('message-error');
+                } finally {
+                    savePermissionsBtn.disabled = false;
+                    savePermissionsBtn.textContent = 'Save Changes';
+                }
+            });
+        }
+
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function() {
+                editPermissionsModal.classList.add('hidden');
+                editingHelperId = null;
+            });
+        }
+
+        async function handleRemoveHelper(helperId) {
+            if (!confirm('Are you sure you want to remove this helper from your team?')) return;
+            const token = localStorage.getItem('nova7Token');
+            teamMembersMessageDiv.textContent = 'Removing helper...';
+            teamMembersMessageDiv.className = 'text-sm mb-3 text-gray-600';
+            try {
+                const response = await fetch(`/api/team/members/${helperId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    teamMembersMessageDiv.textContent = data.message || 'Helper removed successfully.';
+                    teamMembersMessageDiv.classList.add('message-success');
+                    fetchTeamMembers();
+                } else {
+                    teamMembersMessageDiv.textContent = `Error: ${data.message || 'Could not remove helper.'}`;
+                    teamMembersMessageDiv.classList.add('message-error');
+                }
+            } catch (error) {
+                console.error("Error removing helper:", error);
+                teamMembersMessageDiv.textContent = 'Failed to remove helper.';
+                teamMembersMessageDiv.classList.add('message-error');
+            }
+        }
+    </script>
+</body>
+</html>

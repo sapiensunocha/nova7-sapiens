@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Product for Lending - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ... (Your existing CSS styles remain unchanged) ... */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        /* Sidebar Styles */
+        .sidebar-nova7 {
+            background-color: #004182; 
+            color: #E0F2FE; 
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            height: 100vh; 
+            position: fixed;
+            top: 0; 
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0; 
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header { /* For mobile header */
+            max-height: 36px;
+            width: auto;
+        }
+         .sidebar-logo-img { 
+             max-height: 120px; 
+             width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 6px;
+            margin: 0.25rem 1rem; 
+            font-weight: 500;
+            color: #E0F2FE; 
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2; 
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active { 
+            background-color: #FFFFFF; 
+            color: #0A66C2; 
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px; 
+            margin-right: 0.75rem; 
+            text-align: center;
+        }
+        /* --- Main Content & Form Styles --- */
+        .main-content-area {
+            margin-left: 260px; 
+            padding: 2rem; 
+            width: calc(100% - 260px);
+            min-height: 100vh; 
+        }
+        .form-card { 
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem; 
+            font-weight: 500;
+            color: #374151; 
+            margin-bottom: 0.5rem;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            border: 1px solid #D1D5DB; 
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #1D2939;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #0A66C2;
+            box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+        }
+        .form-input.border-red-500, .form-textarea.border-red-500, .form-select.border-red-500 {
+             border-color: #EF4444 !important;
+             box-shadow: 0 0 0 1px #EF4444 !important;
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .image-upload-placeholder {
+            border: 2px dashed #D1D5DB;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #6B7280; 
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .image-upload-placeholder:hover {
+            border-color: #0A66C2;
+        }
+        .image-upload-placeholder i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2; 
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem; 
+            font-weight: 600; 
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex; 
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182; 
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-secondary-action {
+            background-color: #F3F4F6; 
+            color: #374151; 
+            border: 1px solid #D1D5DB; 
+             border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-secondary-action:hover {
+            background-color: #E5E7EB; 
+        }
+        .message-success { color: #10B981; }
+        .message-error { color: #EF4444; }
+        .mobile-header { display: none; }
+
+        @media (max-width: 768px) {
+            .sidebar-nova7 { transform: translateX(-100%); top: 0; height: 100vh; }
+            .sidebar-nova7.open { transform: translateX(0); }
+            .main-content-area { margin-left: 0; width: 100%; padding-top: calc(60px + 1rem); padding: 1rem; }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex; background-color: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                padding: 0 1rem; height: 60px; align-items: center; justify-content: space-between;
+                position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            }
+            .form-card { padding: 1.5rem; }
+            .grid-cols-1.md\:grid-cols-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="index.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header">
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="index.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';"> 
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar"> 
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar"> 
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar active"> 
+                <i class="fas fa-users"></i>Community & Lending
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar"> 
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="marketplace.html" class="nav-link-sidebar"> <i class="fas fa-store"></i>Marketplace
+            </a> 
+        </nav>
+        <div class="pb-4"> 
+            <a href="profile.html" class="nav-link-sidebar"> 
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar"> 
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">List Your Product for Lending</h1>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span> 
+            </div>
+        </header>
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 md:hidden">List Product for Lending</h1>
+
+        <div class="form-card">
+            <form id="listLendableProductForm" class="space-y-6">
+                <div>
+                    <label for="productTitle" class="form-label">Product Title</label>
+                    <input type="text" id="productTitle" name="productTitle" class="form-input" placeholder="e.g., Professional DSLR Camera, Event Tent" maxlength="200" required>
+                    <p id="productTitleError" class="text-xs text-red-500 mt-1 hidden">Title must be 200 characters or less.</p>
+                </div>
+
+                <div>
+                    <label for="productDescription" class="form-label">Product Description</label>
+                    <textarea id="productDescription" name="productDescription" class="form-textarea" placeholder="Describe the product, its condition, and any accessories included." required></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="productCategory" class="form-label">Category</label>
+                        <select id="productCategory" name="productCategory" class="form-select" required>
+                            <option value="">Select a category...</option>
+                            <option value="tools_equipment">Tools & Equipment</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="event_supplies">Event Supplies</option>
+                            <option value="books_media">Books & Media</option>
+                            <option value="vehicles">Vehicles (e.g., Bicycles, Scooters)</option>
+                            <option value="sports_outdoor">Sports & Outdoor Gear</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="productLocation" class="form-label">Product Location (City/Area)</label>
+                        <input type="text" id="productLocation" name="productLocation" class="form-input" placeholder="e.g., Nairobi CBD, Kigali Heights">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="lendingTerms" class="form-label">Lending Terms</label>
+                    <textarea id="lendingTerms" name="lendingTerms" class="form-textarea" placeholder="e.g., Daily/weekly rate, deposit required, minimum lending period, conditions for use." required></textarea>
+                </div>
+
+                <div>
+                    <label class="form-label">Upload Images (up to 3)</label>
+                    <div id="imageUploadArea" class="image-upload-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p>Click or drag files here to upload</p>
+                        <p class="text-xs mt-1">PNG, JPG, JPEG up to 5MB each</p>
+                    </div>
+                    <input type="file" id="imageUploadInput" multiple accept="image/png,image/jpeg,image/jpg" class="hidden">
+                    <div id="imagePreviewContainer" class="mt-4 grid grid-cols-3 gap-2"></div>
+                    <p id="imageUploadError" class="text-xs text-red-500 mt-1 hidden">Please upload valid images.</p>
+                </div>
+
+                <div id="formMessage" class="text-sm text-center font-medium"></div>
+
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancelLendableProductBtn" class="btn-secondary-action">Cancel</button>
+                    <button type="submit" id="submitLendableProductBtn" class="btn-primary-action">List Product for Lending</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        let pageCsrfToken = null; // Global CSRF token for this page
+        let uploadedLendableImageUrls = []; 
+
+        // --- Auth Check, Sidebar, Logout (Standard Setup) ---
+        document.addEventListener('DOMContentLoaded', async function() { // Made async for CSRF
+            const authToken = localStorage.getItem('nova7Token');
+            if (!authToken || authToken === "undefined" || authToken === "null") { 
+                window.location.href = 'login.html'; return; 
+            }
+            try {
+                const user = JSON.parse(localStorage.getItem('nova7User'));
+                const userName = user ? user.fullName || "User" : "User";
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if(desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+            } catch(e) { console.error("List Lendable Product: Error parsing user data", e); }
+            
+            // --- MODIFICATION: Fetch initial CSRF token ---
+            try {
+                const csrfResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", {
+                    method: "GET",
+                    credentials: "include"
+                });
+                const csrfData = await csrfResponse.json();
+                if (csrfResponse.ok && csrfData.status === "success" && csrfData.csrf_token) {
+                    pageCsrfToken = csrfData.csrf_token;
+                    console.log("List Lendable Product: CSRF token fetched:", pageCsrfToken);
+                } else {
+                    throw new Error(csrfData.message || "Failed to fetch CSRF token for listing page.");
+                }
+            } catch (error) {
+                console.error("List Lendable Product: CSRF token fetch error:", error);
+                if(formMessage) { // Ensure formMessage is defined before using
+                    formMessage.textContent = 'Security initialization failed. Please refresh.';
+                    formMessage.className = 'text-sm text-center font-medium message-error';
+                }
+                if(submitLendableProductBtn) submitLendableProductBtn.disabled = true;
+            }
+            // --- END MODIFICATION ---
+            
+            // setupItemTypeToggle(); // This function was not defined in your provided code
+        });
+
+        function handleLogout() { 
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', function(e){ e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', function(e){ e.preventDefault(); handleLogout(); });
+        
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', function(e) { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', function(e) {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        // --- End of Standard Setup ---
+
+        const listLendableProductForm = document.getElementById('listLendableProductForm');
+        const formMessage = document.getElementById('formMessage'); // Already defined
+        const submitLendableProductBtn = document.getElementById('submitLendableProductBtn'); // Already defined
+        const imageUploadInput = document.getElementById('imageUploadInput');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const productTitleInput = document.getElementById('productTitle');
+        const productTitleError = document.getElementById('productTitleError');
+        const imageUploadError = document.getElementById('imageUploadError');
+
+        // Image Upload Handling
+        if (imageUploadArea && imageUploadInput) {
+            imageUploadArea.addEventListener('click', () => imageUploadInput.click());
+            // Drag and Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                imageUploadArea.addEventListener(eventName, (e) => {e.preventDefault(); e.stopPropagation();}, false);
+                document.body.addEventListener(eventName, (e) => {e.preventDefault(); e.stopPropagation();}, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                imageUploadArea.addEventListener(eventName, () => imageUploadArea.classList.add('border-blue-600', 'bg-blue-50'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                imageUploadArea.addEventListener(eventName, () => imageUploadArea.classList.remove('border-blue-600', 'bg-blue-50'), false);
+            });
+            imageUploadArea.addEventListener('drop', (e) => {
+                 if (e.dataTransfer.files.length > 0) {
+                    imageUploadInput.files = e.dataTransfer.files;
+                    imageUploadInput.dispatchEvent(new Event('change'));
+                }
+            }, false);
+            
+            imageUploadInput.addEventListener('change', async function(event) {
+                if (imagePreviewContainer) imagePreviewContainer.innerHTML = ''; 
+                uploadedLendableImageUrls = []; 
+                if(imageUploadError) imageUploadError.classList.add('hidden');
+                const files = event.target.files;
+
+                if (files.length > 3) {
+                    if(imageUploadError) {
+                        imageUploadError.textContent = 'You can upload a maximum of 3 images.';
+                        imageUploadError.classList.remove('hidden');
+                    }
+                    imageUploadInput.value = ""; 
+                    return;
+                }
+
+                if (submitLendableProductBtn) {
+                    submitLendableProductBtn.disabled = true; 
+                    submitLendableProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading Images...';
+                }
+                let allUploadsSuccessful = true;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (!['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) { // Removed GIF as example
+                        if(imageUploadError) {
+                            imageUploadError.textContent = `File ${file.name} is not a valid image type (PNG, JPEG, JPG). Skipped.`;
+                            imageUploadError.classList.remove('hidden');
+                        }
+                        allUploadsSuccessful = false; continue;
+                    }
+                    if (file.size > 5 * 1024 * 1024) { 
+                        if(imageUploadError) {
+                            imageUploadError.textContent = `File ${file.name} is too large (max 5MB). Skipped.`;
+                            imageUploadError.classList.remove('hidden');
+                        }
+                        allUploadsSuccessful = false; continue;
+                    }
+                    
+                    const imageFormData = new FormData();
+                    imageFormData.append('file', file);
+                    const authToken = localStorage.getItem('nova7Token'); // Use distinct name
+                    
+                    // --- MODIFICATION: Check for pageCsrfToken before image upload ---
+                    if (!authToken || !pageCsrfToken) {
+                        alert("Authentication or security token missing. Please refresh and try image upload again.");
+                        allUploadsSuccessful = false; break;
+                    }
+
+                    try {
+                        // --- MODIFICATION: Corrected port and added CSRF for image upload ---
+                        const uploadResponse = await fetch('https://nova7-sapiens-1.onrender.com/api/upload/image?context=lending_products', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${authToken}`,
+                                'X-CSRF-Token': pageCsrfToken // Added CSRF token
+                            },
+                            credentials: "include",
+                            body: imageFormData
+                        });
+                        const uploadData = await uploadResponse.json();
+                        if (uploadResponse.ok && uploadData.status === 'success' && uploadData.imageUrl) {
+                            uploadedLendableImageUrls.push(uploadData.imageUrl);
+                            const imgContainer = document.createElement('div');
+                            imgContainer.classList.add('relative', 'inline-block', 'w-24', 'h-24', 'm-1');
+                            const imgElement = document.createElement('img');
+                            imgElement.src = uploadData.imageUrl;
+                            imgElement.classList.add('w-full', 'h-full', 'object-cover', 'rounded-md', 'border', 'border-gray-300');
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            removeBtn.classList.add('absolute', '-top-2', '-right-2', 'bg-red-500', 'text-white', 'rounded-full', 'h-5', 'w-5', 'flex', 'items-center', 'justify-center', 'text-xs', 'cursor-pointer');
+                            removeBtn.onclick = () => { // Using onclick for simplicity
+                                imgContainer.remove();
+                                uploadedLendableImageUrls = uploadedLendableImageUrls.filter(url => url !== uploadData.imageUrl);
+                                if (imageUploadInput.files) { // Attempt to clear specific file from input (complex, usually reset whole input)
+                                    const dt = new DataTransfer();
+                                    for(let j=0; j < imageUploadInput.files.length; j++) {
+                                        if(imageUploadInput.files[j].name !== file.name) dt.items.add(imageUploadInput.files[j]);
+                                    }
+                                    imageUploadInput.files = dt.files;
+                                }
+                            };
+                            imgContainer.appendChild(imgElement);
+                            imgContainer.appendChild(removeBtn);
+                            if(imagePreviewContainer) imagePreviewContainer.appendChild(imgContainer);
+                        } else {
+                            allUploadsSuccessful = false;
+                            if(imageUploadError) {
+                                imageUploadError.textContent = `Failed to upload ${file.name}: ${uploadData.message || 'Server error'}`;
+                                imageUploadError.classList.remove('hidden');
+                            }
+                        }
+                    } catch (uploadError) {
+                         allUploadsSuccessful = false;
+                         if(imageUploadError) {
+                            imageUploadError.textContent = `Network error uploading ${file.name}.`;
+                            imageUploadError.classList.remove('hidden');
+                         }
+                         console.error("List Lendable: Image upload network error:", uploadError);
+                    }
+                }
+                if (imageUploadInput) imageUploadInput.value = ""; // Clear file input after all processing attempts
+
+                if (!allUploadsSuccessful && formMessage) {
+                     formMessage.textContent = 'Some images may not have uploaded correctly. Please review.';
+                     formMessage.className = 'text-sm text-center font-medium message-error';
+                }
+                if (submitLendableProductBtn) {
+                    submitLendableProductBtn.disabled = false;
+                    submitLendableProductBtn.textContent = 'List Product for Lending';
+                }
+            });
+        }
+
+        if (productTitleInput) {
+            productTitleInput.addEventListener('input', function() {
+                if (this.value.length > 200) {
+                    if(productTitleError) productTitleError.classList.remove('hidden');
+                    this.classList.add('border-red-500');
+                } else {
+                    if(productTitleError) productTitleError.classList.add('hidden');
+                    this.classList.remove('border-red-500');
+                }
+            });
+        }
+
+        if (listLendableProductForm && submitLendableProductBtn) {
+            listLendableProductForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                if(formMessage) {
+                    formMessage.textContent = '';
+                    formMessage.className = 'text-sm text-center font-medium';
+                }
+                submitLendableProductBtn.disabled = true;
+                submitLendableProductBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Listing Product...';
+
+                const authToken = localStorage.getItem('nova7Token'); // Use distinct name
+                if (!authToken || authToken === "undefined" || authToken === "null") {
+                    if(formMessage) {
+                        formMessage.textContent = 'Authentication error. Please log in again.';
+                        formMessage.classList.add('message-error');
+                    }
+                    submitLendableProductBtn.disabled = false;
+                    submitLendableProductBtn.textContent = 'List Product for Lending';
+                    handleLogout(); return;
+                }
+                // --- MODIFICATION: Check for pageCsrfToken before submit ---
+                if (!pageCsrfToken) {
+                    if(formMessage) {
+                        formMessage.textContent = 'Security token error. Please refresh and try again.';
+                        formMessage.classList.add('message-error');
+                    }
+                    submitLendableProductBtn.disabled = false;
+                    submitLendableProductBtn.textContent = 'List Product for Lending';
+                    return;
+                }
+
+                const productData = {
+                    title: document.getElementById('productTitle').value.trim(),
+                    description: document.getElementById('productDescription').value.trim(),
+                    category: document.getElementById('productCategory').value,
+                    lending_terms: document.getElementById('lendingTerms').value.trim(),
+                    location: document.getElementById('productLocation').value.trim() || null,
+                    image_urls: uploadedLendableImageUrls
+                };
+
+                // Basic client-side validation
+                let isValid = true;
+                if (!productData.title) { document.getElementById('productTitle').classList.add('border-red-500'); isValid = false; } 
+                else { document.getElementById('productTitle').classList.remove('border-red-500'); }
+                if (productData.title.length > 200) {
+                    if(productTitleError) productTitleError.classList.remove('hidden');
+                    document.getElementById('productTitle').classList.add('border-red-500'); isValid = false;
+                } else {
+                    if(productTitleError) productTitleError.classList.add('hidden');
+                }
+                if (!productData.description) { document.getElementById('productDescription').classList.add('border-red-500'); isValid = false; }
+                else { document.getElementById('productDescription').classList.remove('border-red-500'); }
+                if (!productData.category) { document.getElementById('productCategory').classList.add('border-red-500'); isValid = false; }
+                else { document.getElementById('productCategory').classList.remove('border-red-500'); }
+                if (!productData.lending_terms) { document.getElementById('lendingTerms').classList.add('border-red-500'); isValid = false; }
+                else { document.getElementById('lendingTerms').classList.remove('border-red-500'); }
+
+                if (!isValid) {
+                    if(formMessage) {
+                        formMessage.textContent = 'Please fill in all required fields marked in red.';
+                        formMessage.classList.add('message-error');
+                    }
+                    submitLendableProductBtn.disabled = false;
+                    submitLendableProductBtn.textContent = 'List Product for Lending';
+                    return;
+                }
+
+                console.log("List Lendable Product: Sending payload:", JSON.stringify(productData));
+                console.log("List Lendable Product: Auth Token:", authToken, "CSRF Token:", pageCsrfToken);
+
+                try {
+                    // --- MODIFICATION: Corrected port and added CSRF Token ---
+                    const response = await fetch('https://nova7-sapiens-1.onrender.com/api/lending/products/items', { // Corrected path based on index.py
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                            'X-CSRF-Token': pageCsrfToken 
+                        },
+                        credentials: "include",
+                        body: JSON.stringify(productData)
+                    });
+                    const responseData = await response.json();
+                    console.log("List Lendable Product: API Response Status:", response.status, "Data:", responseData);
+
+                    if (response.ok && responseData.status === 'success') {
+                        if(formMessage) {
+                            formMessage.textContent = responseData.message || 'Product listed successfully!';
+                            formMessage.classList.remove('message-error');
+                            formMessage.classList.add('message-success');
+                        }
+                        listLendableProductForm.reset();
+                        if(imagePreviewContainer) imagePreviewContainer.innerHTML = ''; 
+                        uploadedLendableImageUrls = [];
+                        // setupItemTypeToggle(); // Reset checkbox if needed
+                        setTimeout(() => {
+                             window.location.href = 'community.html'; // Or a page listing their lendable items
+                        }, 2000);
+                    } else {
+                        if(formMessage) {
+                            formMessage.textContent = responseData.message || 'Failed to list product. Please try again.';
+                            formMessage.classList.remove('message-success');
+                            formMessage.classList.add('message-error');
+                        }
+                        if (response.status === 401 || response.status === 422) {
+                            console.log("List Lendable Product: Received 401/422. Logging out.");
+                            handleLogout();
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error listing lendable product:", error);
+                    if(formMessage) {
+                        formMessage.textContent = 'An error occurred. Please check connection.';
+                        formMessage.classList.remove('message-success');
+                        formMessage.classList.add('message-error');
+                    }
+                } finally {
+                    submitLendableProductBtn.disabled = false;
+                    submitLendableProductBtn.textContent = 'List Product for Lending';
+                }
+            });
+        }
+        
+        const cancelLendableProductBtn = document.getElementById('cancelLendableProductBtn');
+        if (cancelLendableProductBtn) {
+            cancelLendableProductBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'community.html'; // Or dashboard/marketplace
+            });
+        }
+    </script>
+</body>
+</html>

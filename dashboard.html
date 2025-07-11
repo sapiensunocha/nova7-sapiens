@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5; 
+            color: #1a202c; 
+        }
+        .header-nova7 {
+            background-color: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1.5rem; 
+            height: 60px; 
+        }
+        .nova7-logo-header { 
+            max-height: 36px;
+            width: auto;
+        }
+        .sidebar-nova7 {
+            background-color: #004182; 
+            color: #E0F2FE; 
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh; 
+            position: fixed;
+            top: 0; 
+            left: 0;
+            padding-top: 1rem; 
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0.75rem 1.5rem 1rem 1.5rem; 
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            border-bottom: 1px solid #0053a0; 
+            margin-bottom: 0.75rem; 
+        }
+        .sidebar-logo-img { 
+            max-height: 120px; 
+            width: auto;
+        }
+
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 6px;
+            margin: 0.25rem 1rem; 
+            font-weight: 500;
+            color: #E0F2FE; 
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2; 
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF; 
+            color: #0A66C2; 
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px; 
+            margin-right: 0.75rem; 
+            text-align: center;
+        }
+        .main-content-area {
+            margin-left: 260px; 
+            padding: 1.5rem; 
+            width: calc(100% - 260px);
+            min-height: 100vh; 
+        }
+        .metric-card {
+            background-color: #FFFFFF;
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07); 
+            padding: 1.5rem; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px; 
+        }
+        .metric-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .metric-card-header h2 {
+            font-size: 0.95rem; 
+            font-weight: 600;
+            color: #4A5568; 
+        }
+        .metric-card-icon {
+            font-size: 1.5rem; 
+        }
+        .metric-card-value {
+            font-size: 2rem; 
+            font-weight: 700; 
+            line-height: 1.2;
+        }
+        .metric-card-footer {
+            font-size: 0.75rem;
+            color: #718096; 
+            margin-top: auto; 
+        }
+        .chart-placeholder-container {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 1.5rem;
+            min-height: 300px; 
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-placeholder-container h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2D3748;
+            margin-bottom: 1rem;
+        }
+        .chart-placeholder-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #E2E8F0; 
+            border-radius: 8px;
+            color: #A0AEC0;
+        }
+        .mobile-header {
+            display: none; 
+        }
+        .greeting-summary-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 1.5rem 2rem; 
+            margin-bottom: 1.5rem; 
+        }
+        .greeting-text {
+            font-size: 1.5rem; 
+            font-weight: 700;
+            color: #2D3748; 
+            margin-bottom: 0.5rem;
+        }
+        .ai-summary-text {
+            font-size: 0.95rem;
+            color: #4A5568; 
+            line-height: 1.6;
+        }
+        .ai-summary-text strong {
+            color: #004182; 
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) { 
+             .lg\:grid-cols-5 { 
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0; 
+                height: 100vh; 
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem); 
+            }
+            .desktop-header {
+                display: none; 
+            }
+            .mobile-header {
+                display: flex; 
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            .greeting-text {
+                font-size: 1.25rem; 
+            }
+            .lg\:grid-cols-5 { 
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';"> 
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar active">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar"> 
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <!-- NEW: Wallet Link -->
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+        </nav>
+        <div class="pb-4"> 
+            <a href="profile.html" class="nav-link-sidebar"> 
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar"> 
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-6">
+            <div></div> 
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span> 
+            </div>
+        </header>
+
+        <div class="greeting-summary-card">
+            <h1 id="personalizedGreeting" class="greeting-text">Good morning, User!</h1>
+            <p class="ai-summary-text" id="aiSummaryText">
+                Loading your financial summary...
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Total Income</h2>
+                        <i class="fas fa-dollar-sign metric-card-icon text-green-500"></i>
+                    </div>
+                    <p class="metric-card-value text-green-600" id="totalIncomeDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Total Expenses</h2>
+                        <i class="fas fa-receipt metric-card-icon text-red-500"></i>
+                    </div>
+                    <p class="metric-card-value text-red-600" id="totalExpensesDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Net Balance</h2>
+                        <i class="fas fa-balance-scale-right metric-card-icon text-blue-500"></i>
+                    </div>
+                    <p class="metric-card-value text-blue-600" id="netBalanceDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Profit Margin</h2>
+                        <i class="fas fa-percentage metric-card-icon text-purple-500"></i>
+                    </div>
+                    <p class="metric-card-value text-purple-600" id="profitMarginDisplay">0%</p>
+                </div>
+                <p class="metric-card-footer">This period</p>
+            </div>
+            <div class="metric-card">
+                <div>
+                    <div class="metric-card-header">
+                        <h2>Overdue Invoices</h2>
+                        <i class="fas fa-file-invoice-dollar metric-card-icon text-orange-500"></i>
+                    </div>
+                    <p class="metric-card-value text-orange-600" id="overdueInvoicesDisplay">$0.00</p>
+                </div>
+                <p class="metric-card-footer">(<span id="overdueInvoicesCount">0</span>) Total outstanding</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="chart-placeholder-container">
+                <h3>Sales Trend (Bar Chart)</h3>
+                <div class="chart-placeholder-content">
+                    <i class="fas fa-chart-bar text-4xl"></i>
+                </div>
+            </div>
+            <div class="chart-placeholder-container">
+                <h3>Expense Breakdown (Donut Chart)</h3>
+                <div class="chart-placeholder-content">
+                    <i class="fas fa-chart-pie text-4xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="chart-placeholder-container"> 
+            <h3>Cash Flow Over Time (Area Chart)</h3>
+            <div class="chart-placeholder-content">
+                <i class="fas fa-chart-area text-4xl"></i>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            const userString = localStorage.getItem('nova7User');
+
+            // --- Dynamic API Base URL for local testing vs. deployment ---
+            const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                                 ? "http://127.0.0.1:5005" // Local development backend
+                                 : "https://nova7-sapiens-1.onrender.com"; // Deployed backend
+            console.log("Using API Base URL:", API_BASE_URL);
+
+            console.log("Dashboard: Token from localStorage:", token);
+            console.log("Dashboard: User string from localStorage:", userString);
+
+            if (!token || !userString || token === "undefined" || token === "null") { 
+                console.log("Dashboard: Token or userString missing/invalid. Redirecting to login.");
+                window.location.href = 'login.html';
+                return; 
+            }
+
+            let userName = "User";
+            let userBalance = 0.00; // Initialize userBalance
+            let recentTransactions = []; // Initialize recentTransactions
+
+            try {
+                const user = JSON.parse(userString);
+                userName = user.full_name || "User"; // Corrected from fullName to full_name
+                userBalance = user.balance !== undefined ? parseFloat(user.balance) : 0.00; // Get balance from user object
+                
+                const greetingElement = document.getElementById('personalizedGreeting');
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (greetingElement) {
+                    const currentHour = new Date().getHours();
+                    let timeOfDayGreeting = "Hello";
+                    if (currentHour < 12) timeOfDayGreeting = "Good morning";
+                    else if (currentHour < 18) timeOfDayGreeting = "Good afternoon";
+                    else timeOfDayGreeting = "Good evening";
+                    greetingElement.textContent = `${timeOfDayGreeting}, ${userName}!`;
+                }
+                if(desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+            } catch (error) {
+                console.error("Dashboard: Error parsing user data from localStorage:", error);
+                handleLogout(); 
+                return;
+            }
+
+            const aiSummaryText = document.getElementById('aiSummaryText');
+
+            // --- Fetch Dashboard Summary Data ---
+            try {
+                const authHeader = `Bearer ${token}`;
+                console.log("Dashboard: Sending Authorization header:", authHeader);
+
+                // Corrected endpoint to /api/dashboard
+                const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': authHeader,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Dashboard: Failed to parse response as JSON. Response text:", responseText);
+                    if (aiSummaryText) aiSummaryText.textContent = "Error: Received invalid data from server.";
+                    if (response.status === 401 || response.status === 422) { 
+                        handleLogout();
+                    }
+                    return;
+                }
+
+                console.log("Dashboard: API response status:", response.status);
+                console.log("Dashboard: API response data:", data);
+
+                if (response.ok && data.status === 'success') {
+                    // Update userBalance and recentTransactions from the fetched data
+                    userBalance = data.user_balance !== undefined ? parseFloat(data.user_balance) : userBalance;
+                    recentTransactions = data.recent_transactions || [];
+
+                    // Populate dashboard elements
+                    document.getElementById('netBalanceDisplay').textContent = `$${userBalance.toFixed(2)}`;
+
+                    // Calculate total income and expenses from recent transactions
+                    let totalIncome = 0;
+                    let totalExpenses = 0;
+                    recentTransactions.forEach(t => {
+                        if (t.amount > 0 && (t.type === 'deposit' || t.type === 'transfer_received' || t.type === 'product_sell' || t.type === 'loan_received')) {
+                            totalIncome += t.amount;
+                        } else if (t.amount < 0 && (t.type.startsWith('withdrawal') || t.type === 'transfer_sent' || t.type === 'product_buy' || t.type === 'insurance_payment')) {
+                            totalExpenses += Math.abs(t.amount);
+                        }
+                    });
+
+                    document.getElementById('totalIncomeDisplay').textContent = `$${totalIncome.toFixed(2)}`;
+                    document.getElementById('totalExpensesDisplay').textContent = `$${totalExpenses.toFixed(2)}`;
+                    
+                    let profitMargin = 0;
+                    if (totalIncome > 0) {
+                        profitMargin = ((totalIncome - totalExpenses) / totalIncome) * 100;
+                    }
+                    document.getElementById('profitMarginDisplay').textContent = `${profitMargin.toFixed(1)}%`;
+
+                    // Overdue invoices/loans are not directly in dashboard summary, placeholder for now
+                    document.getElementById('overdueInvoicesDisplay').textContent = `$0.00`;
+                    document.getElementById('overdueInvoicesCount').textContent = `0`;
+
+                    // Update AI summary text
+                    if (aiSummaryText) {
+                        let summaryMessage = `Your current net balance is <strong>$${userBalance.toFixed(2)}</strong>. `;
+                        if (totalIncome > totalExpenses) {
+                            summaryMessage += `You're profitable with a margin of <strong>${profitMargin.toFixed(1)}%</strong>. Keep up the good work!`;
+                        } else if (totalExpenses > 0) {
+                            summaryMessage += `You've spent more than you earned this period. Review your expenses.`;
+                        } else {
+                            summaryMessage += `Start by adding some income and expense transactions to see your financial picture.`;
+                        }
+                        aiSummaryText.innerHTML = summaryMessage;
+                    }
+                } else {
+                    console.error("Dashboard: Error fetching dashboard summary. Status:", response.status, "Message:", data.message);
+                    if (aiSummaryText) aiSummaryText.textContent = data.message || "Could not load dashboard summary.";
+                    
+                    if (response.status === 401 || response.status === 422) { 
+                        console.log("Dashboard: Received 401 or 422, logging out.");
+                        handleLogout();
+                    }
+                }
+            } catch (error) { 
+                console.error("Dashboard: Network or other error fetching dashboard summary:", error);
+                if (aiSummaryText) aiSummaryText.textContent = "Failed to connect to server for summary.";
+            }
+        });
+
+        function handleLogout() {
+            console.log("Dashboard: Logging out and redirecting to login.html");
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+
+        // --- Sidebar and other UI logic (kept as is) ---
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        console.log("Dashboard page loaded and scripts attached.");
+    </script>
+
+</body>
+</html>

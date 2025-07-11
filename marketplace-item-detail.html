@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details - nova7 Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* ... (Your existing CSS styles remain unchanged) ... */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        /* Sidebar Styles */
+        .sidebar-nova7 {
+            background-color: #004182; 
+            color: #E0F2FE; 
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            height: 100vh; 
+            position: fixed;
+            top: 0; 
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0; 
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header { /* For mobile header */
+            max-height: 36px;
+            width: auto;
+        }
+         .sidebar-logo-img { 
+             max-height: 120px; 
+             width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 6px;
+            margin: 0.25rem 1rem; 
+            font-weight: 500;
+            color: #E0F2FE; 
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2; 
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active { 
+            background-color: #FFFFFF; 
+            color: #0A66C2; 
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px; 
+            margin-right: 0.75rem; 
+            text-align: center;
+        }
+        /* --- Main Content & Item Detail Styles --- */
+        .main-content-area {
+            margin-left: 260px; 
+            padding: 2rem; 
+            width: calc(100% - 260px);
+            min-height: 100vh; 
+        }
+        .btn-primary-action {
+            background-color: #0A66C2; 
+            color: white;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem; 
+            font-weight: 600; 
+            transition: background-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            display: inline-flex; 
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182; 
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+        .btn-primary-action:disabled {
+            background-color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-buy-now { /* Specific style for buy button */
+            background-color: #16A34A; /* Green */
+        }
+        .btn-buy-now:hover {
+            background-color: #15803D; /* Darker Green */
+        }
+        .btn-message-seller { 
+            background-color: #10B981; 
+        }
+        .btn-message-seller:hover {
+            background-color: #059669; 
+        }
+        .btn-primary-action i {
+            margin-right: 0.5rem;
+        }
+
+        .item-detail-container {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .item-image-gallery {
+            background-color: #E2E8F0; 
+            height: 400px; 
+            border-radius: 12px 12px 0 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF; 
+            position: relative; /* For multiple images if implemented */
+        }
+        .item-image-gallery img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; 
+            border-radius: 12px 12px 0 0;
+        }
+        .item-info-section {
+            padding: 2rem;
+        }
+        .item-title-detail {
+            font-size: 2rem; 
+            font-weight: 800;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .item-price-detail {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0A66C2;
+            margin-bottom: 1rem;
+        }
+        .item-meta-detail {
+            font-size: 0.9rem;
+            color: #6B7280;
+            margin-bottom: 1.5rem;
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 0.5rem 1.5rem; 
+        }
+        .item-meta-detail span {
+            display: inline-flex;
+            align-items: center;
+        }
+        .item-meta-detail i {
+            margin-right: 0.5rem;
+            color: #9CA3AF;
+        }
+        .item-description-detail {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #374151; 
+            margin-bottom: 1.5rem;
+        }
+        .item-description-detail h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+        .seller-info-card {
+            background-color: #F9FAFB; 
+            border: 1px solid #E5E7EB; 
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .seller-info-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+        }
+        .seller-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #BFDBFE; 
+            color: #1E40AF; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+        .back-to-marketplace-link {
+            display: inline-flex;
+            align-items: center;
+            color: #0A66C2;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .back-to-marketplace-link:hover {
+            text-decoration: underline;
+        }
+        .back-to-marketplace-link i {
+            margin-right: 0.5rem;
+        }
+        .message-success { color: #10B981; }
+        .message-error { color: #EF4444; }
+        .form-input-linkedin { /* Style for quantity input */
+            border: 1px solid #CED0D4;
+            border-radius: 6px;
+            padding: 0.5rem;
+            width: 80px; /* Adjust as needed */
+            text-align: center;
+        }
+
+
+        .mobile-header { display: none; }
+        @media (max-width: 768px) {
+            .sidebar-nova7 { transform: translateX(-100%); top: 0; height: 100vh; }
+            .sidebar-nova7.open { transform: translateX(0); }
+            .main-content-area { margin-left: 0; width: 100%; padding-top: calc(60px + 1rem); padding: 1rem; }
+            .desktop-header { display: none; }
+            .mobile-header {
+                display: flex; background-color: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                padding: 0 1rem; height: 60px; align-items: center; justify-content: space-between;
+                position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            }
+            .item-detail-container { padding: 0; border-radius:0; box-shadow: none; }
+            .item-image-gallery { border-radius: 0; height: 300px;}
+            .item-info-section { padding: 1.5rem; }
+            .item-title-detail { font-size: 1.5rem; }
+            .item-price-detail { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="index.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header">
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="index.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img" 
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';"> 
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="index.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar"> 
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar"> 
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar"> 
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar"> 
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+             <a href="marketplace.html" class="nav-link-sidebar active">
+                <i class="fas fa-store"></i>Marketplace
+            </a>   
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+        </nav>
+        <div class="pb-4"> 
+            <a href="profile.html" class="nav-link-sidebar"> 
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar"> 
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8"> 
+            <a href="marketplace.html" class="back-to-marketplace-link text-base"> 
+                <i class="fas fa-arrow-left"></i> Back to Marketplace
+            </a>
+            <div class="flex items-center space-x-3">
+                <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span> 
+            </div>
+        </header>
+         <div class="flex items-center justify-between mb-6 md:hidden"> 
+            <a href="marketplace.html" class="back-to-marketplace-link text-base">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+        <div id="itemDetailMessage" class="text-sm text-center my-4"></div>
+
+        <div class="item-detail-container">
+            <div class="item-image-gallery" id="itemImageGallery">
+                <i class="fas fa-spinner fa-spin text-4xl text-gray-400"></i> 
+            </div>
+            <div class="item-info-section">
+                <h1 id="itemTitleDetail" class="item-title-detail">Loading item...</h1>
+                <p id="itemPriceDetail" class="item-price-detail">Loading...</p>
+                
+                <div class="item-meta-detail">
+                    <span><i class="fas fa-tag"></i> Category: <span id="itemCategoryDetail" class="font-medium text-gray-700">Loading...</span></span>
+                    <span><i class="fas fa-box-open"></i> Condition: <span id="itemConditionDetail" class="font-medium text-gray-700">Loading...</span></span>
+                    <span><i class="fas fa-map-marker-alt"></i> Location: <span id="itemLocationDetail" class="font-medium text-gray-700">Loading...</span></span>
+                    <span id="itemStockInfo" class="hidden"><i class="fas fa-cubes"></i> Stock: <span id="itemStockQuantity" class="font-medium text-gray-700">Loading...</span></span>
+                </div>
+
+                <div class="item-description-detail" id="itemDescriptionDetail">
+                    <p>Loading description...</p>
+                </div>
+
+                <div class="mb-4" id="quantitySection" style="display: none;">
+                    <label for="quantityInput" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                    <input type="number" id="quantityInput" min="1" value="1" class="form-input-linkedin w-20 p-2" placeholder="1">
+                </div>                
+                <div class="mt-8 flex flex-col sm:flex-row gap-4"> 
+                    <div id="card-element" class="flex-grow p-3 border border-gray-300 rounded-md bg-gray-50" style="min-height: 40px;"></div>
+                    <button id="buyNowBtn" class="btn-primary-action btn-buy-now w-full sm:w-auto" disabled>
+                        <i class="fas fa-shopping-bag"></i> Buy Now
+                    </button>
+                </div>
+                <div id="card-errors" role="alert" class="text-sm text-red-600 mt-2"></div>
+                <div id="buyActionMessage" class="text-sm text-center mt-4"></div>
+
+
+                <div class="seller-info-card">
+                    <div class="flex items-center mb-4"> 
+                        <div id="sellerAvatar" class="seller-avatar">S</div>
+                        <div>
+                            <h3 class="text-base font-semibold text-gray-800 -mb-0.5" id="sellerName">Loading...</h3>
+                            <a href="#" id="sellerProfileLink" class="text-xs text-blue-600 hover:underline">View Profile (Not implemented)</a>
+                        </div>
+                    </div>
+                    <button id="messageSellerBtn" class="btn-primary-action btn-message-seller w-full text-sm mt-3" disabled> 
+                        <i class="fas fa-envelope"></i> Message Seller
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let pageCsrfToken = null; // For CSRF token
+        let stripe = null;
+        let cardElement = null;
+        // Remember to replace with your actual TEST Stripe Publishable Key
+        const stripePublishableKey = 'pk_live_51QlhX1DV4GGUfngRRIJi02QYB2pTZg2bbX9T4xwM0i6FflEPt2FtV7ydZfNks9I9vOAcmwsLGM1U7tzbpmaP454C00qsme0XJ8'; // TODO: Replace with your test key
+
+
+        // --- Auth Check, Sidebar, Logout (Standard Setup) ---
+        document.addEventListener('DOMContentLoaded', async function() { // Made async for CSRF
+            const authToken = localStorage.getItem('nova7Token');
+            if (!authToken || authToken === "undefined" || authToken === "null") { 
+                window.location.href = 'login.html'; return; 
+            }
+            try {
+                const user = JSON.parse(localStorage.getItem('nova7User'));
+                const userName = user ? user.fullName || "User" : "User";
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if(desktopUserWelcomeElement) desktopUserWelcomeElement.textContent = `Welcome, ${userName}!`;
+            } catch(e) { console.error("Item Detail: Error parsing user data", e); }
+            
+            // Fetch initial CSRF token
+            try {
+                const csrfResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", {
+                    method: "GET",
+                    credentials: "include"
+                });
+                const csrfData = await csrfResponse.json();
+                if (csrfResponse.ok && csrfData.status === "success" && csrfData.csrf_token) {
+                    pageCsrfToken = csrfData.csrf_token;
+                    console.log("Item Detail: CSRF token fetched:", pageCsrfToken);
+                } else {
+                    throw new Error(csrfData.message || "Failed to fetch CSRF token.");
+                }
+            } catch (error) {
+                console.error("Item Detail: CSRF token fetch error:", error);
+                if(itemDetailMessageDiv) { // Ensure element exists
+                    itemDetailMessageDiv.textContent = 'Security initialization failed. Actions may not work. Please refresh.';
+                    itemDetailMessageDiv.className = 'text-lg text-center my-8 message-error p-4 bg-red-100 rounded-md';
+                }
+            }
+            
+            await loadItemData(); // Make sure item data is loaded before setting up Stripe
+        });
+
+        function handleLogout() { 
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+        // --- End of Standard Setup ---
+
+        const itemDetailMessageDiv = document.getElementById('itemDetailMessage');
+        const itemImageGallery = document.getElementById('itemImageGallery');
+        const messageSellerBtn = document.getElementById('messageSellerBtn');
+        const buyNowBtn = document.getElementById('buyNowBtn'); 
+        const buyActionMessage = document.getElementById('buyActionMessage');
+        const itemStockInfo = document.getElementById('itemStockInfo');
+        const itemStockQuantityEl = document.getElementById('itemStockQuantity'); // Renamed for clarity
+        const quantityInput = document.getElementById('quantityInput');
+        const quantitySection = document.getElementById('quantitySection');
+        const cardElementDiv = document.getElementById('card-element');
+        const cardErrorsDiv = document.getElementById('card-errors');
+
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemId = urlParams.get('itemId');
+        let currentItemData = null; 
+
+        async function loadItemData() {
+            if (!itemId) {
+                if(itemDetailMessageDiv) { /* ... (error display as before) ... */ }
+                return;
+            }
+            const authToken = localStorage.getItem('nova7Token'); // Auth token for fetching item
+            if (!authToken || authToken === "undefined" || authToken === "null") { handleLogout(); return; }
+
+            try {
+                // Port already 5005
+                const response = await fetch(`https://nova7-sapiens-1.onrender.com/api/marketplace/items/${itemId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` } // Send token if item details are protected
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success' && data.item) {
+                    currentItemData = data.item;
+                    const item = currentItemData;
+                    document.title = `${item.title || 'Item'} Details - nova7 Marketplace`; 
+                    document.getElementById('itemTitleDetail').textContent = item.title;
+                    document.getElementById('itemPriceDetail').textContent = `$${parseFloat(item.price).toFixed(2)}`;
+                    document.getElementById('itemCategoryDetail').textContent = item.category || 'N/A';
+                    document.getElementById('itemConditionDetail').textContent = item.condition || 'N/A';
+                    document.getElementById('itemLocationDetail').textContent = item.location || 'N/A';
+                    document.getElementById('itemDescriptionDetail').innerHTML = (item.description || "No description provided.").replace(/\n/g, '<br>'); 
+
+                    if (item.image_urls && item.image_urls.length > 0) {
+                        itemImageGallery.innerHTML = `<img src="${item.image_urls[0]}" alt="${item.title}" class="max-w-full max-h-full object-contain rounded-t-lg">`;
+                    } else {
+                        itemImageGallery.innerHTML = '<i class="fas fa-store text-6xl text-gray-400"></i>'; 
+                    }
+
+                    if (!item.is_service && typeof item.quantity === 'number') {
+                        if(itemStockQuantityEl) itemStockQuantityEl.textContent = item.quantity;
+                        if(itemStockInfo) itemStockInfo.classList.remove('hidden');
+                        if(quantityInput) quantityInput.max = item.quantity;
+                        if(quantitySection) quantitySection.style.display = 'block';
+                        
+                        if (item.quantity <= 0) {
+                            if(buyNowBtn) {
+                                buyNowBtn.textContent = "Out of Stock";
+                                buyNowBtn.disabled = true;
+                            }
+                            if(cardElementDiv) cardElementDiv.style.display = 'none'; // Hide Stripe input if out of stock
+                        } else {
+                             if(buyNowBtn) buyNowBtn.disabled = false;
+                             if(cardElementDiv) cardElementDiv.style.display = 'block'; // Show Stripe input
+                             initializeStripe(); // Initialize Stripe only if item is purchasable
+                        }
+                    } else if (item.is_service) {
+                        if(itemStockInfo) itemStockInfo.classList.add('hidden');
+                        if(quantitySection) quantitySection.style.display = 'none'; // Hide quantity for service
+                        if(buyNowBtn) buyNowBtn.disabled = false;
+                        if(cardElementDiv) cardElementDiv.style.display = 'block';
+                        initializeStripe();
+                    } else { // Product with no quantity specified (assume available, or handle as error)
+                        if(itemStockInfo) itemStockInfo.classList.add('hidden');
+                         if(quantitySection) quantitySection.style.display = 'none';
+                        if(buyNowBtn) buyNowBtn.disabled = false;
+                        if(cardElementDiv) cardElementDiv.style.display = 'block';
+                        initializeStripe();
+                    }
+
+                    document.getElementById('sellerName').textContent = item.seller_name || 'N/A';
+                    const sellerAvatar = document.getElementById('sellerAvatar');
+                    if (item.seller_name && item.seller_name !== "N/A") {
+                        const names = item.seller_name.split(' ');
+                        let initials = names[0][0];
+                        if (names.length > 1) initials += names[names.length - 1][0];
+                        if(sellerAvatar) sellerAvatar.textContent = initials.toUpperCase();
+                    } else if(sellerAvatar) {
+                        sellerAvatar.textContent = '?';
+                    }
+                    if(messageSellerBtn) messageSellerBtn.disabled = false;
+
+                } else { /* ... (error handling as before) ... */ 
+                     if(itemDetailMessageDiv) {
+                        itemDetailMessageDiv.textContent = data.message || 'Failed to load item details. This item may no longer be available.';
+                        itemDetailMessageDiv.className = 'text-lg text-center my-8 message-error p-4 bg-red-100 rounded-md';
+                         const container = document.querySelector('.item-detail-container');
+                         if(container) container.style.display = 'none';
+                    }
+                    if (response.status === 401 || response.status === 422) handleLogout();
+                }
+            } catch (error) { /* ... (error handling as before) ... */
+                console.error("Error loading item data:", error);
+                 if(itemDetailMessageDiv) {
+                    itemDetailMessageDiv.textContent = 'Error loading item. Please check your connection and try again.';
+                    itemDetailMessageDiv.className = 'text-lg text-center my-8 message-error p-4 bg-red-100 rounded-md';
+                     const container = document.querySelector('.item-detail-container');
+                     if(container) container.style.display = 'none';
+                }
+            }
+        }
+
+        function initializeStripe() {
+            if (!stripe) { // Initialize Stripe only once
+                stripe = Stripe(stripePublishableKey); // Use your TEST publishable key
+                const elements = stripe.elements();
+                cardElement = elements.create('card', {
+                    style: {
+                        base: {
+                            iconColor: '#0A66C2',
+                            color: '#32325d',
+                            fontWeight: '500',
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: '16px',
+                            fontSmoothing: 'antialiased',
+                            '::placeholder': { color: '#aab7c4' },
+                        },
+                        invalid: { iconColor: '#ef4444', color: '#ef4444' },
+                    }
+                });
+                if(cardElementDiv) cardElement.mount('#card-element');
+                else console.error("Stripe card element div not found");
+
+                cardElement.on('change', function(event) {
+                    if (cardErrorsDiv) cardErrorsDiv.textContent = event.error ? event.error.message : '';
+                });
+            }
+        }
+
+
+        if (messageSellerBtn) {
+            messageSellerBtn.addEventListener('click', async function() {
+                const authToken = localStorage.getItem('nova7Token');
+                if (!authToken || !pageCsrfToken) { 
+                    alert("Please log in or refresh page to message the seller.");
+                    if(!authToken) localStorage.setItem('nova7RedirectAfterLogin', window.location.href);
+                    if(!authToken) window.location.href = 'login.html';
+                    return;
+                }
+                const messageContent = prompt("Enter your message to the seller (your email will be shared):");
+                if (!messageContent || messageContent.trim() === "") return;
+                
+                this.disabled = true; this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+                try {
+                    // --- MODIFICATION: Added CSRF token ---
+                    const response = await fetch(`https://nova7-sapiens-1.onrender.com/api/marketplace/items/${itemId}/contact-seller`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json', 
+                            'Authorization': `Bearer ${authToken}`,
+                            'X-CSRF-Token': pageCsrfToken 
+                        },
+                        credentials: "include",
+                        body: JSON.stringify({ message: messageContent })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.status === 'success') { alert(data.message || "Message sent!"); } 
+                    else { 
+                        alert(`Error: ${data.message || 'Could not send message.'}`); 
+                        if (response.status === 401 || response.status === 422) handleLogout();
+                    }
+                } catch (error) { console.error("Error contacting seller:", error); alert("Failed to send message.");
+                } finally { this.disabled = false; this.innerHTML = '<i class="fas fa-envelope"></i> Message Seller'; }
+            });
+        }
+
+        if (buyNowBtn) {
+            buyNowBtn.addEventListener("click", async function() {
+                const authToken = localStorage.getItem("nova7Token");
+                if (!authToken || !pageCsrfToken) { 
+                    alert("Please log in or refresh page to purchase.");
+                    if(!authToken) localStorage.setItem("nova7RedirectAfterLogin", window.location.href);
+                    if(!authToken) window.location.href = "login.html";
+                    return;
+                }
+                if (!currentItemData) { alert("Item data not loaded. Please wait."); return; }
+                if (!stripe || !cardElement) { alert("Payment system not ready. Please wait or refresh."); return; }
+
+                let quantityToBuy = 1;
+                if (!currentItemData.is_service && typeof currentItemData.quantity === "number" && currentItemData.quantity > 0) {
+                    quantityToBuy = parseInt(document.getElementById("quantityInput").value);
+                    if (isNaN(quantityToBuy) || quantityToBuy <= 0 || quantityToBuy > currentItemData.quantity) {
+                        alert(`Invalid quantity. Max available: ${currentItemData.quantity}.`);
+                        return;
+                    }
+                } else if (!currentItemData.is_service && (currentItemData.quantity === null || currentItemData.quantity <= 0)) {
+                    alert("This item is out of stock."); return;
+                }
+                
+                this.disabled = true; this.innerHTML = "<i class='fas fa-spinner fa-spin mr-2'></i>Processing...";
+                if(buyActionMessage) buyActionMessage.textContent = "";
+
+                try {
+                    // Step 1: Create Payment Intent on your backend
+                    // --- MODIFICATION: Added CSRF token ---
+                    const paymentIntentResponse = await fetch(`https://nova7-sapiens-1.onrender.com/api/marketplace/items/${itemId}/buy`, {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json", 
+                            "Authorization": `Bearer ${authToken}`,
+                            "X-CSRF-Token": pageCsrfToken
+                        },
+                        credentials: "include",
+                        body: JSON.stringify({ quantity: quantityToBuy })
+                    });
+                    const paymentIntentData = await paymentIntentResponse.json();
+
+                    if (!paymentIntentResponse.ok || paymentIntentData.status !== 'success' || !paymentIntentData.clientSecret) {
+                        if(buyActionMessage) {
+                            buyActionMessage.textContent = `Error: ${paymentIntentData.message || "Could not initiate purchase."}`;
+                            buyActionMessage.className = "text-sm text-center mt-4 message-error";
+                        }
+                        if (paymentIntentResponse.status === 401 || paymentIntentResponse.status === 422) handleLogout();
+                        throw new Error(paymentIntentData.message || "Failed to create payment intent.");
+                    }
+
+                    // Step 2: Confirm card payment with Stripe.js
+                    const paymentResult = await stripe.confirmCardPayment(paymentIntentData.clientSecret, {
+                        payment_method: { card: cardElement }
+                    });
+
+                    if (paymentResult.error) {
+                        if(buyActionMessage) {
+                            buyActionMessage.textContent = `Payment error: ${paymentResult.error.message}`;
+                            buyActionMessage.className = "text-sm text-center mt-4 message-error";
+                        }
+                        // cardErrorsDiv.textContent = paymentResult.error.message; // Stripe's own error display
+                    } else if (paymentResult.paymentIntent && paymentResult.paymentIntent.status === 'succeeded') {
+                        if(buyActionMessage) {
+                            buyActionMessage.textContent = "Payment successful! Order placed. Details will be confirmed via email.";
+                            buyActionMessage.className = "text-sm text-center mt-4 message-success";
+                        }
+                        // Update UI, e.g., reduce stock, show success message, redirect to order confirmation
+                        if (currentItemData && !currentItemData.is_service && typeof currentItemData.quantity === "number") {
+                            currentItemData.quantity -= quantityToBuy; // Update local data
+                            if(itemStockQuantityEl) itemStockQuantityEl.textContent = currentItemData.quantity;
+                            if (currentItemData.quantity <= 0) {
+                                if(buyNowBtn) {
+                                    buyNowBtn.textContent = "Out of Stock";
+                                    buyNowBtn.disabled = true;
+                                }
+                                if(cardElementDiv) cardElementDiv.style.display = 'none';
+                            }
+                        }
+                        // setTimeout(() => window.location.href = 'order-confirmation.html?orderId=' + paymentIntentData.orderId, 2000);
+                    } else {
+                         if(buyActionMessage) {
+                            buyActionMessage.textContent = "Payment processing. Status: " + paymentResult.paymentIntent.status;
+                            buyActionMessage.className = "text-sm text-center mt-4 text-gray-600";
+                        }
+                    }
+                } catch (error) {
+                    console.error("Purchase error:", error);
+                    if(buyActionMessage) {
+                        buyActionMessage.textContent = error.message || "Purchase failed. Please check connection or try again.";
+                        buyActionMessage.className = "text-sm text-center mt-4 message-error";
+                    }
+                } finally {                    
+                    this.disabled = currentItemData && !currentItemData.is_service && currentItemData.quantity <=0; // Re-evaluate disabled state
+                    this.innerHTML = '<i class="fas fa-shopping-bag"></i> Buy Now';
+                }
+            });
+        }
+        
+    </script>
+
+</body>
+</html>

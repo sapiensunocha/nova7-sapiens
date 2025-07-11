@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - nova7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1a202c;
+        }
+        /* Sidebar Styles - Consistent with other pages */
+        .sidebar-nova7 {
+            background-color: #004182;
+            color: #E0F2FE;
+            width: 260px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            transition: transform 0.3s ease-in-out;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 0 1.5rem 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #0053a0;
+            margin-bottom: 0.75rem;
+        }
+        .nova7-logo-header {
+            max-height: 36px;
+            width: auto;
+        }
+        .sidebar-logo-img {
+            max-height: 120px;
+            width: auto;
+        }
+        .sidebar-nova7 .nav-link-sidebar {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            margin: 0.25rem 1rem;
+            font-weight: 500;
+            color: #E0F2FE;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-nova7 .nav-link-sidebar:hover {
+            background-color: #0A66C2;
+            color: #FFFFFF;
+        }
+        .sidebar-nova7 .nav-link-sidebar.active {
+            background-color: #FFFFFF;
+            color: #0A66C2;
+            font-weight: 600;
+        }
+        .sidebar-nova7 .nav-link-sidebar i {
+            width: 20px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+        /* Main Content Styles */
+        .main-content-area {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            min-height: 100vh;
+        }
+        .print-button {
+            background-color: #16A34A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .print-button:hover {
+            background-color: #128B3D;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #id-card-container {
+            width: 800px;
+            height: 500px; /* Increased height to accommodate all content */
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            margin: 2rem auto;
+            border: 1px solid #e2e8f0;
+        }
+        #id-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #004182;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+        #id-card-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #004182;
+        }
+        #id-card-header img {
+            height: 36px;
+        }
+        #id-card-body {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            padding-top: 0;
+        }
+        #id-card-left {
+            flex-basis: 30%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 8px;
+        }
+        #id-card-photo {
+            width: 140px;
+            height: 180px;
+            background-color: #e2e8f0;
+            border: 4px solid #004182;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        #id-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #id-card-signature {
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            padding: 8px 0; /* Reduced padding for better fit */
+        }
+        #id-card-signature .label {
+            font-size: 9px;
+            color: #64748B;
+            display: block;
+            margin-top: 4px;
+        }
+        #id-card-signature .value {
+            font-family: 'Dancing Script', cursive;
+            font-size: 22px;
+            border-bottom: 1px solid #9ca3af;
+            display: inline-block;
+            padding-bottom: 2px;
+            max-width: 140px; /* Constrain signature width */
+            overflow: hidden; /* Prevent overflow */
+            text-overflow: ellipsis; /* Handle long signatures */
+        }
+        #id-card-right {
+            flex-basis: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #id-card-content-area {
+            display: flex;
+            flex-grow: 1;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        #id-card-info {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px; /* Tightened gap for better space usage */
+            font-family: 'Roboto Mono', monospace;
+        }
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Align to top */
+        }
+        .info-field .label {
+            font-size: 10px;
+            color: #64748B;
+            margin-bottom: 2px;
+        }
+        .info-field .value {
+            font-size: 14px; /* Slightly smaller font for better fit */
+            font-weight: 500;
+            color: #002868;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .info-field.full-width {
+            grid-column: 1 / -1;
+        }
+        #id-card-qr {
+            width: 130px;
+            height: 130px;
+            flex-shrink: 0;
+            align-self: flex-end;
+        }
+        #id-card-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        #id-card-footer {
+            margin-top: 8px;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 9px;
+            color: #9ca3af;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Mobile Header - Consistent with other pages */
+        .mobile-header {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar-nova7 {
+                transform: translateX(-100%);
+                top: 0;
+                height: 100vh;
+            }
+            .sidebar-nova7.open {
+                transform: translateX(0);
+            }
+            .main-content-area {
+                margin-left: 0;
+                width: 100%;
+                padding-top: calc(60px + 1rem);
+                padding: 1rem;
+            }
+            .desktop-header {
+                display: none;
+            }
+            .mobile-header {
+                display: flex;
+                background-color: #FFFFFF;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                padding: 0 1rem;
+                height: 60px;
+                align-items: center;
+                justify-content: space-between;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 50;
+            }
+            #id-card-container {
+                width: 100%;
+                height: auto;
+                flex-direction: column;
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+            #id-card-body {
+                flex-direction: column;
+                gap: 1rem;
+                padding-top: 0.5rem;
+            }
+            #id-card-left {
+                flex-basis: auto;
+                padding-top: 0;
+            }
+            #id-card-photo {
+                width: 120px;
+                height: 150px;
+            }
+            #id-card-signature {
+                margin-top: 0.5rem;
+                padding: 6px 0;
+            }
+            #id-card-signature .value {
+                font-size: 20px;
+                max-width: 120px;
+            }
+            #id-card-right {
+                flex-basis: auto;
+            }
+            #id-card-content-area {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            #id-card-info {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .info-field.full-width {
+                grid-column: auto;
+            }
+            #id-card-qr {
+                margin-top: 0.5rem;
+                align-self: center;
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #id-card-container, #id-card-container * { visibility: visible; }
+            #id-card-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 20px;
+                display: block;
+            }
+            #id-card-header { border-bottom: 2px solid #004182; padding-bottom: 10px; margin-bottom: 12px; }
+            #id-card-body { display: flex; flex-direction: row; gap: 20px; }
+            #id-card-left { flex-basis: 30%; display: flex; flex-direction: column; align-items: center; padding-top: 8px; }
+            #id-card-right { flex-basis: 70%; display: flex; flex-direction: column; justify-content: space-between; }
+            #id-card-content-area {
+                display: flex;
+                flex-direction: row;
+                flex-grow: 1;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            #id-card-info { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+            #id-card-qr { margin-top: 8px; align-self: flex-end; width: 130px; height: 130px; }
+            .info-field.full-width { grid-column: 1 / -1; }
+            #id-card-signature .value { max-width: 140px; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Mobile Header (consistent with other pages) -->
+    <header class="mobile-header md:hidden">
+        <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        <a href="dashboard.html">
+            <img src="nova-logo.png" alt="nova7 Logo" class="nova7-logo-header"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span style="display:none;" class="text-xl font-semibold text-gray-700">nova7</span>
+        </a>
+        <a href="#" id="mobileLogoutLink" class="p-2 text-gray-700 hover:text-blue-600">
+            <i class="fas fa-sign-out-alt text-xl"></i>
+        </a>
+    </header>
+
+    <!-- Sidebar (consistent with other pages) -->
+    <aside id="sidebar" class="sidebar-nova7">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="flex items-center">
+                <img src="nova-logo.png" alt="nova7 Logo" class="sidebar-logo-img"
+                     style="filter: brightness(0) invert(1);"
+                     onerror="this.style.display='none';">
+            </a>
+        </div>
+        <nav class="flex-grow">
+            <a href="dashboard.html" class="nav-link-sidebar">
+                <i class="fas fa-tachometer-alt"></i>Dashboard
+            </a>
+            <a href="view-transactions.html" class="nav-link-sidebar">
+                <i class="fas fa-exchange-alt"></i>Transactions
+            </a>
+            <a href="reports.html" class="nav-link-sidebar">
+                <i class="fas fa-chart-pie"></i>Reports
+            </a>
+            <a href="community.html" class="nav-link-sidebar">
+                <i class="fas fa-users"></i>Community
+            </a>
+            <a href="chatbot.html" class="nav-link-sidebar">
+                <i class="fas fa-comments-dollar"></i>Chat Advisor
+            </a>
+            <a href="resources.html" class="nav-link-sidebar">
+                <i class="fas fa-book-open"></i>Resources
+            </a>
+            <a href="settings.html" class="nav-link-sidebar">
+                <i class="fas fa-cog"></i>Settings
+            </a>
+            <a href="wallet.html" class="nav-link-sidebar">
+                <i class="fas fa-wallet"></i>Wallet
+            </a>
+        </nav>
+        <div class="pb-4">
+            <a href="profile.html" class="nav-link-sidebar active">
+                <i class="fas fa-user-circle"></i>Profile
+            </a>
+            <a href="#" id="sidebarLogoutLink" class="nav-link-sidebar">
+                <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content-area">
+        <header class="desktop-header hidden md:flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+            <button id="printButton" class="print-button"><i class="fas fa-print mr-2"></i>Print ID Card</button>
+        </header>
+
+        <div id="id-card-container">
+            <div id="id-card-header">
+                <h2>NOVA7 IDENTITY CARD</h2>
+                <img src="nova-logo.png" alt="nova7 Logo" onerror="this.style.display='none';">
+            </div>
+            <div id="id-card-body">
+                <div id="id-card-left">
+                    <div id="id-card-photo">
+                        <img id="profile-photo-val" alt="User Photo" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=U&size=150&background=004182&color=fff';">
+                    </div>
+                    <div id="id-card-signature">
+                        <span class="value" id="signature-val"></span>
+                        <span class="label">HOLDER SIGNATURE</span>
+                    </div>
+                </div>
+                <div id="id-card-right">
+                    <div id="id-card-content-area">
+                        <div id="id-card-info">
+                            <div class="info-field"><span class="label">SURNAME</span><span class="value" id="surname-val"></span></div>
+                            <div class="info-field"><span class="label">GIVEN NAMES</span><span class="value" id="givennames-val"></span></div>
+                            <div class="info-field"><span class="label">ACCOUNT NUMBER</span><span class="value" id="account-val"></span></div>
+                            <div class="info-field"><span class="label">DATE OF BIRTH</span><span class="value" id="dob-val"></span></div>
+                            <div class="info-field"><span class="label">AGE</span><span class="value" id="age-val"></span></div>
+                            <div class="info-field"><span class="label">MEMBER SINCE</span><span class="value" id="member-since-val"></span></div>
+                            <div class="info-field full-width"><span class="label">ADDRESS</span><span class="value" id="address-val"></span></div>
+                            <div class="info-field"><span class="label">KYC STATUS</span><span class="value" id="kyc-val"></span></div>
+                            <div class="info-field"><span class="label">WALLET BALANCE</span><span class="value" id="balance-val"></span></div>
+                            <div class="info-field"><span class="label">EMAIL</span><span class="value" id="email-val"></span></div>
+                            <div class="info-field"><span class="label">PHONE</span><span class="value" id="phone-val"></span></div>
+                            <div class="info-field"><span class="label">PAYMENT NETWORK</span><span class="value" id="payment-network-val"></span></div>
+                            <div class="info-field"><span class="label">MOBILE MONEY</span><span class="value" id="mobile-money-val"></span></div>
+                            <div class="info-field full-width"><span class="label">COUNTRY / REGION</span><span class="value" id="country-region-val"></span></div>
+                        </div>
+                        <div id="id-card-qr">
+                            <img id="qr-code-val" alt="QR Code" onerror="this.onerror=null;this.src='https://placehold.co/140x140/E0F2FE/004182?text=QR+Error';">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="id-card-footer">This card is the property of nova7 Financial Services. If found, please return to nova7.</div>
+        </div>
+    </main>
+
+<script>
+    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                             ? "http://127.0.0.1:5005"
+                             : "https://nova7-sapiens-1.onrender.com";
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const authToken = localStorage.getItem('nova7Token');
+        if (!authToken) {
+            console.log("Profile: Token missing. Redirecting to login.");
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Initialize mobile sidebar functionality
+        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+        const sidebar = document.getElementById('sidebar');
+        if (hamburgerBtnMobile && sidebar) {
+            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+        }
+        document.addEventListener('click', (e) => {
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        await fetchAndPopulateData();
+        document.getElementById('printButton').addEventListener('click', () => window.print());
+
+        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+    });
+
+    async function fetchAndPopulateData() {
+        const authToken = localStorage.getItem('nova7Token');
+        try {
+            const [profileRes, balanceRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/profile`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                fetch(`${API_BASE_URL}/api/balance`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+            ]);
+    
+            const profileData = await profileRes.json();
+            const balanceData = await balanceRes.json();
+    
+            if (!profileRes.ok || profileData.status !== 'success') {
+                console.error("Failed to fetch profile:", profileData.message || profileRes.statusText);
+                document.getElementById('givennames-val').textContent = "Could not load profile.";
+                return;
+            }
+            
+            const balance = balanceRes.ok && balanceData.status === 'success' ? `$${parseFloat(balanceData.balance).toFixed(2)}` : 'N/A';
+            
+            populateIdCard(profileData.profile, balance);
+        } catch (error) {
+            console.error("Profile page error:", error);
+            document.getElementById('givennames-val').textContent = "Network error or failed to load profile.";
+        }
+    }
+
+    function populateIdCard(user, balance) {
+        const [firstName, ...lastNameParts] = (user.full_name || "Jane Doe").split(" ");
+        const lastName = lastNameParts.join(" ") || "Doe";
+        const givenNames = firstName || "Jane";
+    
+        let age = 'N/A';
+        if (user.date_of_birth) {
+            try {
+                const birthDate = new Date(user.date_of_birth);
+                const today = new Date();
+                let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                    calculatedAge--;
+                }
+                age = calculatedAge;
+            } catch (e) {
+                console.error("Could not calculate age from date:", user.date_of_birth, e);
+            }
+        }
+    
+        const formatDate = (dateStr) => {
+            if (!dateStr) return 'N/A';
+            try {
+                return new Date(dateStr).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+            } catch (e) {
+                console.error("Error formatting date:", dateStr, e);
+                return 'Invalid Date';
+            }
+        };
+    
+        document.getElementById('profile-photo-val').src = user.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name || 'U')}&size=150&background=004182&color=fff`;
+        document.getElementById('signature-val').textContent = user.full_name || "N/A";
+        document.getElementById('surname-val').textContent = lastName;
+        document.getElementById('givennames-val').textContent = givenNames;
+        document.getElementById('account-val').textContent = user.id?.toString().padStart(7, '0') || '0000000';
+        document.getElementById('dob-val').textContent = formatDate(user.date_of_birth);
+        document.getElementById('age-val').textContent = age;
+        document.getElementById('member-since-val').textContent = formatDate(user.member_since || new Date().toISOString());
+        document.getElementById('address-val').textContent = user.address || 'Not Provided';
+        document.getElementById('kyc-val').textContent = user.kyc_status?.toUpperCase() || "PENDING";
+        document.getElementById('balance-val').textContent = balance;
+        document.getElementById('email-val').textContent = user.email || 'N/A';
+        document.getElementById('phone-val').textContent = user.phone_number || 'N/A';
+        document.getElementById('payment-network-val').textContent = user.payment_network || 'N/A';
+        document.getElementById('mobile-money-val').textContent = user.mobile_money || 'N/A';
+        document.getElementById('country-region-val').textContent = `${user.city || ''}${user.city && user.province ? ', ' : ''}${user.province || ''}${user.city || user.province ? ', ' : ''}${user.country || 'N/A'}`;
+        if (document.getElementById('country-region-val').textContent.trim() === ', , N/A') {
+            document.getElementById('country-region-val').textContent = 'N/A';
+        }
+        const qrData = `${window.location.origin}/public/profile/${user.public_id || user.id}`;
+        document.getElementById('qr-code-val').src = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encodeURIComponent(qrData)}`;
+    }
+
+    function handleLogout() {
+        console.log("Profile: Logging out and redirecting to login.html");
+        localStorage.removeItem('nova7Token');
+        localStorage.removeItem('nova7User');
+        window.location.href = 'login.html';
+    }
+</script>
+
+</body>
+</html>

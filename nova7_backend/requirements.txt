@@ -1,0 +1,12 @@
+python-dotenv
+flask
+flask-mail
+flask-sqlalchemy
+flask-cors
+flask-jwt-extended
+stripe
+google-cloud-storage
+psycopg2-binary
+flask-wtf
+google.generativeai
+gunicorn
