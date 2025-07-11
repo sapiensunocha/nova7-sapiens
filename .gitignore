@@ -6,3 +6,7 @@ node_modules
 
 nova7_backend/node_modules
 
+.vercel
+.env
+*.bak
+*.json
