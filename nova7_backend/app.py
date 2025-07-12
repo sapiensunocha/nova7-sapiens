@@ -1,79 +1,47 @@
-import requests
-import os
-from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-import csv # Was in index.py, keep if used by other routes you might add back
-from io import StringIO # Was in index.py
+import csv
+from io import StringIO
 import uuid
 from flask import Flask, request, jsonify, make_response
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, JSON, or_ # Ensure JSON and or_ are imported
-from datetime import datetime, timedelta, timezone
-from flask_cors import CORS
+from sqlalchemy import func, JSON, or_
+from datetime import datetime, timedelta, timezone # Ensure timedelta is imported from here
+from flask_cors import CORS # Keep this single import for CORS
 from flask_jwt_extended import (
     create_access_token, JWTManager, jwt_required, get_jwt_identity, decode_token
 )
-from jwt.exceptions import ExpiredSignatureError, InvalidTokenError # Was in index.py
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename # Import secure_filename for file uploads
-# from google.cloud import storage # Uncomment if you integrate GCS for uploads in app.py
-# import stripe # Uncomment if you integrate Stripe in app.py
-import logging # Was in index.py
-
-# --- NEW: Import for Google Cloud Storage (if you're using it for file uploads) ---
-# Ensure you have google-cloud-storage installed: pip install google-cloud-storage
+from werkzeug.utils import secure_filename
 from google.cloud import storage
-
-# --- NEW: Import for Gemini API (for chatbot) ---
-# Ensure you have google-generativeai installed: pip install google-generativeai
 import google.generativeai as genai
-import json # For parsing structured responses from Gemini API
+import json
 import tempfile
-
-# --- NEW: Import for Flask-Migrate ---
-from flask_migrate import Migrate # Import Migrate
-import google.generativeai as genai
+from flask_migrate import Migrate
+import logging
 
 # Hardcode your Gemini API key here (replace with your actual key)
 GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
 
-# Configure Gemini API immediately
+# Configure Gemini API immediately (before app creation if possible, or after)
 genai.configure(api_key=GEMINI_API_KEY)
-print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")  # For debug (partial key)
-
-# TODO: Remove this email disabling for production if emails should be sent
-# Temporarily disable email sending to debug "Subject must be a string" error
-# This was in index.py, moving it here if app.py is your main backend
-def disable_email_send(self, message):
-    print(f"Email sending disabled - would have sent to {message.recipients} with subject: {message.subject}")
-    return None
-
-# Apply the override to Flask-Mail
-# Mail.send = disable_email_send # Keep commented out if you want to send emails later
-
-# Load .env file
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-dotenv_path = os.path.join(BASE_DIR, '.env')
+print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...") # For debug (partial key)
 
 # For Google Cloud Application Default Credentials on Render
 if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
     credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
     if credentials_json:
         try:
-            # Create a temporary file to store the credentials
             temp_dir = tempfile.gettempdir()
-            # Ensure the filename is unique or consistent for simple app startup
             temp_credentials_path = os.path.join(temp_dir, "gcp_credentials.json")
 
             with open(temp_credentials_path, "w") as f:
                 f.write(credentials_json)
 
-            # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
-            # so Google Cloud libraries can find it
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_credentials_path
             print(f"Google Cloud credentials loaded from temporary file: {temp_credentials_path}")
         except Exception as e:
@@ -83,6 +51,9 @@ if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
 else:
     print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found.")
 
+# Load .env file (after setting GCP credentials if from env var)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+dotenv_path = os.path.join(BASE_DIR, '.env')
 
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
@@ -90,10 +61,38 @@ if os.path.exists(dotenv_path):
 else:
     print(f"Warning: .env file not found at {dotenv_path}. Using environment variables or defaults.")
 
+
+# --- Flask App Initialization ---
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'x9k3m7p2q8r4t6w5y1z0a2b3c4d5e6f7'  # Replace with secure key
-CORS(app)
+
+# --- Flask App Configurations (must be set before initializing extensions) ---
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY') or 'super-secret-jwt-key' # Use a strong key
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) # Example expiration
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'your-secure-csrf-secret-key-2025-nova7' # Ensure this is set in .env
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL', 'postgresql://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Flask-Mail Configuration (if you intend to send emails)
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+
+# --- Initialize Flask Extensions (after app config) ---
 jwt = JWTManager(app)
+
+# CORS Configuration
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app,https://nova7-frontend.onrender.com').split(',')
+CORS(app, resources={r"/api/*": {"origins": CORS_ORIGINS, "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
+print(f"Allowed CORS origins: {CORS_ORIGINS}")
+
+csrf = CSRFProtect(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+mail = Mail(app)
 
 # --- NEW: UPLOAD_FOLDER Configuration for local file storage (if not using GCS directly for all uploads) ---
 # This is where uploaded files (like biometric data, profile pictures) will be stored temporarily or permanently.
@@ -104,12 +103,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # --- Configure Google Cloud Storage (GCS) ---
-# Ensure your GOOGLE_APPLICATION_CREDENTIALS environment variable points to your service account key.
-# For local development, you might set it like:
-# export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/gcp-key.json"
-# Or load it directly if needed (less secure for production)
 try:
-    # Initialize GCS client
     storage_client = storage.Client()
     GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME')
     if GCS_BUCKET_NAME:
@@ -121,52 +115,23 @@ except Exception as e:
     print(f"Error initializing Google Cloud Storage: {e}")
     gcs_bucket = None # Set to None if initialization fails
 
-# --- Configure Gemini API ---
-load_dotenv()
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    print("Gemini API configured.")
-else:
-    print("Warning: GEMINI_API_KEY not set in environment. Chatbot might not work.")
+# TODO: Remove this email disabling for production if emails should be sent
+# Temporarily disable email sending to debug "Subject must be a string" error
+def disable_email_send(self, message):
+    print(f"Email sending disabled - would have sent to {message.recipients} with subject: {message.subject}")
+    return None
 
+# Apply the override to Flask-Mail (uncomment if you want to disable email sending)
+# Mail.send = disable_email_send
 
-# Flask App Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL', 'postgresql://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# ... (Your Flask routes and other application logic will go here) ...
+# Example of a route (ensure you have your actual routes defined below this setup)
+@app.route('/')
+def hello_world():
+    return 'Hello, Nova7 Backend!'
 
-# JWT Configuration
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY') or 'super-secret-jwt-key' # Use a strong key
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) # Example expiration
-jwt = JWTManager(app)
-
-# --- NEW: Flask SECRET_KEY for CSRF protection and session management ---
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'your-secure-csrf-secret-key-2025-nova7' # Ensure this is set in .env
-
-## CORS Configuration
-# Ensure this allows your frontend origin(s)
-CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app,https://nova7-frontend.onrender.com').split(',')
-#                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Ensure your Render frontend URL is here
-CORS(app, resources={r"/api/*": {"origins": CORS_ORIGINS, "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
-#                                                        ^^^^^^^^^^^^^^^^^^ Change this to use the variable
-print(f"Allowed CORS origins: {CORS_ORIGINS}")
-
-# CSRF Protection (if using Flask-WTF CSRF)
-csrf = CSRFProtect(app)
-
-# Initialize SQLAlchemy
-db = SQLAlchemy(app)
-
-# --- NEW: Initialize Flask-Migrate ---
-migrate = Migrate(app, db) # Initialize Flask-Migrate
-
-# Flask-Mail Configuration (if you intend to send emails)
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
-app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'True').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
-mail = Mail(app)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=os.getenv('PORT', 5000))
 
 # --- JWT Error Handlers (NEW) ---
 @jwt.invalid_token_loader
