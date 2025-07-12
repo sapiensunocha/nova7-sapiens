@@ -306,7 +306,7 @@
 
             // Fetch initial CSRF token for the page
             try {
-                const csrfResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", { // Corrected port
+                const csrfResponse = await fetch("https://nova7.onrender.com/api/csrf-token", { // Corrected port
                     method: "GET",
                     credentials: "include" // Important for cookies if CSRF is cookie-based
                 });
@@ -423,7 +423,7 @@
 
                 try {
                     // --- MODIFICATION: Corrected port and added X-CSRF-Token header ---
-                    const response = await fetch('https://nova7-sapiens-1.onrender.com/api/transactions/add', {
+                    const response = await fetch('https://nova7.onrender.com/api/transactions/add', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -478,7 +478,7 @@
                     submitTransactionBtn.textContent = 'Add Transaction';
                     // Fetch a new CSRF token for the next potential submission if needed
                     try {
-                        const csrfUpdateResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", { method: "GET", credentials: "include" });
+                        const csrfUpdateResponse = await fetch("https://nova7.onrender.com/api/csrf-token", { method: "GET", credentials: "include" });
                         const csrfUpdateData = await csrfUpdateResponse.json();
                         if (csrfUpdateResponse.ok && csrfUpdateData.status === "success") csrfToken = csrfUpdateData.csrf_token;
                     } catch (e) { console.error("Error refreshing CSRF token post-transaction attempt", e); }

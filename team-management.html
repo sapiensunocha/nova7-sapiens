@@ -418,6 +418,10 @@
     </main>
 
     <script>
+        const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                     ? "http://127.0.0.1:5005"
+                     : "https://nova7.onrender.com";
+                     
         let currentUserId = null;
         let currentUserRole = 'user';
         let editingHelperId = null;
@@ -431,7 +435,7 @@
 
             // Fetch user profile to verify role
             try {
-                const response = await fetch('/api/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -514,7 +518,7 @@
             const token = localStorage.getItem('nova7Token');
             teamMembersTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Loading...</td></tr>';
             try {
-                const response = await fetch('/api/team/members', {
+                const response = await fetch(`${API_BASE_URL}/api/team/members`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -604,7 +608,7 @@
                 }
 
                 try {
-                    const response = await fetch('/api/team/invite-helper', {
+                    const response = await fetch(`${API_BASE_URL}/api/team/invite-helper`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ email: helperEmail, permissions: selectedPermissions })
@@ -638,7 +642,7 @@
             // Fetch current permissions (placeholder until backend API is implemented)
             try {
                 const token = localStorage.getItem('nova7Token');
-                const response = await fetch(`/api/team/members/${helperId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/team/members/${helperId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -713,7 +717,7 @@
             teamMembersMessageDiv.textContent = 'Removing helper...';
             teamMembersMessageDiv.className = 'text-sm mb-3 text-gray-600';
             try {
-                const response = await fetch(`/api/team/members/${helperId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/team/members/${helperId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

@@ -509,7 +509,7 @@
 
             async function fetchCsrfToken() {
                 try {
-                    const response = await fetch('http://127.0.0.1:5005/api/csrf-token');
+                    const response = await fetch('https://nova7.onrender.com/api/csrf-token');
                     const data = await response.json();
                     return data.csrf_token;
                 } catch (error) {
@@ -548,7 +548,7 @@
                 }
 
                 try {
-                    const response = await fetch('http://127.0.0.1:5005/api/register', {
+                    const response = await fetch('https://nova7.onrender.com/api/register', {
                         method: 'POST',
                         headers: {
                             // 'Content-Type': 'multipart/form-data' is automatically set by FormData

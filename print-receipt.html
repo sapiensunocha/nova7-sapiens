@@ -26,7 +26,7 @@
             try {
                 // Fetch the specific transaction from your backend
                 console.log("Print Receipt: Fetching transaction ID:", transactionIdFromUrl, "with token:", authToken);
-                const response = await fetch(`https://nova7-sapiens-1.onrender.com/api/transactions/${transactionIdFromUrl}`, {
+                const response = await fetch(`https://nova7.onrender.com/api/transactions/${transactionIdFromUrl}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${authToken}`,

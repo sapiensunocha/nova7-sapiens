@@ -330,7 +330,7 @@
             
             // --- MODIFICATION: Fetch initial CSRF token ---
             try {
-                const csrfResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", {
+                const csrfResponse = await fetch("https://nova7.onrender.com/api/csrf-token", {
                     method: "GET",
                     credentials: "include"
                 });
@@ -457,7 +457,7 @@
 
                     try {
                         // --- MODIFICATION: Corrected port and added CSRF for image upload ---
-                        const uploadResponse = await fetch('https://nova7-sapiens-1.onrender.com/api/upload/image?context=lending_products', {
+                        const uploadResponse = await fetch('https://nova7.onrender.com/api/upload/image?context=lending_products', {
                             method: 'POST',
                             headers: { 
                                 'Authorization': `Bearer ${authToken}`,
@@ -604,7 +604,7 @@
 
                 try {
                     // --- MODIFICATION: Corrected port and added CSRF Token ---
-                    const response = await fetch('https://nova7-sapiens-1.onrender.com/api/lending/products/items', { // Corrected path based on index.py
+                    const response = await fetch('https://nova7.onrender.com/api/lending/products/items', { // Corrected path based on index.py
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

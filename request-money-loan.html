@@ -295,6 +295,9 @@
     </main>
 
     <script>
+            const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                     ? "http://127.0.0.1:5005"
+                     : "https://nova7.onrender.com";
         // Authentication Check and Sidebar Handling
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('nova7Token');
@@ -456,7 +459,7 @@
                 }
 
                 try {
-                    const response = await fetch('/api/lending/money/requests', {
+                    const response = await fetch(`${API_BASE_URL}/api/lending/money/requests`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

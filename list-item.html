@@ -358,7 +358,7 @@
             
             // Fetch initial CSRF token
             try {
-                const csrfResponse = await fetch("https://nova7-sapiens-1.onrender.com/api/csrf-token", {
+                const csrfResponse = await fetch("https://nova7.onrender.com/api/csrf-token", {
                     method: "GET",
                     credentials: "include"
                 });
@@ -518,7 +518,7 @@
                 }
 
                 try {
-                    const uploadResponse = await fetch('https://nova7-sapiens-1.onrender.com/api/upload/image?context=marketplace', {
+                    const uploadResponse = await fetch('https://nova7.onrender.com/api/upload/image?context=marketplace', {
                         method: 'POST',
                         headers: { 
                             'Authorization': `Bearer ${authToken}`,
@@ -652,7 +652,7 @@
                 console.log("List Item: Using CSRF Token:", pageCsrfToken);
 
                 try {
-                    const response = await fetch('https://nova7-sapiens-1.onrender.com/api/marketplace/list-item', {
+                    const response = await fetch('https://nova7.onrender.com/api/marketplace/list-item', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
