@@ -1042,6 +1042,42 @@
             window.location.href = 'login.html';
         }
 
+        async function handleLoveDonation(postId) {
+            const token = localStorage.getItem('nova7Token');
+            if (!token) {
+                showMessage('You must be logged in to make a donation.', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!confirm('Are you sure you want to donate $1 for this post?')) {
+                return; // User cancelled
+            }
+
+            try {
+                const response = await fetch('/api/community/love_donation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ post_id: postId })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    fetchCommunityPosts(); // Re-fetch community posts to update any displayed love counts or balances
+                } else {
+                    showMessage(data.error || 'Failed to process donation.', 'error');
+                }
+            } catch (error) {
+                console.error('Error during love donation:', error);
+                showMessage('An error occurred during donation. Please try again.', 'error');
+            }
+        }
+
         function showMessage(message, type = 'success', duration = 3000) {
             const messageBox = document.getElementById('messageBox');
             messageBox.textContent = message;

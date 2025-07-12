@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>nova7 Chat Advisor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -511,7 +511,7 @@
 
         try {
             const payload = {
-                user_query: userText,
+                message: userText, // Changed 'user_query' to 'message'
                 // Send the entire currentMessages as chat_history for context
                 chat_history: currentMessages.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'model', parts: [{ text: msg.content }] }))
             };
@@ -528,10 +528,11 @@
             const data = await response.json();
             hideTypingIndicator();
 
-            if (response.ok && data.status === 'success') {
+            if (response.ok) { // Removed '&& data.status === 'success'' as backend doesn't send it
                 // Add AI response to currentMessages and DOM
-                currentMessages.push({ content: data.advice, sender: 'ai' });
-                appendMessageToDOM(data.advice, 'ai');
+                 const aiResponseContent = data.reply || 'No response from advisor.';
+                 currentMessages.push({ content: aiResponseContent, sender: 'ai' });
+                appendMessageToDOM(aiResponseContent, 'ai');
             } else {
                 const errorMessage = data.message || 'Could not get a response from the advisor.';
                 currentMessages.push({ content: `Error: ${errorMessage}`, sender: 'ai' });

@@ -1,3 +1,6 @@
+import requests
+import os
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 import csv # Was in index.py, keep if used by other routes you might add back
@@ -32,6 +35,14 @@ import json # For parsing structured responses from Gemini API
 
 # --- NEW: Import for Flask-Migrate ---
 from flask_migrate import Migrate # Import Migrate
+import google.generativeai as genai
+
+# Hardcode your Gemini API key here (replace with your actual key)
+GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
+
+# Configure Gemini API immediately
+genai.configure(api_key=GEMINI_API_KEY)
+print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")  # For debug (partial key)
 
 # TODO: Remove this email disabling for production if emails should be sent
 # Temporarily disable email sending to debug "Subject must be a string" error
@@ -54,6 +65,9 @@ else:
     print(f"Warning: .env file not found at {dotenv_path}. Using environment variables or defaults.")
 
 app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = 'x9k3m7p2q8r4t6w5y1z0a2b3c4d5e6f7'  # Replace with secure key
+CORS(app)
+jwt = JWTManager(app)
 
 # --- NEW: UPLOAD_FOLDER Configuration for local file storage (if not using GCS directly for all uploads) ---
 # This is where uploaded files (like biometric data, profile pictures) will be stored temporarily or permanently.
@@ -82,7 +96,7 @@ except Exception as e:
     gcs_bucket = None # Set to None if initialization fails
 
 # --- Configure Gemini API ---
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') # Get your Gemini API Key from .env
+load_dotenv()
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     print("Gemini API configured.")
@@ -168,6 +182,10 @@ class User(db.Model):
     password_reset_expiration = db.Column(db.DateTime, nullable=True)
     profile_picture_url = db.Column(db.String(255), nullable=True) # NEW: For profile pictures
     balance = db.Column(db.Numeric(10, 2), default=0.00) # NEW: User's financial balance
+    income_sources = db.Column(db.String, nullable=True)
+    expenses = db.Column(db.String, nullable=True)
+    debt = db.Column(db.String, nullable=True)
+    financial_goals = db.Column(db.String, nullable=True)
 
     # Relationships (add as needed for transactions, loans, etc.)
     transactions = db.relationship(
@@ -204,7 +222,10 @@ class User(db.Model):
             'is_admin': self.is_admin,
             'email_verified': self.email_verified,
             'profile_picture_url': self.profile_picture_url,
-            'balance': float(self.balance) # Convert Decimal to float for JSON
+            'balance': float(self.balance),
+            'expenses': self.expenses,
+            'debt': self.debt,
+            'financial_goals': self.financial_goals
         }
 
 class UserSetting(db.Model):
@@ -1473,9 +1494,38 @@ def respond_to_money_request(current_user, request_id):
         print(f"Error responding to money request: {e}")
         return jsonify({"status": "error", "message": "Failed to respond to money request."}), 500
 
+@app.route('/api/wallet/withdrawal-requests', methods=['GET'])
+@token_required
+def get_user_withdrawal_requests(current_user):
+    try:
+        pending_withdrawals = Transaction.query.filter(
+            Transaction.user_id == current_user.id,
+            Transaction.type.in_(['withdrawal_office', 'withdrawal_mobile_money']),
+            Transaction.status == 'pending'
+        ).all()
+        return jsonify({
+            "status": "success",
+            "pending_withdrawals": [w.to_dict() for w in pending_withdrawals]
+        }), 200
+    except Exception as e:
+        print(f"Error fetching withdrawal requests: {e}")
+        return jsonify({"status": "error", "message": "Failed to fetch withdrawal requests."}), 500
+
+@app.route('/api/wallet/transactions/report', methods=['GET'])
+@token_required
+def get_transaction_report(current_user):
+    try:
+        transactions = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.timestamp.desc()).all()
+        return jsonify({
+            "status": "success",
+            "transactions": [t.to_dict() for t in transactions]
+        }), 200
+    except Exception as e:
+        print(f"Error fetching transaction report: {e}")
+        return jsonify({"status": "error", "message": "Failed to fetch transaction report."}), 500
+
 
 # --- NEW: AI Chatbot Route (Gemini API Integration) ---
-@app.route('/api/chatbot-advice', methods=['POST'])
 @csrf.exempt
 @token_required
 def chatbot_advice(current_user):
@@ -1549,6 +1599,50 @@ def chatbot_advice(current_user):
     except Exception as e:
         print(f"Error in chatbot_advice endpoint: {e}")
         return jsonify({"status": "error", "message": "An internal server error occurred."}), 500
+    
+@app.route('/api/community/love_donation', methods=['POST'])
+@jwt_required()
+def love_donation():
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        donation_amount = 1.00
+
+        if user.balance < donation_amount:
+            return jsonify({'error': 'Insufficient balance for donation'}), 400
+
+        data = request.get_json()
+        post_id = data.get('post_id')
+
+        if not post_id:
+            return jsonify({'error': 'Post ID is required for donation'}), 400
+
+        user.balance -= donation_amount
+
+        new_transaction = Transaction(
+            user_id=user.id,
+            amount=-donation_amount,
+            type='love_donation',
+            description=f'Donation for community post {post_id}',
+            recipient_id=None
+        )
+
+        db.session.add(new_transaction)
+        db.session.commit()
+
+        return jsonify({
+            'message': f'Successfully donated ${donation_amount:.2f} for community post {post_id}',
+            'new_balance': float(user.balance)
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error processing love donation: {str(e)}")
+        return jsonify({'error': 'Failed to process donation'}), 500
 
 # --- NEW: General Transactions/Reports Endpoint (combining previous requests) ---
 @app.route('/api/transactions', methods=['GET'])
@@ -1708,6 +1802,110 @@ def init_db_command():
     db.create_all()
     print('Initialized the database.')
 
+from flask import request, jsonify
+import logging
+import traceback
+import google.generativeai as genai
+
+# Ensure these imports are at the top of your app.py file
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+# Assuming 'User' model is imported from your models.py or defined in app.py
+# from .models import User # Or wherever your User model is defined
+import google.generativeai as genai # Ensure this is imported and configured
+
+
+@app.route('/api/chatbot-advice', methods=['POST'])
+@jwt_required()
+def chatbot_advice():
+    try:
+        current_user_id = get_jwt_identity()
+        # IMPORTANT: User.query.get() is a legacy method.
+        # For SQLAlchemy 2.0 style, prefer session.get(User, current_user_id)
+        # Assuming 'db' is your SQLAlchemy instance
+        current_user = User.query.get(current_user_id)
+
+        if not current_user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json()
+        # This line correctly extracts the 'message' from the JSON payload.
+        user_message = data.get('message')
+
+        # This check correctly ensures 'message' is present and not empty.
+        if not user_message:
+            return jsonify({'error': 'Message is required'}), 400
+
+        # Build user profile context
+        profile_context = f"""
+        User Profile:
+        - Name: {current_user.full_name}
+        - Email: {current_user.email}
+        - Income Sources: {current_user.income_sources}
+        - Monthly Expenses: {current_user.expenses}
+        - Debts: {current_user.debt}
+        - Financial Goals: {current_user.financial_goals}
+        """
+
+        # Get chat history from the request payload
+        chat_history_from_frontend = data.get('chat_history', [])
+
+        # Prepare the conversation for the Gemini model
+        # The first message sets the context/persona for the AI
+        conversation_for_gemini = [
+            {
+                'role': 'user',
+                'parts': [
+                    {'text': f"""
+                    You are a smart financial advisor named Nova7 Chat Advisor. Your job is to provide personalized financial advice to the user based on their profile and the ongoing conversation.
+
+                    User's Profile:
+                    {profile_context}
+
+                    Based on this profile and the following conversation history, provide a clear, friendly, and actionable financial response. If the user's profile is empty, encourage them to provide more details about their income, expenses, debts, and financial goals to get personalized advice.
+                    """}
+                ]
+            }
+        ]
+
+        # Add historical messages from the frontend to the conversation
+        # The frontend provides roles as 'user' or 'model', which matches Gemini's expected roles
+        for msg_turn in chat_history_from_frontend:
+            conversation_for_gemini.append({
+                'role': msg_turn['role'],
+                'parts': msg_turn['parts']
+            })
+
+        # Add the current user message as the final turn in the conversation
+        conversation_for_gemini.append({
+            'role': 'user',
+            'parts': [{'text': user_message}]
+        })
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Call generate_content with the full conversation history
+        response = model.generate_content(conversation_for_gemini)
+
+        # This return statement MUST be inside the try block and chatbot_advice function
+        return jsonify({'reply': response.text})
+
+    except Exception as e:
+        # This except block MUST immediately follow the try block for chatbot_advice
+        app.logger.error(f"Error in chatbot_advice: {str(e)}")
+        # Return a generic error for security, but log the specific error.
+        return jsonify({'error': 'An internal server error occurred'}), 500
+
+# Other routes like /api/login should follow AFTER the entire chatbot_advice function
+@app.route('/api/login', methods=['POST'])
+def login():
+    username = request.json.get("username")
+    if not username:
+        return jsonify({"msg": "Missing username"}), 400
+
+    access_token = create_access_token(identity=username)
+    return jsonify(access_token=access_token)
+
+# The __main__ block should also be at the very end of your app.py file
 if __name__ == '__main__':
     # With Flask-Migrate, direct db.create_all() might be replaced by migration commands
     # For initial setup, you might still use it or run flask db init/migrate/upgrade

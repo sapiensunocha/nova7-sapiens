@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -50,7 +52,6 @@
             max-height: 120px; 
             width: auto;
         }
-
         .sidebar-nova7 .nav-link-sidebar {
             display: flex;
             align-items: center;
@@ -164,7 +165,6 @@
             color: #004182; 
             font-weight: 600;
         }
-
         @media (max-width: 1024px) { 
              .lg\:grid-cols-5 { 
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -211,7 +211,6 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-
     <header class="mobile-header md:hidden">
         <button id="hamburgerBtnMobile" class="p-2 text-gray-700 hover:text-blue-600">
             <i class="fas fa-bars text-2xl"></i>
@@ -225,7 +224,6 @@
             <i class="fas fa-sign-out-alt text-xl"></i>
         </a>
     </header>
-
     <aside id="sidebar" class="sidebar-nova7">
         <div class="sidebar-header">
             <a href="dashboard.html" class="flex items-center">
@@ -270,7 +268,6 @@
             </a>
         </div>
     </aside>
-
     <main class="main-content-area">
         <header class="desktop-header hidden md:flex items-center justify-between mb-6">
             <div></div> 
@@ -278,14 +275,12 @@
                 <span id="desktopUserWelcome" class="text-sm text-gray-700">Welcome, User!</span> 
             </div>
         </header>
-
         <div class="greeting-summary-card">
             <h1 id="personalizedGreeting" class="greeting-text">Good morning, User!</h1>
             <p class="ai-summary-text" id="aiSummaryText">
                 Loading your financial summary...
             </p>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-6">
             <div class="metric-card">
                 <div>
@@ -338,58 +333,43 @@
                 <p class="metric-card-footer">(<span id="overdueInvoicesCount">0</span>) Total outstanding</p>
             </div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div class="chart-placeholder-container">
                 <h3>Sales Trend (Bar Chart)</h3>
-                <div class="chart-placeholder-content">
-                    <i class="fas fa-chart-bar text-4xl"></i>
-                </div>
+                <canvas id="salesTrendChart" width="400" height="200"></canvas>
             </div>
             <div class="chart-placeholder-container">
                 <h3>Expense Breakdown (Donut Chart)</h3>
-                <div class="chart-placeholder-content">
-                    <i class="fas fa-chart-pie text-4xl"></i>
-                </div>
+                <canvas id="expenseBreakdownChart" width="400" height="200"></canvas>
             </div>
         </div>
         <div class="chart-placeholder-container"> 
             <h3>Cash Flow Over Time (Area Chart)</h3>
-            <div class="chart-placeholder-content">
-                <i class="fas fa-chart-area text-4xl"></i>
-            </div>
+            <canvas id="cashFlowChart" width="400" height="200"></canvas>
         </div>
     </main>
-
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             const token = localStorage.getItem('nova7Token');
             const userString = localStorage.getItem('nova7User');
-
-            // --- Dynamic API Base URL for local testing vs. deployment ---
             const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-                                 ? "http://127.0.0.1:5005" // Local development backend
-                                 : "https://nova7-sapiens-1.onrender.com"; // Deployed backend
+                                 ? "http://127.0.0.1:5005"
+                                 : "https://nova7-sapiens-1.onrender.com";
             console.log("Using API Base URL:", API_BASE_URL);
-
             console.log("Dashboard: Token from localStorage:", token);
             console.log("Dashboard: User string from localStorage:", userString);
-
             if (!token || !userString || token === "undefined" || token === "null") { 
                 console.log("Dashboard: Token or userString missing/invalid. Redirecting to login.");
                 window.location.href = 'login.html';
                 return; 
             }
-
             let userName = "User";
-            let userBalance = 0.00; // Initialize userBalance
-            let recentTransactions = []; // Initialize recentTransactions
-
+            let userBalance = 0.00;
+            let recentTransactions = [];
             try {
                 const user = JSON.parse(userString);
-                userName = user.full_name || "User"; // Corrected from fullName to full_name
-                userBalance = user.balance !== undefined ? parseFloat(user.balance) : 0.00; // Get balance from user object
-                
+                userName = user.full_name || "User";
+                userBalance = user.balance !== undefined ? parseFloat(user.balance) : 0.00;
                 const greetingElement = document.getElementById('personalizedGreeting');
                 const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
                 if (greetingElement) {
@@ -406,15 +386,10 @@
                 handleLogout(); 
                 return;
             }
-
             const aiSummaryText = document.getElementById('aiSummaryText');
-
-            // --- Fetch Dashboard Summary Data ---
             try {
                 const authHeader = `Bearer ${token}`;
                 console.log("Dashboard: Sending Authorization header:", authHeader);
-
-                // Corrected endpoint to /api/dashboard
                 const response = await fetch(`${API_BASE_URL}/api/dashboard`, {
                     method: 'GET',
                     headers: {
@@ -422,7 +397,6 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
                 const responseText = await response.text();
                 let data;
                 try {
@@ -435,19 +409,12 @@
                     }
                     return;
                 }
-
                 console.log("Dashboard: API response status:", response.status);
                 console.log("Dashboard: API response data:", data);
-
                 if (response.ok && data.status === 'success') {
-                    // Update userBalance and recentTransactions from the fetched data
                     userBalance = data.user_balance !== undefined ? parseFloat(data.user_balance) : userBalance;
                     recentTransactions = data.recent_transactions || [];
-
-                    // Populate dashboard elements
                     document.getElementById('netBalanceDisplay').textContent = `$${userBalance.toFixed(2)}`;
-
-                    // Calculate total income and expenses from recent transactions
                     let totalIncome = 0;
                     let totalExpenses = 0;
                     recentTransactions.forEach(t => {
@@ -457,21 +424,15 @@
                             totalExpenses += Math.abs(t.amount);
                         }
                     });
-
                     document.getElementById('totalIncomeDisplay').textContent = `$${totalIncome.toFixed(2)}`;
                     document.getElementById('totalExpensesDisplay').textContent = `$${totalExpenses.toFixed(2)}`;
-                    
                     let profitMargin = 0;
                     if (totalIncome > 0) {
                         profitMargin = ((totalIncome - totalExpenses) / totalIncome) * 100;
                     }
                     document.getElementById('profitMarginDisplay').textContent = `${profitMargin.toFixed(1)}%`;
-
-                    // Overdue invoices/loans are not directly in dashboard summary, placeholder for now
                     document.getElementById('overdueInvoicesDisplay').textContent = `$0.00`;
                     document.getElementById('overdueInvoicesCount').textContent = `0`;
-
-                    // Update AI summary text
                     if (aiSummaryText) {
                         let summaryMessage = `Your current net balance is <strong>$${userBalance.toFixed(2)}</strong>. `;
                         if (totalIncome > totalExpenses) {
@@ -483,10 +444,12 @@
                         }
                         aiSummaryText.innerHTML = summaryMessage;
                     }
+                    renderSalesTrendChart(recentTransactions);
+                    renderExpenseBreakdownChart(recentTransactions);
+                    renderCashFlowChart(recentTransactions);
                 } else {
                     console.error("Dashboard: Error fetching dashboard summary. Status:", response.status, "Message:", data.message);
                     if (aiSummaryText) aiSummaryText.textContent = data.message || "Could not load dashboard summary.";
-                    
                     if (response.status === 401 || response.status === 422) { 
                         console.log("Dashboard: Received 401 or 422, logging out.");
                         handleLogout();
@@ -497,15 +460,12 @@
                 if (aiSummaryText) aiSummaryText.textContent = "Failed to connect to server for summary.";
             }
         });
-
         function handleLogout() {
             console.log("Dashboard: Logging out and redirecting to login.html");
             localStorage.removeItem('nova7Token');
             localStorage.removeItem('nova7User');
             window.location.href = 'login.html';
         }
-
-        // --- Sidebar and other UI logic (kept as is) ---
         const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
         if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
         const mobileLogoutLink = document.getElementById('mobileLogoutLink');
@@ -521,7 +481,106 @@
             }
         });
         console.log("Dashboard page loaded and scripts attached.");
+        function renderSalesTrendChart(transactions) {
+            const salesData = transactions.filter(t => t.type === 'product_sell');
+            const labels = salesData.map(t => new Date(t.timestamp).toLocaleDateString());
+            const data = salesData.map(t => t.amount);
+            const ctx = document.getElementById('salesTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sales',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        function renderExpenseBreakdownChart(transactions) {
+            const expenseData = transactions.filter(t => t.type === 'product_buy' || t.type.startsWith('withdrawal') || t.type === 'transfer_sent');
+            const categories = ['Product Buy', 'Withdrawal', 'Transfer Sent'];
+            const data = categories.map(cat => {
+                return expenseData.filter(t => t.type === cat.toLowerCase().replace(' ', '_')).reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            });
+            const ctx = document.getElementById('expenseBreakdownChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Expenses',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+        }
+        function renderCashFlowChart(transactions) {
+            const cashFlowData = transactions.map(t => ({
+                date: new Date(t.timestamp).toLocaleDateString(),
+                amount: t.amount
+            }));
+            const labels = [...new Set(cashFlowData.map(d => d.date))];
+            const inflowData = labels.map(label => {
+                return cashFlowData.filter(d => d.date === label && d.amount > 0).reduce((sum, d) => sum + d.amount, 0);
+            });
+            const outflowData = labels.map(label => {
+                return cashFlowData.filter(d => d.date === label && d.amount < 0).reduce((sum, d) => sum + Math.abs(d.amount), 0);
+            });
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Inflow',
+                            data: inflowData,
+                            fill: true,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Outflow',
+                            data: outflowData,
+                            fill: true,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
     </script>
-
 </body>
 </html>

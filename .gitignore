@@ -1,12 +1,36 @@
-node_modules
-./.env
-./nova7_backend/node_modules
+# Node.js modules
+node_modules/
 
-/nova7_backend/node_modules
-
-nova7_backend/node_modules
-
-.vercel
+# Environment variables
 .env
+**/.env # Catches .env in any subdirectory
+
+# Python specific
+__pycache__/
+*.pyc
+venv/
+env/
+*.sqlite3
+
+# Database files
+*.db
+/instance/ # Flask instance folder
+
+# Specific IDE/OS files
+.vscode/
+.DS_Store
+
+# Backup files
 *.bak
-*.json
+
+# Google Cloud Key (HIGHLY SENSITIVE)
+gcp-key.json
+nova7_backend/gcp-key.json
+
+# Other JSON files (be cautious if you have JSON files you DO want to commit)
+# If you have other JSON files you need, you'll need to explicitly re-include them.
+# Example: !public/data.json
+# For maximum safety, it's better to explicitly ignore known sensitive JSONs
+# rather than blanket ignoring all JSONs if you need some.
+# If ALL JSONs in your project are sensitive (like config with secrets), then keep *.json
+# Otherwise, be very specific.

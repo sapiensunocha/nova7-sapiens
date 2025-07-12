@@ -338,6 +338,7 @@
                 <button id="viewPendingRequestsBtn" class="text-blue-600 hover:underline text-sm mt-1">View Details</button>
             </div>
         </div>
+        <div id="pendingRequestsContainer" class="mt-6"></div>
 
         <!-- NEW: Deposit Funds Section (moved to top) -->
         <div class="card-styled">
@@ -587,41 +588,33 @@
     }
 
     async function fetchPendingRequests() {
-        const numPendingRequestsSpan = document.getElementById('numPendingRequests');
-        const totalPendingAmountSpan = document.getElementById('totalPendingAmount');
-        const viewPendingRequestsBtn = document.getElementById('viewPendingRequestsBtn');
-
-        numPendingRequestsSpan.textContent = '0';
-        totalPendingAmountSpan.textContent = '$0.00';
-        viewPendingRequestsBtn.classList.add('hidden'); // Start hidden, show if requests exist
-
+    try {
         const token = localStorage.getItem('nova7Token');
-        if (!token) return;
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/wallet/withdrawal-requests`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-
-            if (response.ok && data.status === 'success' && data.requests) {
-                const pendingRequests = data.requests.filter(req => req.status === 'pending');
-                const totalAmount = pendingRequests.reduce((sum, req) => sum + parseFloat(req.amount), 0);
-
-                numPendingRequestsSpan.textContent = pendingRequests.length;
-                totalPendingAmountSpan.textContent = `$${totalAmount.toFixed(2)}`;
-
-                if (pendingRequests.length > 0) {
-                    viewPendingRequestsBtn.classList.remove('hidden');
-                }
-            } else {
-                console.error("Failed to fetch pending requests:", data.message || response.statusText);
-            }
-        } catch (error) {
-            console.error("Error fetching pending requests:", error);
+        if (!token) {
+            console.error("No token found for fetching pending requests.");
+            return;
         }
+        const response = await fetch(`${API_BASE_URL}/api/wallet/withdrawal-requests`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.status === 'success') {
+            pendingRequests = data.pending_withdrawals || [];
+            updatePendingRequestsDisplay();
+        } else {
+            console.error("Error fetching pending requests:", data.message);
+        }
+    } catch (error) {
+        console.error("Failed to fetch pending requests:", error.message);
     }
+}
 
     async function fetchTransactionHistory() {
         const transactionTableBody = document.getElementById('transactionHistoryTableBody');
@@ -999,6 +992,25 @@
             messageBox.classList.remove('show');
         }, duration);
     }
+    function updatePendingRequestsDisplay() {
+    const pendingRequestsContainer = document.getElementById('pendingRequestsContainer');
+    if (!pendingRequestsContainer) {
+        console.error("Pending requests container not found.");
+        return;
+    }
+    if (!pendingRequests || pendingRequests.length === 0) {
+        pendingRequestsContainer.innerHTML = '<p class="text-gray-500">No pending withdrawal requests.</p>';
+        return;
+    }
+    pendingRequestsContainer.innerHTML = pendingRequests.map(request => `
+        <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+            <p><strong>Amount:</strong> $${Math.abs(request.amount).toFixed(2)}</p>
+            <p><strong>Type:</strong> ${request.type.replace('_', ' ')}</p>
+            <p><strong>Description:</strong> ${request.description}</p>
+            <p><strong>Status:</strong> ${request.status}</p>
+        </div>
+    `).join('');
+}
 </script>
 </body>
 </html>
