@@ -97,9 +97,9 @@ migrate = Migrate(app, db)
 mail = Mail(app)
 
 # --- Upload Folder ---
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = '/tmp/uploads'
 if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+    os.makedirs(UPLOAD_FOLDER) # This will now work in /tmp
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # --- Google Cloud Storage ---
