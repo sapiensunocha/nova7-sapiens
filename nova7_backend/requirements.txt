@@ -4,6 +4,8 @@ flask-mail==0.9.1
 flask-sqlalchemy==3.0.5
 flask-cors==4.0.1
 flask-jwt-extended==4.5.1
+flask-migrate==4.0.4
+flask-bcrypt==1.0.1
 stripe==7.0.0
 google-cloud-storage==2.10.0
 pg8000==1.30.5
@@ -11,5 +13,5 @@ flask-wtf==1.2.1
 google-generativeai==0.5.4
 requests==2.31.0
 gunicorn==23.0.0
-flask-bcrypt==1.0.1
 setuptools==58.0.4
+
