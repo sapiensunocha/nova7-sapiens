@@ -478,9 +478,7 @@ def admin_required(f):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all() # This creates tables based on your models
-    app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))git add nova7_backend/app.py
-git commit -m "Updated Flask root route to JSON and configured for Vercel"
-
+    app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
 
 @app.route('/drop_alembic_version', methods=['POST'])
 def drop_alembic_version():
