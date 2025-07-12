@@ -122,9 +122,9 @@ def disable_email_send(self, message):
 # Mail.send = disable_email_send
 
 # --- Routes ---
-@app.route('/')
-def hello_world():
-    return 'Hello, Nova7 Backend!'
+"runt@app.route('/')
+def serve_frontend():
+    return app.send_static_file('login.html')ime": "python3.8"
 
 # --- Run App ---
 if __name__ == '__main__':
