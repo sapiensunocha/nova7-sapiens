@@ -1,3 +1,112 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles for Nova7 frontend */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f7fafc;
+  color: #1a202c;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container for main content */
+.container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Login and Register Forms */
+.auth-form {
+  @apply max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md;
+}
+.auth-form input {
+  @apply w-full p-2 mt-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+.auth-form button {
+  @apply w-full mt-4 bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition;
+}
+
+/* Dashboard Styles */
+.dashboard-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8;
+}
+.dashboard-card {
+  @apply bg-white p-6 rounded-lg shadow-md;
+}
+.dashboard-card h3 {
+  @apply text-lg font-semibold text-gray-800;
+}
+.dashboard-card p {
+  @apply text-2xl font-bold text-blue-600;
+}
+
+/* Wallet Page */
+.wallet-balance {
+  @apply text-3xl font-bold text-green-600 mb-4;
+}
+.transaction-table {
+  @apply w-full border-collapse;
+}
+.transaction-table th,
+.transaction-table td {
+  @apply border p-3 text-left;
+}
+.transaction-table th {
+  @apply bg-gray-100 font-semibold;
+}
+.transaction-table tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Community Page */
+.post-card {
+  @apply bg-white p-6 mb-4 rounded-lg shadow-md;
+}
+.post-card img {
+  @apply w-full h-48 object-cover rounded-md mb-4;
+}
+.post-card .post-content {
+  @apply text-gray-700;
+}
+.post-card .post-actions {
+  @apply mt-4 flex space-x-4;
+}
+.post-card .post-actions button {
+  @apply text-blue-600 hover:text-blue-800;
+}
+
+/* Marketplace Styles */
+.product-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+.product-card {
+  @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition;
+}
+.product-card img {
+  @apply w-full h-40 object-cover rounded-md mb-2;
+}
+.product-card h3 {
+  @apply text-lg font-semibold;
+}
+.product-card p {
+  @apply text-gray-600;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition;
+}
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .dashboard-grid {
+    @apply grid-cols-1;
+  }
+  .product-grid {
+    @apply grid-cols-1;
+  }
+}

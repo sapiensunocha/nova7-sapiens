@@ -68,8 +68,6 @@
             margin-right: 0.75rem;
             text-align: center;
         }
-
-        /* Main Content Styles */
         .main-content-area {
             margin-left: 260px;
             padding: 2rem;
@@ -118,12 +116,11 @@
             font-weight: 600;
             display: inline-block;
         }
-        .status-completed { background-color: #D1FAE5; color: #059669; } /* Green */
-        .status-pending { background-color: #FEF3C7; color: #D97706; } /* Yellow */
-        .status-failed { background-color: #FEE2E2; color: #EF4444; } /* Red */
-        .status-sale { background-color: #DBEAFE; color: #2563EB; } /* Blue for sales */
-        .status-purchase { background-color: #E0F2FE; color: #0A66C2; } /* Lighter blue for purchases */
-
+        .status-completed { background-color: #D1FAE5; color: #059669; }
+        .status-pending { background-color: #FEF3C7; color: #D97706; }
+        .status-failed { background-color: #FEE2E2; color: #EF4444; }
+        .status-sale { background-color: #DBEAFE; color: #2563EB; }
+        .status-purchase { background-color: #E0F2FE; color: #0A66C2; }
         .action-button {
             background: none;
             border: none;
@@ -169,27 +166,57 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #4CAF50; /* Green for success */
+            background-color: #4CAF50;
             color: white;
             padding: 15px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 1000;
-            display: none; /* Hidden by default */
+            display: none;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
             text-align: center;
             min-width: 250px;
         }
         .message-box.error {
-            background-color: #F44336; /* Red for error */
+            background-color: #F44336;
         }
         .message-box.show {
             display: block;
             opacity: 1;
         }
-        /* Mobile Header & Responsive Adjustments */
-        .mobile-header { display: none; }
+        .form-select, .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .form-input[type="file"] {
+            padding: 0.25rem;
+        }
+        .btn-primary-action {
+            background-color: #0A66C2;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-primary-action:hover {
+            background-color: #004182;
+        }
+        .btn-secondary-action {
+            background-color: #E2E8F0;
+            color: #4A5568;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary-action:hover {
+            background-color: #CBD5E0;
+        }
         @media (max-width: 768px) {
             .sidebar-nova7 {
                 transform: translateX(-100%);
@@ -224,11 +251,13 @@
             .transaction-table th, .transaction-table td {
                 padding: 0.75rem;
             }
+            .form-input, .form-select {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-
     <div id="messageBox" class="message-box"></div>
 
     <header class="mobile-header md:hidden">
@@ -300,7 +329,60 @@
             </div>
         </header>
 
-        <!-- Transaction Type Filter -->
+        <!-- Add New Product Form -->
+        <div class="card-styled mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Add New Product</h2>
+            <form id="addProductForm" enctype="multipart/form-data" class="flex flex-col gap-4">
+                <div>
+                    <label for="productName" class="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" id="productName" name="name" class="form-input" required>
+                </div>
+                <div>
+                    <label for="productDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="productDescription" name="description" class="form-input" rows="4"></textarea>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label for="productPrice" class="block text-sm font-medium text-gray-700">Price ($)</label>
+                        <input type="number" id="productPrice" name="price" step="0.01" min="0" class="form-input" required>
+                    </div>
+                    <div class="flex-1">
+                        <label for="productQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                        <input type="number" id="productQuantity" name="quantity" min="0" class="form-input" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="productImage" class="block text-sm font-medium text-gray-700">Product Image</label>
+                    <input type="file" id="productImage" name="productImage" accept="image/*" class="form-input">
+                </div>
+                <button type="submit" class="btn-primary-action w-full md:w-auto">Add Product</button>
+            </form>
+        </div>
+
+        <!-- My Products Table -->
+        <div class="card-styled mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">My Products</h2>
+            <div class="table-container">
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <tr><td colspan="6" class="text-center text-gray-500 py-4">Loading products...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="noProductsMessage" class="text-center text-gray-500 py-4 hidden">No products found.</div>
+        </div>
+
+        <!-- Transaction Type Filter and Download CSV -->
         <div class="card-styled mb-6">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">Filter Transactions</h2>
             <div class="flex flex-col md:flex-row gap-4 items-center">
@@ -312,15 +394,20 @@
                         <option value="purchase">My Purchases</option>
                     </select>
                 </div>
-                <button id="applyFilterBtn" class="btn-primary-action flex-shrink-0">
-                    <i class="fas fa-filter mr-2"></i>Apply Filter
-                </button>
+                <div class="flex gap-2">
+                    <button id="applyFilterBtn" class="btn-primary-action flex-shrink-0">
+                        <i class="fas fa-filter mr-2"></i>Apply Filter
+                    </button>
+                    <button id="downloadCsvBtn" class="btn-secondary-action flex-shrink-0">
+                        <i class="fas fa-download mr-2"></i>Download CSV
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Business Transactions Table -->
+        <!-- Recent Transactions Table (Last 7 Days) -->
         <div class="card-styled">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">Transaction History</h2>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Recent Transaction History (Last 7 Days)</h2>
             <div class="table-container">
                 <table class="transaction-table">
                     <thead>
@@ -332,16 +419,14 @@
                             <th>Fee</th>
                             <th>Net Amount</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="transactionTableBody">
-                        <!-- Transactions will be loaded here by JavaScript -->
-                        <tr><td colspan="8" class="text-center text-gray-500 py-4">Loading transactions...</td></tr>
+                        <tr><td colspan="7" class="text-center text-gray-500 py-4">Loading transactions...</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div id="noTransactionsMessage" class="text-center text-gray-500 py-4 hidden">No business transactions found.</div>
+            <div id="noTransactionsMessage" class="text-center text-gray-500 py-4 hidden">No recent transactions found.</div>
 
             <!-- Pagination Controls -->
             <div id="paginationControls" class="pagination-controls">
@@ -350,207 +435,396 @@
         </div>
     </main>
 
-<script>
-    const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+    <script>
+        const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
                              ? "http://127.0.0.1:5005"
                              : "https://nova7.onrender.com";
 
-    let currentPage = 1;
-    let currentFilterType = ''; // 'sale', 'purchase', or '' for all
-    let pageCsrfToken = ''; // To store the CSRF token for the page
+        let currentPage = 1;
+        let currentFilterType = '';
+        let pageCsrfToken = '';
 
-    document.addEventListener('DOMContentLoaded', async function() {
-        const token = localStorage.getItem('nova7Token');
-        const userString = localStorage.getItem('nova7User');
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('nova7Token');
+            const userString = localStorage.getItem('nova7User');
 
-        if (!token || !userString) {
-            console.log("View Transactions: Token or userString missing. Redirecting to login.");
-            window.location.href = 'login.html';
-            return;
-        }
-
-        try {
-            const currentUser = JSON.parse(userString);
-            const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
-            if (desktopUserWelcomeElement) {
-                desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+            if (!token || !userString) {
+                console.log("View Transactions: Token or userString missing. Redirecting to login.");
+                window.location.href = 'login.html';
+                return;
             }
-        } catch (error) {
-            console.error("View Transactions: Error parsing user data from localStorage:", error);
-            handleLogout();
-            return;
-        }
 
-        // Fetch CSRF token on page load
-        pageCsrfToken = await fetchCsrfToken();
-        if (!pageCsrfToken) {
-            showMessage('Failed to load security token. Please refresh.', 'error');
-            return;
-        }
+            try {
+                const currentUser = JSON.parse(userString);
+                const desktopUserWelcomeElement = document.getElementById('desktopUserWelcome');
+                if (desktopUserWelcomeElement) {
+                    desktopUserWelcomeElement.textContent = `Welcome, ${currentUser.full_name || 'User'}!`;
+                }
+            } catch (error) {
+                console.error("View Transactions: Error parsing user data from localStorage:", error);
+                handleLogout();
+                return;
+            }
 
-        // Initial fetch of transactions
-        fetchBusinessTransactions(currentPage, currentFilterType);
+            pageCsrfToken = await fetchCsrfToken();
+            if (!pageCsrfToken) {
+                showMessage('Failed to load security token. Please refresh.', 'error');
+                return;
+            }
 
-        // Event Listeners
-        document.getElementById('applyFilterBtn').addEventListener('click', function() {
-            currentFilterType = document.getElementById('transactionTypeFilter').value;
-            currentPage = 1; // Reset to first page on new filter
             fetchBusinessTransactions(currentPage, currentFilterType);
-        });
+            fetchUserProducts();
 
-        const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
-        if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
-        const mobileLogoutLink = document.getElementById('mobileLogoutLink');
-        if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
-        const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
-        const sidebar = document.getElementById('sidebar');
-        if (hamburgerBtnMobile && sidebar) {
-            hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
-        }
-        document.addEventListener('click', (e) => {
-            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
-                sidebar.classList.remove('open');
+            // Event Listeners
+            document.getElementById('applyFilterBtn').addEventListener('click', function() {
+                currentFilterType = document.getElementById('transactionTypeFilter').value;
+                currentPage = 1;
+                fetchBusinessTransactions(currentPage, currentFilterType);
+            });
+
+            document.getElementById('downloadCsvBtn').addEventListener('click', downloadTransactionsCsv);
+
+            document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await addProduct();
+            });
+
+            const sidebarLogoutLink = document.getElementById('sidebarLogoutLink');
+            if (sidebarLogoutLink) sidebarLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+            const mobileLogoutLink = document.getElementById('mobileLogoutLink');
+            if (mobileLogoutLink) mobileLogoutLink.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+            const hamburgerBtnMobile = document.getElementById('hamburgerBtnMobile');
+            const sidebar = document.getElementById('sidebar');
+            if (hamburgerBtnMobile && sidebar) {
+                hamburgerBtnMobile.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
             }
-        });
-        console.log("View Transactions page loaded and scripts attached.");
-    });
-
-    async function fetchCsrfToken() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { method: 'GET', credentials: 'include' });
-            const data = await response.json();
-            if (response.ok && data.status === 'success') {
-                return data.csrf_token;
-            } else {
-                console.error("Failed to fetch CSRF token:", data.message || response.statusText);
-                return null;
-            }
-        } catch (error) {
-            console.error('Error fetching CSRF token:', error);
-            return null;
-        }
-    }
-
-    async function fetchBusinessTransactions(page = 1, typeFilter = '') {
-        const transactionTableBody = document.getElementById('transactionTableBody');
-        const noTransactionsMessage = document.getElementById('noTransactionsMessage');
-        const paginationControls = document.getElementById('paginationControls');
-
-        transactionTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-4">Loading transactions...</td></tr>';
-        noTransactionsMessage.classList.add('hidden');
-        paginationControls.innerHTML = ''; // Clear pagination
-
-        const token = localStorage.getItem('nova7Token');
-        const queryParams = new URLSearchParams({
-            page: page,
-            limit: 10, // Items per page
-            type: typeFilter // 'sale', 'purchase', or empty for all
-        }).toString();
-
-        try {
-            // New endpoint for business/marketplace transactions
-            const response = await fetch(`${API_BASE_URL}/api/business-transactions?${queryParams}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            document.addEventListener('click', (e) => {
+                if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && (!hamburgerBtnMobile || !hamburgerBtnMobile.contains(e.target))) {
+                    sidebar.classList.remove('open');
                 }
             });
-            const data = await response.json();
+            console.log("View Transactions page loaded and scripts attached.");
+        });
 
-            if (response.ok && data.status === 'success' && data.transactions) {
-                transactionTableBody.innerHTML = ''; // Clear loading message
-                if (data.transactions.length === 0) {
-                    noTransactionsMessage.classList.remove('hidden');
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/csrf-token`, { method: 'GET', credentials: 'include' });
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    return data.csrf_token;
                 } else {
-                    data.transactions.forEach(transaction => {
-                        const row = document.createElement('tr');
-                        const transactionType = transaction.type.toLowerCase(); // 'sale' or 'purchase'
-                        const statusClass = transaction.status === 'completed' ? 'status-completed' :
-                                            transaction.status === 'pending' ? 'status-pending' :
-                                            transaction.status === 'failed' ? 'status-failed' :
-                                            transactionType === 'sale' ? 'status-sale' : 'status-purchase'; // Custom classes for sales/purchases
+                    console.error("Failed to fetch CSRF token:", data.message || response.statusText);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+                return null;
+            }
+        }
 
-                        const formattedDate = new Date(transaction.timestamp).toLocaleDateString('en-US', {
-                            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        async function fetchUserProducts() {
+            const productTableBody = document.getElementById('productTableBody');
+            const noProductsMessage = document.getElementById('noProductsMessage');
+            productTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500 py-4">Loading products...</td></tr>';
+            noProductsMessage.classList.add('hidden');
+
+            const token = localStorage.getItem('nova7Token');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/products?seller_id=true`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success' && data.products) {
+                    productTableBody.innerHTML = '';
+                    if (data.products.length === 0) {
+                        noProductsMessage.classList.remove('hidden');
+                    } else {
+                        data.products.forEach(product => {
+                            const row = document.createElement('tr');
+                            const statusClass = product.is_available ? 'status-completed' : 'status-failed';
+                            row.innerHTML = `
+                                <td>${product.name}</td>
+                                <td>${product.description || 'N/A'}</td>
+                                <td>$${parseFloat(product.price).toFixed(2)}</td>
+                                <td>${product.quantity}</td>
+                                <td><span class="status-badge ${statusClass}">${product.is_available ? 'Available' : 'Unavailable'}</span></td>
+                                <td>
+                                    <button class="action-button update-quantity-btn" data-id="${product.id}" title="Update Quantity"><i class="fas fa-edit"></i></button>
+                                    <button class="action-button delete-button delete-product-btn" data-id="${product.id}" title="Delete Product"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            `;
+                            productTableBody.appendChild(row);
                         });
 
-                        const amountDisplay = `$${parseFloat(transaction.amount).toFixed(2)}`;
-                        const feeDisplay = `$${parseFloat(transaction.fee || 0).toFixed(2)}`;
-                        const netAmountDisplay = `$${parseFloat(transaction.net_amount || transaction.amount).toFixed(2)}`;
-
-                        row.innerHTML = `
-                            <td>${formattedDate}</td>
-                            <td><span class="status-badge ${statusClass}">${transactionType.toUpperCase()}</span></td>
-                            <td>${transaction.product_name || 'N/A'}</td>
-                            <td>${amountDisplay}</td>
-                            <td>${feeDisplay}</td>
-                            <td>${netAmountDisplay}</td>
-                            <td><span class="status-badge ${statusClass}">${transaction.status.toUpperCase()}</span></td>
-                            <td>
-                                <!-- Add action buttons if needed, e.g., for managing sales/purchases -->
-                                <!-- <button class="action-button view-details-btn" data-id="${transaction.id}" title="View Details"><i class="fas fa-eye"></i></button> -->
-                                <!-- <button class="action-button delete-button" data-id="${transaction.id}" title="Delete Transaction"><i class="fas fa-trash-alt"></i></button> -->
-                            </td>
-                        `;
-                        transactionTableBody.appendChild(row);
-                    });
-                    renderPagination(data.total_pages, data.current_page);
+                        document.querySelectorAll('.update-quantity-btn').forEach(btn => {
+                            btn.addEventListener('click', () => updateProductQuantity(btn.dataset.id));
+                        });
+                        document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                            btn.addEventListener('click', () => deleteProduct(btn.dataset.id));
+                        });
+                    }
+                } else {
+                    console.error("Failed to fetch products:", data.message || response.statusText);
+                    productTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-4">Failed to load products: ${data.message || 'Unknown error'}</td></tr>`;
                 }
-            } else {
-                console.error("Failed to fetch business transactions:", data.message || response.statusText);
-                transactionTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-red-500 py-4">Failed to load transactions: ${data.message || 'Unknown error'}</td></tr>`;
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                productTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-red-500 py-4">Network error while loading products.</td></tr>';
             }
-        } catch (error) {
-            console.error("Error fetching business transactions:", error);
-            transactionTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-4">Network error while loading transactions.</td></tr>';
-        }
-    }
-
-    function renderPagination(totalPages, currentPageNum) {
-        const paginationControls = document.getElementById('paginationControls');
-        paginationControls.innerHTML = '';
-
-        const prevButton = document.createElement('button');
-        prevButton.innerHTML = '<i class="fas fa-chevron-left"></i> Prev';
-        prevButton.disabled = currentPageNum === 1;
-        prevButton.addEventListener('click', () => fetchBusinessTransactions(currentPageNum - 1, currentFilterType));
-        paginationControls.appendChild(prevButton);
-
-        const pageInfo = document.createElement('span');
-        pageInfo.classList.add('page-info');
-        pageInfo.textContent = `Page ${currentPageNum} of ${totalPages}`;
-        paginationControls.appendChild(pageInfo);
-
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
-        nextButton.disabled = currentPageNum >= totalPages;
-        nextButton.addEventListener('click', () => fetchBusinessTransactions(currentPageNum + 1, currentFilterType));
-        paginationControls.appendChild(nextButton);
-    }
-
-    function handleLogout() {
-        console.log("View Transactions: Logging out and redirecting to login.html");
-        localStorage.removeItem('nova7Token');
-        localStorage.removeItem('nova7User');
-        window.location.href = 'login.html';
-    }
-
-    function showMessage(message, type = 'success', duration = 3000) {
-        const messageBox = document.getElementById('messageBox');
-        messageBox.textContent = message;
-        messageBox.className = 'message-box show'; // Reset classes
-        if (type === 'error') {
-            messageBox.classList.add('error');
-        } else {
-            messageBox.classList.remove('error');
         }
 
-        setTimeout(() => {
-            messageBox.classList.remove('show');
-        }, duration);
-    }
-</script>
+        async function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            const token = localStorage.getItem('nova7Token');
 
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRFToken': pageCsrfToken
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    showMessage('Product added successfully!', 'success');
+                    form.reset();
+                    fetchUserProducts();
+                } else {
+                    showMessage(`Failed to add product: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding product:', error);
+                showMessage('Network error while adding product.', 'error');
+            }
+        }
+
+        async function updateProductQuantity(productId) {
+            const newQuantity = prompt('Enter new quantity:', '');
+            if (newQuantity === null || isNaN(newQuantity) || newQuantity < 0) {
+                showMessage('Invalid quantity entered.', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem('nova7Token');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': pageCsrfToken
+                    },
+                    body: JSON.stringify({ quantity: parseInt(newQuantity) })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    showMessage('Product quantity updated successfully!', 'success');
+                    fetchUserProducts();
+                } else {
+                    showMessage(`Failed to update product: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating product quantity:', error);
+                showMessage('Network error while updating product.', 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+
+            const token = localStorage.getItem('nova7Token');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/marketplace/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': pageCsrfToken
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    showMessage('Product deleted successfully!', 'success');
+                    fetchUserProducts();
+                } else {
+                    showMessage(`Failed to delete product: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showMessage('Network error while deleting product.', 'error');
+            }
+        }
+
+        async function fetchBusinessTransactions(page = 1, typeFilter = '') {
+            const transactionTableBody = document.getElementById('transactionTableBody');
+            const noTransactionsMessage = document.getElementById('noTransactionsMessage');
+            const paginationControls = document.getElementById('paginationControls');
+
+            transactionTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-4">Loading transactions...</td></tr>';
+            noTransactionsMessage.classList.add('hidden');
+            paginationControls.innerHTML = '';
+
+            const token = localStorage.getItem('nova7Token');
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const startDate = sevenDaysAgo.toISOString().split('T')[0];
+
+            const queryParams = new URLSearchParams({
+                page: page,
+                limit: 10,
+                type: typeFilter,
+                startDate: startDate
+            }).toString();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/business-transactions?${queryParams}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success' && data.transactions) {
+                    transactionTableBody.innerHTML = '';
+                    if (data.transactions.length === 0) {
+                        noTransactionsMessage.classList.remove('hidden');
+                    } else {
+                        data.transactions.forEach(transaction => {
+                            const row = document.createElement('tr');
+                            const transactionType = transaction.type.toLowerCase();
+                            const statusClass = transaction.status === 'completed' ? 'status-completed' :
+                                                transaction.status === 'pending' ? 'status-pending' :
+                                                transaction.status === 'failed' ? 'status-failed' :
+                                                transactionType.includes('sell') ? 'status-sale' : 'status-purchase';
+
+                            const formattedDate = new Date(transaction.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                            });
+
+                            const amountDisplay = `$${parseFloat(transaction.amount).toFixed(2)}`;
+                            const feeDisplay = `$${parseFloat(transaction.fee || 0).toFixed(2)}`;
+                            const netAmountDisplay = `$${parseFloat(transaction.net_amount || transaction.amount).toFixed(2)}`;
+
+                            row.innerHTML = `
+                                <td>${formattedDate}</td>
+                                <td><span class="status-badge ${statusClass}">${transactionType.replace('_', ' ').toUpperCase()}</span></td>
+                                <td>${transaction.description || 'N/A'}</td>
+                                <td>${amountDisplay}</td>
+                                <td>${feeDisplay}</td>
+                                <td>${netAmountDisplay}</td>
+                                <td><span class="status-badge ${statusClass}">${transaction.status.toUpperCase()}</span></td>
+                            `;
+                            transactionTableBody.appendChild(row);
+                        });
+                        renderPagination(data.total_pages, data.current_page);
+                    }
+                } else {
+                    console.error("Failed to fetch transactions:", data.message || response.statusText);
+                    transactionTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-red-500 py-4">Failed to load transactions: ${data.message || 'Unknown error'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+                transactionTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-red-500 py-4">Network error while loading transactions.</td></tr>';
+            }
+        }
+
+        async function downloadTransactionsCsv() {
+            const token = localStorage.getItem('nova7Token');
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const startDate = sevenDaysAgo.toISOString().split('T')[0];
+
+            const queryParams = new URLSearchParams({
+                startDate: startDate,
+                type: currentFilterType
+            }).toString();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/business-transactions/csv?${queryParams}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `transactions_${startDate}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    showMessage('Transactions CSV downloaded successfully!', 'success');
+                } else {
+                    const data = await response.json();
+                    showMessage(`Failed to download CSV: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error downloading CSV:', error);
+                showMessage('Network error while downloading CSV.', 'error');
+            }
+        }
+
+        function renderPagination(totalPages, currentPageNum) {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i> Prev';
+            prevButton.disabled = currentPageNum === 1;
+            prevButton.addEventListener('click', () => fetchBusinessTransactions(currentPageNum - 1, currentFilterType));
+            paginationControls.appendChild(prevButton);
+
+            const pageInfo = document.createElement('span');
+            pageInfo.classList.add('page-info');
+            pageInfo.textContent = `Page ${currentPageNum} of ${totalPages}`;
+            paginationControls.appendChild(pageInfo);
+
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+            nextButton.disabled = currentPageNum >= totalPages;
+            nextButton.addEventListener('click', () => fetchBusinessTransactions(currentPageNum + 1, currentFilterType));
+            paginationControls.appendChild(nextButton);
+        }
+
+        function handleLogout() {
+            console.log("View Transactions: Logging out and redirecting to login.html");
+            localStorage.removeItem('nova7Token');
+            localStorage.removeItem('nova7User');
+            window.location.href = 'login.html';
+        }
+
+        function showMessage(message, type = 'success', duration = 3000) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show';
+            if (type === 'error') {
+                messageBox.classList.add('error');
+            } else {
+                messageBox.classList.remove('error');
+            }
+
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+    </script>
 </body>
 </html>

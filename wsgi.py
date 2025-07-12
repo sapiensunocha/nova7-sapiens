@@ -1,0 +1,1 @@
+from nova7_backend.app import app as application

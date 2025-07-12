@@ -7,15 +7,14 @@ from flask import Flask, request, jsonify, make_response
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, JSON, or_
-from datetime import datetime, timedelta, timezone # Ensure timedelta is imported from here
-from flask_cors import CORS # Keep this single import for CORS
+from datetime import datetime, timedelta, timezone
+from flask_cors import CORS
 from flask_jwt_extended import (
     create_access_token, JWTManager, jwt_required, get_jwt_identity, decode_token
 )
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from google.cloud import storage
 import google.generativeai as genai
@@ -23,27 +22,29 @@ import json
 import tempfile
 from flask_migrate import Migrate
 import logging
+from flask_bcrypt import Bcrypt
+from flask_wtf.csrf import generate_csrf
 
-# Hardcode your Gemini API key here (replace with your actual key)
+# --- Flask App Initialization ---
+app = Flask(__name__)
+bcrypt = Bcrypt(app)
+
+# --- Gemini API Setup ---
 GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
-
-# Configure Gemini API immediately (before app creation if possible, or after)
 genai.configure(api_key=GEMINI_API_KEY)
-print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...") # For debug (partial key)
+print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")
 
-# For Google Cloud Application Default Credentials on Render
+# --- Google Cloud Auth from JSON env var ---
 if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
     credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
     if credentials_json:
         try:
             temp_dir = tempfile.gettempdir()
             temp_credentials_path = os.path.join(temp_dir, "gcp_credentials.json")
-
             with open(temp_credentials_path, "w") as f:
                 f.write(credentials_json)
-
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_credentials_path
-            print(f"Google Cloud credentials loaded from temporary file: {temp_credentials_path}")
+            print(f"Google Cloud credentials loaded from: {temp_credentials_path}")
         except Exception as e:
             print(f"Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON: {e}")
     else:
@@ -51,46 +52,42 @@ if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
 else:
     print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found.")
 
-# Load .env file (after setting GCP credentials if from env var)
+# --- Load .env ---
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 dotenv_path = os.path.join(BASE_DIR, '.env')
-
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
     print(f"Loaded .env file from: {dotenv_path}")
 else:
-    print(f"Warning: .env file not found at {dotenv_path}. Using environment variables or defaults.")
+    print(f"Warning: .env file not found at {dotenv_path}")
 
-
-# --- Flask App Initialization ---
-app = Flask(__name__)
-
-# --- Flask App Configurations (must be set before initializing extensions) ---
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY') or 'super-secret-jwt-key' # Use a strong key
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1) # Example expiration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'your-secure-csrf-secret-key-2025-nova7' # Ensure this is set in .env
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL_INTERNAL', 'postgresql://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require')
+# --- App Config ---
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-jwt-key')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL_INTERNAL',
+    'postgresql://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Flask-Mail Configuration (if you intend to send emails)
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
-app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'True').lower() == 'true'
+# --- Mail Config ---
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'no-reply@nova7.com')
 
-
-# --- Initialize Flask Extensions (after app config) ---
+# --- Init Extensions ---
 jwt = JWTManager(app)
-
-# CORS Configuration
-CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app,https://nova7-frontend.onrender.com').split(',')
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-frontend.onrender.com,http://127.0.0.1:5500,http://127.0.0.1:5501,https://nova7.vercel.app').split(',')
 CORS(app, resources={r"/api/*": {
-    "origins": ["https://nova7-frontend.onrender.com", "http://127.0.0.1:5500", "http://127.0.0.1:5501"],
+    "origins": CORS_ORIGINS,
     "supports_credentials": True,
-    "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken", "x-csrftoken", "X-CSRF-Token", "x-csrf-token"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    "allow_headers": ["Content-Type", "Authorization", "X-CSRF-Token", "x-csrf-token"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "expose_headers": ["X-CSRF-Token"]
 }})
 print(f"Allowed CORS origins: {CORS_ORIGINS}")
 
@@ -99,15 +96,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
-# --- NEW: UPLOAD_FOLDER Configuration for local file storage (if not using GCS directly for all uploads) ---
-# This is where uploaded files (like biometric data, profile pictures) will be stored temporarily or permanently.
-# For production, it's highly recommended to use Google Cloud Storage for persistent file storage.
+# --- Upload Folder ---
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# --- Configure Google Cloud Storage (GCS) ---
+# --- Google Cloud Storage ---
 try:
     storage_client = storage.Client()
     GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME')
@@ -115,56 +110,56 @@ try:
         gcs_bucket = storage_client.get_bucket(GCS_BUCKET_NAME)
         print(f"Connected to GCS bucket: {GCS_BUCKET_NAME}")
     else:
-        print("Warning: GCS_BUCKET_NAME not set in environment. GCS uploads might not work.")
+        print("Warning: GCS_BUCKET_NAME not set.")
 except Exception as e:
-    print(f"Error initializing Google Cloud Storage: {e}")
-    gcs_bucket = None # Set to None if initialization fails
+    print(f"Error initializing GCS: {e}")
+    gcs_bucket = None
 
-# TODO: Remove this email disabling for production if emails should be sent
-# Temporarily disable email sending to debug "Subject must be a string" error
+# --- Optional Email Override for Debug ---
 def disable_email_send(self, message):
-    print(f"Email sending disabled - would have sent to {message.recipients} with subject: {message.subject}")
+    print(f"Email would have sent to {message.recipients} | Subject: {message.subject}")
     return None
-
-# Apply the override to Flask-Mail (uncomment if you want to disable email sending)
 # Mail.send = disable_email_send
 
-# ... (Your Flask routes and other application logic will go here) ...
-# Example of a route (ensure you have your actual routes defined below this setup)
+# --- Routes ---
 @app.route('/')
 def hello_world():
     return 'Hello, Nova7 Backend!'
 
+# --- Run App ---
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=os.getenv('PORT', 5000))
+    with app.app_context():
+        db.create_all()
+    app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
 
-# --- JWT Error Handlers (NEW) ---
+# --- JWT Handlers ---
 @jwt.invalid_token_loader
 def invalid_token_callback(callback_error):
-    print(f"JWT Invalid Token Error: {callback_error}")
-    return jsonify({"status": "error", "message": "Signature verification failed or token is invalid.", "details": str(callback_error)}), 422
+    print(f"JWT Invalid Token: {callback_error}")
+    return jsonify({"status": "error", "message": "Invalid token.", "details": str(callback_error)}), 422
 
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    print(f"JWT Expired Token Error: {jwt_payload}")
-    return jsonify({"status": "error", "message": "Token has expired.", "details": "Token expired"}), 401
+    print("JWT Expired Token")
+    return jsonify({"status": "error", "message": "Token expired."}), 401
 
+# --- Models ---
+from flask_bcrypt import Bcrypt
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import JSON
+import uuid
 
-# --- Database Models ---
-# Define your SQLAlchemy models here. This is a crucial section for your application's data structure.
-# I'm adding placeholder models based on your requirements. You will need to fill in more details
-# and relationships as your application grows.
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     full_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    # --- FIX: Increased length for password_hash ---
     password_hash = db.Column(db.String(255), nullable=False)
     date_of_birth = db.Column(db.Date, nullable=True)
     id_number = db.Column(db.String(50), unique=True, nullable=True)
-    biometric_data = db.Column(db.String(255), nullable=True) # Path/URL to biometric file
+    biometric_data = db.Column(db.String(255), nullable=True)
     country = db.Column(db.String(100), nullable=False)
     payment_network = db.Column(db.String(100), nullable=False)
     mobile_money = db.Column(db.String(100), nullable=False)
@@ -178,27 +173,26 @@ class User(db.Model):
     verification_token = db.Column(db.String(100), unique=True, nullable=True)
     password_reset_token = db.Column(db.String(100), unique=True, nullable=True)
     password_reset_expiration = db.Column(db.DateTime, nullable=True)
-    profile_picture_url = db.Column(db.String(255), nullable=True) # NEW: For profile pictures
-    balance = db.Column(db.Numeric(10, 2), default=0.00) # NEW: User's financial balance
+    profile_picture_url = db.Column(db.String(255), nullable=True)
+    balance = db.Column(db.Numeric(10, 2), default=0.00)
     income_sources = db.Column(db.String, nullable=True)
     expenses = db.Column(db.String, nullable=True)
     debt = db.Column(db.String, nullable=True)
     financial_goals = db.Column(db.String, nullable=True)
 
-    # Relationships (add as needed for transactions, loans, etc.)
+    # Relationships
     transactions = db.relationship(
         'Transaction',
         backref='user',
         lazy=True,
-        foreign_keys='Transaction.user_id' # Explicitly specify the foreign key for this relationship
+        foreign_keys='Transaction.user_id'
     )
-    # Add relationships for loans, marketplace items, community posts, etc.
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     def to_dict(self):
         return {
@@ -221,6 +215,7 @@ class User(db.Model):
             'email_verified': self.email_verified,
             'profile_picture_url': self.profile_picture_url,
             'balance': float(self.balance),
+            'income_sources': self.income_sources,
             'expenses': self.expenses,
             'debt': self.debt,
             'financial_goals': self.financial_goals
@@ -242,19 +237,15 @@ class UserSetting(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    # NEW: Unique transaction ID (UUID)
     transaction_id = db.Column(db.String(60), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # NEW: Receiver ID for user-to-user transactions (e.g., "loving" payment, buying from marketplace)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    type = db.Column(db.String(50), nullable=False) # e.g., 'deposit', 'withdrawal', 'transfer', 'buy', 'sell', 'loan', 'insurance_payment', 'love_payment'
-    status = db.Column(db.String(50), default='pending') # e.g., 'pending', 'completed', 'failed', 'approved', 'rejected'
-    # NEW: Date is automatically taken by the app
+    type = db.Column(db.String(50), nullable=False)  # deposit, withdrawal, etc.
+    status = db.Column(db.String(50), default='pending')
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.String(255), nullable=True)
-    # NEW: For office withdrawals
-    office_withdrawal_details = db.Column(JSON, nullable=True) # Stores details like office name, validation code
+    office_withdrawal_details = db.Column(JSON, nullable=True)
 
     def to_dict(self):
         return {
@@ -430,6 +421,17 @@ def admin_required(f):
 
 # --- Routes ---
 
+
+@app.route('/drop_alembic_version', methods=['POST'])
+def drop_alembic_version():
+    # Optional: add auth here to restrict access to admins only
+    try:
+        db.engine.execute("DROP TABLE IF EXISTS alembic_version;")
+        return jsonify({"status": "success", "message": "Dropped alembic_version table successfully."})
+    except Exception as e:
+        print(f"Error dropping alembic_version table: {e}")
+        return jsonify({"status": "error", "message": f"Error dropping alembic_version table: {str(e)}"}), 500
+
 @app.route('/api/csrf-token', methods=['GET'])
 def get_csrf_token():
     # Ensure SECRET_KEY is set in app.config for generate_csrf to work
@@ -543,31 +545,46 @@ def register_user():
         print(f"Error during registration: {str(e)}")
         return jsonify({"status": "error", "message": f"An error occurred during registration: {str(e)}"}), 500
 
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt(app)
+
+from werkzeug.security import check_password_hash  # import at the top
+
 @app.route('/api/login', methods=['POST'])
 @csrf.exempt
 def login_user():
-    email = request.json.get('email')
-    password = request.json.get('password')
+    try:
+        data = request.get_json()
+        if not data or 'email' not in data or 'password' not in data:
+            app.logger.warning("Invalid login request: missing email or password")
+            return jsonify({"status": "error", "message": "Email and password are required."}), 400
 
-    # --- DEBUGGING PRINTS START ---
-    print(f"Login attempt for email: {email}")
-    user = User.query.filter_by(email=email).first()
-    if user:
-        print(f"User found: {user.email}")
-        # print(f"Stored hash: {user.password_hash}") # Avoid printing sensitive info in production logs
-        # print(f"Provided password: {password}") # Avoid printing sensitive info
-    else:
-        print("User not found.")
-    # --- DEBUGGING PRINTS END ---
+        email = data['email'].strip().lower()
+        password = data['password']
 
-    if not user or not user.check_password(password):
-        print("Password check failed or user not found.")
-        return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+        user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
 
-    # --- FIX: Cast user.id to string for JWT identity ---
-    access_token = create_access_token(identity=str(user.id))
-    return jsonify({"status": "success", "message": "Login successful", "access_token": access_token, "user": user.to_dict()}), 200
+        if user:
+            print(f"Stored hash for user {email}: {user.password_hash}")
 
+        if not user or not check_password_hash(user.password_hash, password):
+            app.logger.warning(f"Login failed for {email}: invalid credentials")
+            return jsonify({"status": "error", "message": "Invalid email or password."}), 401
+
+        access_token = create_access_token(identity=str(user.id), expires_delta=timedelta(hours=1))
+        app.logger.info(f"Login successful for {email}")
+
+        return jsonify({
+            "status": "success",
+            "message": "Login successful",
+            "access_token": access_token,
+            "user": user.to_dict()
+        }), 200
+
+    except Exception as e:
+        app.logger.error(f"Login error: {str(e)}")
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
 @app.route('/api/dashboard', methods=['GET'])
 @token_required
 def dashboard(current_user):
@@ -1523,80 +1540,6 @@ def get_transaction_report(current_user):
         return jsonify({"status": "error", "message": "Failed to fetch transaction report."}), 500
 
 
-# --- NEW: AI Chatbot Route (Gemini API Integration) ---
-@csrf.exempt
-@token_required
-def chatbot_advice(current_user):
-    model = genai.GenerativeModel('gemini-2.0-flash') # Use gemini-2.0-flash as requested
-    
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"status": "error", "message": "Request body must be JSON."}), 400
-        user_query = data.get('user_query')
-        chat_history = data.get('chat_history', []) # Default to empty list if not provided
-
-        if not user_query:
-            return jsonify({"status": "error", "message": "User query is required."}), 400
-        
-        if not GEMINI_API_KEY:
-            return jsonify({"status": "error", "message": "Chatbot is not configured (missing GEMINI_API_KEY)."}), 503
-
-        # Fetch user's financial data
-        user_balance = float(current_user.balance)
-        # Fetch recent transactions from the database
-        recent_transactions_db = Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.timestamp.desc()).limit(5).all()
-        recent_transactions = [t.to_dict() for t in recent_transactions_db]
-
-        # Simulate local context data (you'd fetch this from other sources or user input)
-        local_context = {
-            "location": f"{current_user.city}, {current_user.province}, {current_user.country}",
-            "currency": "USD", # Assuming USD for now, adjust as needed
-            "inflation_rate_estimate": "5%", # Placeholder
-            "local_investment_opportunities": ["local bonds", "small business loans"] # Placeholder
-        }
-
-        # Construct the prompt for Gemini
-        system_instruction = (
-            "You are Nova7's highly skilled AI Financial Advisor, an expert in personal finance, "
-            "investments, budgeting, and financial planning. You are multilingual and can "
-            "advise the user in the language they use. "
-            "Provide clear, concise, and actionable financial tips and advice. "
-            "Do not make up financial data; only use the provided user data. "
-            "If the user asks for advice based on their movements, refer to their recent transactions. "
-            "Always maintain a professional, helpful, and empathetic tone."
-        )
-
-        # Prepare the full chat history including the system instruction and user's current query
-        gemini_contents = [{
-            "role": "user",
-            "parts": [{"text": f"System Instruction: {system_instruction}\n\n"
-                                f"User's Current Balance: ${user_balance:.2f}\n"
-                                f"User's Recent Transactions: {recent_transactions}\n\n"
-                                f"User's Local Context: {json.dumps(local_context, indent=2)}\n\n"
-                                f"User Query: {user_query}"}]
-        }]
-        
-        # Append previous chat history from the frontend, ensuring roles are correct
-        # Frontend chat_history is expected to be in the format [{"role": "user", "parts": [{"text": "..."}]}, {"role": "model", "parts": [{"text": "..."}]}]
-        for msg in chat_history:
-            # Ensure the structure matches what Gemini API expects for contents
-            if 'role' in msg and 'parts' in msg:
-                gemini_contents.append(msg)
-            else:
-                # Attempt to convert if the format is slightly off, or skip
-                print(f"Warning: Skipping malformed chat history message: {msg}")
-
-        # Make the call to the Gemini API
-        response = model.generate_content(gemini_contents)
-
-        # Extract the advice from Gemini's response
-        advice = response.candidates[0].content.parts[0].text
-        return jsonify({"status": "success", "advice": advice}), 200
-
-    except Exception as e:
-        print(f"Error in chatbot_advice endpoint: {e}")
-        return jsonify({"status": "error", "message": "An internal server error occurred."}), 500
     
 @app.route('/api/community/love_donation', methods=['POST'])
 @jwt_required()
@@ -1794,6 +1737,117 @@ def get_business_transactions(current_user):
 
 # This ensures that when app.py is run directly, it will perform database migrations.
 # You would typically run `flask db upgrade` from your terminal after changes.
+
+# --- NEW: Update Product Quantity and Delete Product Endpoints ---
+@app.route('/api/marketplace/products/<int:product_id>', methods=['PUT'])
+@csrf.exempt
+@token_required
+def update_product_quantity(current_user, product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"status": "error", "message": "Product not found."}), 404
+    if product.seller_id != current_user.id:
+        return jsonify({"status": "error", "message": "You are not authorized to update this product."}), 403
+
+    data = request.get_json()
+    new_quantity = data.get('quantity')
+    if new_quantity is None or not isinstance(new_quantity, int) or new_quantity < 0:
+        return jsonify({"status": "error", "message": "Invalid quantity provided."}), 400
+
+    try:
+        product.quantity = new_quantity
+        product.is_available = new_quantity > 0
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Product quantity updated successfully.", "product": product.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating product quantity: {e}")
+        return jsonify({"status": "error", "message": "Failed to update product quantity."}), 500
+
+@app.route('/api/marketplace/products/<int:product_id>', methods=['DELETE'])
+@csrf.exempt
+@token_required
+def delete_product(current_user, product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"status": "error", "message": "Product not found."}), 404
+    if product.seller_id != current_user.id:
+        return jsonify({"status": "error", "message": "You are not authorized to delete this product."}), 403
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Product deleted successfully."}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting product: {e}")
+        return jsonify({"status": "error", "message": "Failed to delete product."}), 500
+
+# --- NEW: CSV Download Endpoint for Transactions ---
+@app.route('/api/business-transactions/csv', methods=['GET'])
+@token_required
+def download_transactions_csv(current_user):
+    try:
+        transaction_type = request.args.get('type', '')
+        start_date_str = request.args.get('startDate', '')
+
+        query = Transaction.query.filter(
+            or_(
+                Transaction.user_id == current_user.id,
+                Transaction.receiver_id == current_user.id
+            ),
+            or_(
+                Transaction.type == 'product_buy',
+                Transaction.type == 'product_sell'
+            )
+        )
+
+        if transaction_type:
+            query = query.filter(
+                Transaction.type == f'product_{transaction_type}'
+            )
+
+        if start_date_str:
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+                query = query.filter(Transaction.timestamp >= start_date)
+            except ValueError:
+                return jsonify({"status": "error", "message": "Invalid startDate format. Use YYYY-MM-DD."}), 400
+
+        transactions = query.order_by(Transaction.timestamp.desc()).all()
+
+        if not transactions:
+            return jsonify({"status": "error", "message": "No transactions found for the specified period."}), 404
+
+        # Create CSV in memory
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Date', 'Type', 'Description', 'Amount', 'Fee', 'Net Amount', 'Status'])
+
+        for tx in transactions:
+            amount = float(tx.amount)
+            fee = 0.01 * abs(amount) if tx.type == 'product_buy' else 0  # 1% fee for buyers
+            net_amount = amount - fee if tx.type == 'product_buy' else amount
+            writer.writerow([
+                tx.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                tx.type.replace('_', ' ').title(),
+                tx.description or 'N/A',
+                f"${amount:.2f}",
+                f"${fee:.2f}",
+                f"${net_amount:.2f}",
+                tx.status.title()
+            ])
+
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={"Content-Disposition": f"attachment;filename=transactions_{start_date_str}.csv"}
+        )
+    except Exception as e:
+        print(f"Error generating CSV: {e}")
+        return jsonify({"status": "error", "message": "Failed to generate CSV."}), 500
+    
 @app.cli.command("init-db")
 def init_db_command():
     """Initializes the database."""
@@ -1814,94 +1868,65 @@ import google.generativeai as genai # Ensure this is imported and configured
 
 
 @app.route('/api/chatbot-advice', methods=['POST'])
+@csrf.exempt
 @jwt_required()
 def chatbot_advice():
     try:
         current_user_id = get_jwt_identity()
-        # IMPORTANT: User.query.get() is a legacy method.
-        # For SQLAlchemy 2.0 style, prefer session.get(User, current_user_id)
-        # Assuming 'db' is your SQLAlchemy instance
-        current_user = User.query.get(current_user_id)
-
+        current_user = db.session.get(User, current_user_id)
         if not current_user:
-            return jsonify({'error': 'User not found'}), 404
+            app.logger.error(f"User not found: {current_user_id}")
+            return jsonify({"status": "error", "message": "User not found"}), 404
 
         data = request.get_json()
-        # This line correctly extracts the 'message' from the JSON payload.
-        user_message = data.get('message')
+        user_query = data.get('message')
+        chat_history = data.get('chat_history', [])
 
-        # This check correctly ensures 'message' is present and not empty.
-        if not user_message:
-            return jsonify({'error': 'Message is required'}), 400
+        if not user_query:
+            app.logger.warning("Missing user query in chatbot request")
+            return jsonify({"status": "error", "message": "Message is required"}), 400
 
-        # Build user profile context
+        model = genai.GenerativeModel("gemini-1.5-flash")
         profile_context = f"""
         User Profile:
         - Name: {current_user.full_name}
         - Email: {current_user.email}
-        - Income Sources: {current_user.income_sources}
-        - Monthly Expenses: {current_user.expenses}
-        - Debts: {current_user.debt}
-        - Financial Goals: {current_user.financial_goals}
+        - Balance: ${float(current_user.balance):.2f}
+        - Income Sources: {current_user.income_sources or 'Not provided'}
+        - Expenses: {current_user.expenses or 'Not provided'}
+        - Debt: {current_user.debt or 'Not provided'}
+        - Financial Goals: {current_user.financial_goals or 'Not provided'}
         """
+        system_instruction = (
+            "You are Nova7's AI Financial Advisor, providing clear, concise, and actionable financial advice. "
+            "Use the user's profile and transaction history to personalize responses. "
+            "If data is missing, encourage the user to update their profile. "
+            "Maintain a professional and empathetic tone."
+        )
 
-        # Get chat history from the request payload
-        chat_history_from_frontend = data.get('chat_history', [])
+        recent_transactions = [t.to_dict() for t in Transaction.query.filter_by(user_id=current_user.id).order_by(Transaction.timestamp.desc()).limit(5).all()]
+        local_context = {
+            "location": f"{current_user.city or 'Unknown'}, {current_user.province or 'Unknown'}, {current_user.country}",
+            "currency": "USD"
+        }
 
-        # Prepare the conversation for the Gemini model
-        # The first message sets the context/persona for the AI
-        conversation_for_gemini = [
+        conversation = [
             {
-                'role': 'user',
-                'parts': [
-                    {'text': f"""
-                    You are a smart financial advisor named Nova7 Chat Advisor. Your job is to provide personalized financial advice to the user based on their profile and the ongoing conversation.
-
-                    User's Profile:
-                    {profile_context}
-
-                    Based on this profile and the following conversation history, provide a clear, friendly, and actionable financial response. If the user's profile is empty, encourage them to provide more details about their income, expenses, debts, and financial goals to get personalized advice.
-                    """}
-                ]
+                "role": "user",
+                "parts": [{"text": f"{system_instruction}\n\n{profile_context}\nRecent Transactions: {json.dumps(recent_transactions, indent=2)}\nLocal Context: {json.dumps(local_context, indent=2)}\n\nQuery: {user_query}"}]
             }
         ]
+        conversation.extend(chat_history)
 
-        # Add historical messages from the frontend to the conversation
-        # The frontend provides roles as 'user' or 'model', which matches Gemini's expected roles
-        for msg_turn in chat_history_from_frontend:
-            conversation_for_gemini.append({
-                'role': msg_turn['role'],
-                'parts': msg_turn['parts']
-            })
-
-        # Add the current user message as the final turn in the conversation
-        conversation_for_gemini.append({
-            'role': 'user',
-            'parts': [{'text': user_message}]
-        })
-
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        # Call generate_content with the full conversation history
-        response = model.generate_content(conversation_for_gemini)
-
-        # This return statement MUST be inside the try block and chatbot_advice function
-        return jsonify({'reply': response.text})
-
+        response = model.generate_content(conversation)
+        advice = response.candidates[0].content.parts[0].text
+        app.logger.info(f"Chatbot advice generated for user {current_user.email}")
+        return jsonify({"status": "success", "reply": advice}), 200
     except Exception as e:
-        # This except block MUST immediately follow the try block for chatbot_advice
-        app.logger.error(f"Error in chatbot_advice: {str(e)}")
-        # Return a generic error for security, but log the specific error.
-        return jsonify({'error': 'An internal server error occurred'}), 500
+        app.logger.error(f"Chatbot error: {str(e)}")
+        return jsonify({"status": "error", "message": "Failed to generate advice"}), 500
 
 # Other routes like /api/login should follow AFTER the entire chatbot_advice function
-@app.route('/api/login', methods=['POST'])
-def login():
-    username = request.json.get("username")
-    if not username:
-        return jsonify({"msg": "Missing username"}), 400
-
-    access_token = create_access_token(identity=username)
-    return jsonify(access_token=access_token)
 
 # The __main__ block should also be at the very end of your app.py file
 if __name__ == '__main__':
