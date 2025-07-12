@@ -6,11 +6,23 @@
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
-        "runtime": "python3.8"
+        "runtime": "python3.9"
       }
+    },
+    {
+      "src": "nova7_backend/static/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "nova7_backend/static/$1"
+    },
+    {
+      "src": "/favicon\\.(ico|png)",
+      "dest": "nova7_backend/static/favicon.$1"
+    },
     {
       "src": "/api/(.*)",
       "dest": "nova7_backend/app.py",
@@ -24,6 +36,7 @@
     }
   ],
   "installCommand": "pip install -r nova7_backend/requirements.txt",
+  "buildCommand": "pip install -r nova7_backend/requirements.txt && flask db upgrade",
   "env": {
     "PYTHONUNBUFFERED": "1"
   }
