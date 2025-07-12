@@ -2002,3 +2002,4 @@ if __name__ == '__main__':
             db.session.commit()
             print("Default subscriptions added.")
     app.run(debug=True, port=5005, host='0.0.0.0') # Set host to 0.0.0.0 to be accessible externally if needed
+    # Trigger redeploy - no logic change
