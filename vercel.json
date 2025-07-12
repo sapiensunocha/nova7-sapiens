@@ -23,6 +23,7 @@
       "dest": "nova7_backend/app.py"
     }
   ],
+  "installCommand": "pip install -r nova7_backend/requirements.txt",
   "env": {
     "PYTHONUNBUFFERED": "1"
   }
