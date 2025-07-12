@@ -12,3 +12,4 @@ google-generativeai==0.5.4
 requests==2.31.0
 gunicorn==23.0.0
 flask-bcrypt==1.0.1
+setuptools==58.0.4
