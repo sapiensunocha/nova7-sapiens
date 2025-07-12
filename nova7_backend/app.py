@@ -122,15 +122,75 @@ def disable_email_send(self, message):
 # Mail.send = disable_email_send
 
 # --- Routes ---
-@app.route('/')
-def serve_frontend():
-    return app.send_static_file('login.html')
+import os
+from datetime import datetime, timedelta
+import uuid
+from functools import wraps
 
-# --- Run App ---
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
+from flask import Flask, request, jsonify, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token, create_refresh_token, decode_token
+from flask_cors import CORS
+# from google.cloud import storage # Uncomment if you're directly using Google Cloud Storage client
+
+# --- App Initialization ---
+app = Flask(__name__)
+
+# --- Configuration ---
+# Use environment variables for sensitive data and configuration in production.
+# Provide a default for local development, but ensure these are set in Vercel.
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///nova7.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+
+# --- Upload Folder (for temporary files on Vercel) ---
+# Files here are temporary and will be deleted after the function invocation.
+# For persistent storage, use Google Cloud Storage or another external service.
+UPLOAD_FOLDER = '/tmp/uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# --- Initialize Extensions ---
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
+# Configure CORS for your frontend domains
+# Ensure these origins are exactly what your frontend uses (e.g., "https://your-frontend-domain.vercel.app")
+cors = CORS(app, origins=[
+    "https://nova7-frontend.onrender.com",
+    "http://127.0.0.1:5500", # For local development
+    "http://127.0.0.1:5501", # For local development
+    "https://nova7.vercel.app" # Your Vercel frontend domain
+], supports_credentials=True)
+
+# --- Google Cloud Storage Client Initialization (Conditional) ---
+# This block attempts to initialize the GCS client.
+# It relies on GOOGLE_APPLICATION_CREDENTIALS_JSON being set in Vercel environment variables.
+# Uncomment and adapt if you are using GCS directly in your app.
+# try:
+#     gcs_client = storage.Client()
+#     print("Google Cloud Storage client initialized successfully.")
+# except Exception as e:
+#     print(f"Error initializing GCS: {e}. Please ensure GOOGLE_APPLICATION_CREDENTIALS_JSON is set in Vercel.")
+
+# --- Routes ---
+# This is the updated root route to return JSON, typical for an API backend.
+# Your frontend should be making API calls to specific endpoints (e.g., /api/login, /api/users)
+# and not expecting the backend to serve HTML directly for the main page.
+@app.route('/')
+def api_root_status():
+    return jsonify({"status": "Backend API is online", "message": "Welcome to the Nova7 API! Access specific endpoints for data."}), 200
+
+# Your login.html should be part of your frontend project, deployed as static assets.
+# Remove the old serve_frontend function if it was trying to send login.html.
+# @app.route('/')
+# def serve_frontend():
+#     return app.send_static_file('login.html')
 
 # --- JWT Handlers ---
 @jwt.invalid_token_loader
@@ -144,13 +204,7 @@ def expired_token_callback(jwt_header, jwt_payload):
     return jsonify({"status": "error", "message": "Token expired."}), 401
 
 # --- Models ---
-from flask_bcrypt import Bcrypt
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import JSON
-import uuid
-
-
+# Your existing models remain here
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
@@ -419,7 +473,13 @@ def admin_required(f):
 #     response.headers.add("Access-Control-Allow-Credentials", "true")
 #     return response
 
-# --- Routes ---
+# --- Run App ---
+# This block is for local development. Vercel's build process handles running the app.
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() # This creates tables based on your models
+    app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))git add nova7_backend/app.py
+git commit -m "Updated Flask root route to JSON and configured for Vercel"
 
 
 @app.route('/drop_alembic_version', methods=['POST'])
