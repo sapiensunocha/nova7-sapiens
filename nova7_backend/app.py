@@ -32,6 +32,7 @@ from google.cloud import storage
 # Ensure you have google-generativeai installed: pip install google-generativeai
 import google.generativeai as genai
 import json # For parsing structured responses from Gemini API
+import tempfile
 
 # --- NEW: Import for Flask-Migrate ---
 from flask_migrate import Migrate # Import Migrate
@@ -57,6 +58,31 @@ def disable_email_send(self, message):
 # Load .env file
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 dotenv_path = os.path.join(BASE_DIR, '.env')
+
+# For Google Cloud Application Default Credentials on Render
+if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
+    credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if credentials_json:
+        try:
+            # Create a temporary file to store the credentials
+            temp_dir = tempfile.gettempdir()
+            # Ensure the filename is unique or consistent for simple app startup
+            temp_credentials_path = os.path.join(temp_dir, "gcp_credentials.json")
+
+            with open(temp_credentials_path, "w") as f:
+                f.write(credentials_json)
+
+            # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
+            # so Google Cloud libraries can find it
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_credentials_path
+            print(f"Google Cloud credentials loaded from temporary file: {temp_credentials_path}")
+        except Exception as e:
+            print(f"Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON: {e}")
+    else:
+        print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is empty.")
+else:
+    print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found.")
+
 
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
