@@ -140,7 +140,7 @@ app = Flask(__name__)
 # --- Configuration ---
 # Use environment variables for sensitive data and configuration in production.
 # Provide a default for local development, but ensure these are set in Vercel.
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///nova7.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
