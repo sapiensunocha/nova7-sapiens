@@ -1,1 +1,8 @@
-{"scripts":{"build-tailwind":"node build-tailwind.js"},"devDependencies":{"@tailwindcss/postcss":"^4.1.11"}}
+{
+  "scripts": {
+    "build": "node build-tailwind.js" 
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11"
+  }
+}
