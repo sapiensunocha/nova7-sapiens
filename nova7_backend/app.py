@@ -67,7 +67,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL_INTERNAL',
-    'postgresql://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
+    'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
