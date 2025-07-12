@@ -509,7 +509,7 @@
 
             async function fetchCsrfToken() {
                 try {
-                    const response = await fetch('https://nova7.onrender.com/api/csrf-token');
+                    const response = await fetch('https://nova7-backend-green.vercel.app/api/csrf-token');
                     const data = await response.json();
                     return data.csrf_token;
                 } catch (error) {

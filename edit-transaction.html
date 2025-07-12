@@ -307,7 +307,7 @@
 
             // Fetch initial CSRF token
             try {
-                const csrfResponse = await fetch("https://nova7.onrender.com/api/csrf-token", {
+                const csrfResponse = await fetch("https://nova7-backend-green.vercel.app/api/csrf-token", {
                     method: "GET",
                     credentials: "include"
                 });

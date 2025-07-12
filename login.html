@@ -146,7 +146,7 @@
             // --- Dynamic API Base URL for local testing vs. deployment ---
             const API_BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
                                  ? "http://127.0.0.1:5005" // Local development backend
-                                 : "https://nova7.onrender.com"; // Deployed backend
+                                 : "https://nova7-backend-green.vercel.app"; // Deployed backend
             console.log("Using API Base URL:", API_BASE_URL); // Log the determined API URL
 
             const loginForm = document.getElementById("loginForm");
