@@ -142,10 +142,12 @@ jwt = JWTManager(app)
 # --- NEW: Flask SECRET_KEY for CSRF protection and session management ---
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'your-secure-csrf-secret-key-2025-nova7' # Ensure this is set in .env
 
-# CORS Configuration
+## CORS Configuration
 # Ensure this allows your frontend origin(s)
-CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app').split(',')
-CORS(app, resources={r"/api/*": {"origins": ["https://nova7-frontend.onrender.com"], "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app,https://nova7-frontend.onrender.com').split(',')
+#                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Ensure your Render frontend URL is here
+CORS(app, resources={r"/api/*": {"origins": CORS_ORIGINS, "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
+#                                                        ^^^^^^^^^^^^^^^^^^ Change this to use the variable
 print(f"Allowed CORS origins: {CORS_ORIGINS}")
 
 # CSRF Protection (if using Flask-WTF CSRF)
