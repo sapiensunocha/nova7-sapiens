@@ -86,7 +86,12 @@ jwt = JWTManager(app)
 
 # CORS Configuration
 CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://127.0.0.1:5501,http://127.0.0.1:5500,https://nova7.vercel.app,https://nova7-frontend.onrender.com').split(',')
-CORS(app, resources={r"/api/*": {"origins": CORS_ORIGINS, "supports_credentials": True, "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
+CORS(app, resources={r"/api/*": {
+    "origins": ["https://nova7-frontend.onrender.com", "http://127.0.0.1:5500", "http://127.0.0.1:5501"],
+    "supports_credentials": True,
+    "allow_headers": ["Content-Type", "Authorization", "X-CSRFToken", "x-csrftoken", "X-CSRF-Token", "x-csrf-token"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}})
 print(f"Allowed CORS origins: {CORS_ORIGINS}")
 
 csrf = CSRFProtect(app)
