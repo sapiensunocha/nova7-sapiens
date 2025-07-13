@@ -202,6 +202,18 @@ def expired_token_callback(jwt_header, jwt_payload):
     print("JWT Expired Token")
     return jsonify({"status": "error", "message": "Token expired."}), 401
 
+@app.route('/api/debug-env-vars', methods=['GET'])
+def debug_env_vars():
+    secret_key_val = os.getenv('SECRET_KEY')
+    cors_origins_val = os.getenv('CORS_ORIGINS')
+    
+    # Return a JSON response with the values
+    return jsonify({
+        "status": "success",
+        "SECRET_KEY_READ": secret_key_val if secret_key_val else "NOT_SET_OR_EMPTY",
+        "CORS_ORIGINS_READ": cors_origins_val if cors_origins_val else "NOT_SET_OR_EMPTY"
+    })
+
 # --- Models ---
 # Your existing models remain here
 class User(db.Model):
