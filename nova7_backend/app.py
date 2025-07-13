@@ -74,11 +74,12 @@ print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")
 # --- CORS Configuration ---
 CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-fawn.vercel.app,http://127.0.0.1:5500,http://127.0.0.1:5501').split(',')
 
+# Define a function to dynamically determine the allowed origin
 def get_cors_origin_dynamic():
     origin = request.headers.get('Origin')
     if origin and origin in CORS_ORIGINS:
-        return origin
-    return []
+        return [origin] # <--- CORRECTED: ALWAYS RETURN A LIST
+    return [] # This is already a list
 
 CORS(app, resources={r"/api/*": {
     "origins": get_cors_origin_dynamic,
