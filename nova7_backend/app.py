@@ -30,6 +30,13 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app) # Assuming you have this imported (from flask_jwt_extended import JWTManager)
+csrf = CSRFProtect(app)
+db = SQLAlchemy(app) # This is the ONE AND ONLY SQLAlchemy initialization
+migrate = Migrate(app, db) # Ensure migrate is initialized after db
+mail = Mail(app) # Assuming you have this imported (from flask_mail import Mail)
+
 
 # --- Gemini API Setup ---
 GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
@@ -102,10 +109,6 @@ CORS(app, resources={r"/api/*": {
 }})
 print(f"Allowed CORS origins: {CORS_ORIGINS}")
 
-csrf = CSRFProtect(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-mail = Mail(app)
 
 # --- Upload Folder ---
 UPLOAD_FOLDER = '/tmp/uploads'
@@ -162,9 +165,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # --- Initialize Extensions ---
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-jwt = JWTManager(app)
+
 
 # Configure CORS for your frontend domains
 # Ensure these origins are exactly what your frontend uses (e.g., "https://your-frontend-domain.vercel.app")
