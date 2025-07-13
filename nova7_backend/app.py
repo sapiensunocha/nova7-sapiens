@@ -80,8 +80,7 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'no-reply@nova7.com')
 
 # --- Init Extensions ---
-jwt = JWTManager(app)
-CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-frontend.onrender.com,http://127.0.0.1:5500,http://127.0.0.1:5501,https://nova7.vercel.app').split(',')
+CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-fawn.vercel.app,http://127.0.0.1:5500,http://127.0.0.1:5501').split(',')
 CORS(app, resources={r"/api/*": {
     "origins": CORS_ORIGINS,
     "supports_credentials": True,
