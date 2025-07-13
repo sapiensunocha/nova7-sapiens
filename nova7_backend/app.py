@@ -497,18 +497,24 @@ def drop_alembic_version():
         print(f"Error dropping alembic_version table: {e}")
         return jsonify({"status": "error", "message": f"Error dropping alembic_version table: {str(e)}"}), 500
 
-@app.route('/api/csrf-token', methods=['GET'])
+@app.route('/api/csrf-token', methods=['GET', 'OPTIONS'])
+@csrf.exempt
 def get_csrf_token():
-    # Ensure SECRET_KEY is set in app.config for generate_csrf to work
-    if not app.config.get('SECRET_KEY'):
-        print("Error: Flask SECRET_KEY is not configured. CSRF token generation will fail.")
-        return jsonify({"status": "error", "message": "Server configuration error: SECRET_KEY missing."}), 500
-    
-    try: # Added try-except around generate_csrf
+    if request.method == 'OPTIONS':
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "https://nova7-fawn.vercel.app")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token")
+        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 200
+
+    try:
         token = generate_csrf()
-        response = jsonify({'csrf_token': token, 'status': 'success'}) # Ensure status is always present
-        response.headers.set('X-CSRFToken', token) # Set in header for frontend to read easily
-        return response
+        response = jsonify({'csrf_token': token, 'status': 'success'})
+        response.headers.set('Access-Control-Allow-Origin', 'https://nova7-fawn.vercel.app')
+        response.headers.set('Access-Control-Allow-Credentials', 'true')
+        response.headers.set('X-CSRF-Token', token)
+        return response, 200
     except Exception as e:
         print(f"Error generating CSRF token: {e}")
         return jsonify({"status": "error", "message": f"Failed to generate CSRF token: {str(e)}"}), 500
