@@ -29,6 +29,8 @@ from flask_wtf.csrf import generate_csrf
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
+
 # --- Gemini API Setup ---
 GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
 genai.configure(api_key=GEMINI_API_KEY)
@@ -64,7 +66,6 @@ else:
 # --- App Config ---
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-jwt-key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL_INTERNAL',
     'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
@@ -143,10 +144,6 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token, create_refresh_token, decode_token
 from flask_cors import CORS
 # from google.cloud import storage # Uncomment if you're directly using Google Cloud Storage client
-
-# --- App Initialization ---
-app = Flask(__name__)
-
 # --- Configuration ---
 # Use environment variables for sensitive data and configuration in production.
 # Provide a default for local development, but ensure these are set in Vercel.
