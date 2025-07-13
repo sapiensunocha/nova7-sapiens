@@ -478,6 +478,14 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all() # This creates tables based on your models
     app.run(debug=False, host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
+    
+@app.route('/api/debug-env', methods=['GET'])
+def debug_env():
+    return jsonify({
+        "status": "success",
+        "secret_key": os.getenv('SECRET_KEY', 'Not found'),
+        "cors_origins": os.getenv('CORS_ORIGINS', 'Not found')
+    })
 
 @app.route('/drop_alembic_version', methods=['POST'])
 def drop_alembic_version():
