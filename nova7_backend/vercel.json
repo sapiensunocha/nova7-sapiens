@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "nova7_backend/app.py",
+      "src": "app.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -10,33 +10,33 @@
       }
     },
     {
-      "src": "nova7_backend/static/**",
+      "src": "static/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "nova7_backend/static/$1"
+      "dest": "static/$1"
     },
     {
       "src": "/favicon\\.(ico|png)",
-      "dest": "nova7_backend/static/favicon.$1"
+      "dest": "static/favicon.$1"
     },
     {
       "src": "/api/(.*)",
-      "dest": "nova7_backend/app.py",
+      "dest": "app.py",
       "headers": {
         "Cache-Control": "no-cache"
       }
     },
     {
       "src": "/(.*)",
-      "dest": "nova7_backend/app.py"
+      "dest": "app.py"
     }
   ],
-  "installCommand": "pip install -r nova7_backend/requirements.txt",
-  "buildCommand": "pip install -r nova7_backend/requirements.txt && flask db upgrade",
+  "installCommand": "pip install -r requirements.txt",
+  "buildCommand": "pip install -r requirements.txt && flask db upgrade",
   "env": {
     "PYTHONUNBUFFERED": "1"
   }
