@@ -80,9 +80,20 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'no-reply@nova7.com')
 
 # --- Init Extensions ---
+# Assuming 'request' is imported from flask (e.g., 'from flask import Flask, jsonify, request')
+# Assuming 'os' is imported (e.g., 'import os')
+
 CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-fawn.vercel.app,http://127.0.0.1:5500,http://127.0.0.1:5501').split(',')
+
+# Define a function to dynamically determine the allowed origin
+def get_cors_origin_dynamic():
+    origin = request.headers.get('Origin')
+    if origin and origin in CORS_ORIGINS:
+        return origin
+    return [] # Return an empty list if the origin is not in our allowed list
+
 CORS(app, resources={r"/api/*": {
-    "origins": CORS_ORIGINS,
+    "origins": get_cors_origin_dynamic, # <-- THIS IS THE KEY CHANGE
     "supports_credentials": True,
     "allow_headers": ["Content-Type", "Authorization", "X-CSRF-Token", "x-csrf-token"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
