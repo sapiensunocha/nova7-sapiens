@@ -1,3 +1,6 @@
+# In nova7_backend/app.py, starting from the imports and Flask app init
+# (Ensure all necessary imports are at the very top, as you had them)
+
 import os
 from dotenv import load_dotenv
 import csv
@@ -13,7 +16,7 @@ from flask_jwt_extended import (
     create_access_token, JWTManager, jwt_required, get_jwt_identity, decode_token
 )
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf # KEEP this one, it's correct
 from functools import wraps
 from werkzeug.utils import secure_filename
 from google.cloud import storage
@@ -23,61 +26,22 @@ import tempfile
 from flask_migrate import Migrate
 import logging
 from flask_bcrypt import Bcrypt
-from flask_wtf.csrf import generate_csrf
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
-bcrypt = Bcrypt(app)
 
+# --- App Configuration (ALL config lines should be here, *before* extensions that depend on them) ---
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secure-csrf-secret-key-2025-nova7')
-bcrypt = Bcrypt(app)
-jwt = JWTManager(app) # Assuming you have this imported (from flask_jwt_extended import JWTManager)
-csrf = CSRFProtect(app)
-db = SQLAlchemy(app) # This is the ONE AND ONLY SQLAlchemy initialization
-migrate = Migrate(app, db) # Ensure migrate is initialized after db
-mail = Mail(app) # Assuming you have this imported (from flask_mail import Mail)
 
+# IMPORTANT: SQLALCHEMY_DATABASE_URI MUST BE SET *before* db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', # Use DATABASE_URL for Vercel, as previously discussed
+    'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require' # Fallback for local dev if DATABASE_URL is not set
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Recommended to suppress warning
 
-# --- Gemini API Setup ---
-GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
-genai.configure(api_key=GEMINI_API_KEY)
-print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")
-
-# --- Google Cloud Auth from JSON env var ---
-if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
-    credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    if credentials_json:
-        try:
-            temp_dir = tempfile.gettempdir()
-            temp_credentials_path = os.path.join(temp_dir, "gcp_credentials.json")
-            with open(temp_credentials_path, "w") as f:
-                f.write(credentials_json)
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_credentials_path
-            print(f"Google Cloud credentials loaded from: {temp_credentials_path}")
-        except Exception as e:
-            print(f"Error processing GOOGLE_APPLICATION_CREDENTIALS_JSON: {e}")
-    else:
-        print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is empty.")
-else:
-    print("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable not found.")
-
-# --- Load .env ---
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-dotenv_path = os.path.join(BASE_DIR, '.env')
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-    print(f"Loaded .env file from: {dotenv_path}")
-else:
-    print(f"Warning: .env file not found at {dotenv_path}")
-
-# --- App Config ---
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-jwt-key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL_INTERNAL',
-    'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
-)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # --- Mail Config ---
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
@@ -87,28 +51,43 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'no-reply@nova7.com')
 
-# --- Init Extensions ---
-# Assuming 'request' is imported from flask (e.g., 'from flask import Flask, jsonify, request')
-# Assuming 'os' is imported (e.g., 'import os')
 
+# --- Initialize ALL Extensions ONCE (after app and its config are ready) ---
+bcrypt = Bcrypt(app) # MOVED HERE - now initialized only once and after configs
+jwt = JWTManager(app)
+csrf = CSRFProtect(app)
+db = SQLAlchemy(app) # This will now correctly find SQLALCHEMY_DATABASE_URI
+migrate = Migrate(app, db)
+mail = Mail(app)
+
+
+# --- Gemini API Setup ---
+# Consider moving GEMINI_API_KEY to app.config and using os.getenv
+GEMINI_API_KEY = "AIzaSyA-gi3C5e4ZnN5wLvX3h9XUEgAIyOtu6aw"
+genai.configure(api_key=GEMINI_API_KEY)
+print(f"Gemini API configured with key: {GEMINI_API_KEY[:8]}...")
+
+# ... (the rest of your app.py file, including Google Cloud Auth, .env loading, and CORS setup, should follow here, unchanged from your last provided snippet) ...
+
+# For clarity, the CORS setup block is shown again below,
+# but it should already be correct in your file after the previous steps.
+# --- CORS Configuration ---
 CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'https://nova7-fawn.vercel.app,http://127.0.0.1:5500,http://127.0.0.1:5501').split(',')
 
-# Define a function to dynamically determine the allowed origin
 def get_cors_origin_dynamic():
     origin = request.headers.get('Origin')
     if origin and origin in CORS_ORIGINS:
         return origin
-    return [] # Return an empty list if the origin is not in our allowed list
+    return []
 
 CORS(app, resources={r"/api/*": {
-    "origins": get_cors_origin_dynamic, # <-- THIS IS THE KEY CHANGE
+    "origins": get_cors_origin_dynamic,
     "supports_credentials": True,
     "allow_headers": ["Content-Type", "Authorization", "X-CSRF-Token", "x-csrf-token"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "expose_headers": ["X-CSRF-Token"]
 }})
 print(f"Allowed CORS origins: {CORS_ORIGINS}")
-
 
 # --- Upload Folder ---
 UPLOAD_FOLDER = '/tmp/uploads'
@@ -143,14 +122,12 @@ from functools import wraps
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token, create_refresh_token, decode_token
 from flask_cors import CORS
 # from google.cloud import storage # Uncomment if you're directly using Google Cloud Storage client
 # --- Configuration ---
 # Use environment variables for sensitive data and configuration in production.
 # Provide a default for local development, but ensure these are set in Vercel.
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql+pg8000://neondb_owner:npg_KWJLx8l6UiEj@ep-winter-bush-a8i3nb89-pooler.eastus2.azure.neon.tech/neondb?sslmode=require')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
@@ -638,8 +615,6 @@ def register_user():
         return jsonify({"status": "error", "message": f"An error occurred during registration: {str(e)}"}), 500
 
 from flask_bcrypt import Bcrypt
-
-bcrypt = Bcrypt(app)
 
 from werkzeug.security import check_password_hash  # import at the top
 
